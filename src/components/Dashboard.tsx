@@ -36,40 +36,96 @@ import { motion } from 'motion/react';
 import { TransactionForm } from './TransactionForm';
 import { Insights } from './Insights';
 
-const categoryData = [
-// ... (rest of the data)
-  { name: 'Alimentação', value: 800, color: '#10b981' },
-  { name: 'Moradia', value: 1200, color: '#3b82f6' },
-  { name: 'Lazer', value: 450, color: '#f59e0b' },
-  { name: 'Transporte', value: 200, color: '#6366f1' },
-];
+const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
-const evolutionData = [
-  { name: 'Jan', saldo: 1800 },
-  { name: 'Fev', saldo: 2100 },
-  { name: 'Mar', saldo: 1950 },
-  { name: 'Abr', saldo: 2350 },
-];
-
-const comparisonData = [
-  { name: 'Jan', receita: 4500, despesa: 2700 },
-  { name: 'Fev', receita: 4800, despesa: 2700 },
-  { name: 'Mar', receita: 5000, despesa: 3050 },
-  { name: 'Abr', receita: 5000, despesa: 2650 },
-];
+interface Transaction {
+  type: 'income' | 'expense';
+  amount: string;
+  category: string;
+  date: string;
+  description: string;
+}
 
 interface DashboardProps {
   onLogout: () => void;
+  userName: string;
 }
 
-export const Dashboard = ({ onLogout }: DashboardProps) => {
+export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isTransactionFormOpen, setIsTransactionFormOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState('Dashboard');
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
 
-  const handleSaveTransaction = (data: any) => {
-    console.log('Transação salva:', data);
+  const handleSaveTransaction = (data: Transaction) => {
+    setTransactions(prev => [...prev, data]);
   };
+
+  // Calculate Stats
+  const stats = React.useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    
+    transactions.forEach(t => {
+      const val = parseFloat(t.amount) || 0;
+      if (t.type === 'income') income += val;
+      else expense += val;
+    });
+
+    const balance = income - expense;
+    const percentSpent = income > 0 ? Math.round((expense / income) * 100) : 0;
+
+    return { income, expense, balance, percentSpent };
+  }, [transactions]);
+
+  // Calculate Category Data for Pie Chart
+  const categoryData = React.useMemo(() => {
+    const groups: Record<string, number> = {};
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+      groups[t.category] = (groups[t.category] || 0) + parseFloat(t.amount);
+    });
+
+    return Object.entries(groups).map(([name, value], index) => ({
+      name,
+      value,
+      color: COLORS[index % COLORS.length]
+    }));
+  }, [transactions]);
+
+  // Calculate Monthly Data for Line and Bar Charts
+  const monthlyData = React.useMemo(() => {
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const groups: Record<string, { receita: number, despesa: number, saldo: number }> = {};
+    
+    // Initialize current and past 3 months if empty, or just show months with data
+    const currentMonthIndex = new Date().getMonth();
+    for (let i = 3; i >= 0; i--) {
+      const m = months[(currentMonthIndex - i + 12) % 12];
+      groups[m] = { receita: 0, despesa: 0, saldo: 0 };
+    }
+
+    transactions.forEach(t => {
+      const date = new Date(t.date);
+      const m = months[date.getMonth()];
+      const val = parseFloat(t.amount) || 0;
+      
+      if (!groups[m]) groups[m] = { receita: 0, despesa: 0, saldo: 0 };
+      
+      if (t.type === 'income') groups[m].receita += val;
+      else groups[m].despesa += val;
+      
+      groups[m].saldo = groups[m].receita - groups[m].despesa;
+    });
+
+    return Object.entries(groups).map(([name, data]) => ({
+      name,
+      ...data
+    })).sort((a, b) => {
+      const indexA = months.indexOf(a.name);
+      const indexB = months.indexOf(b.name);
+      return indexA - indexB;
+    });
+  }, [transactions]);
 
   const menuItems = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
@@ -144,7 +200,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Olá, Adriano 👋</h1>
+                <h1 className="text-xl font-bold text-slate-900">Olá, {userName} 👋</h1>
                 <p className="text-sm text-slate-500">Bem-vindo de volta ao seu controle financeiro.</p>
               </div>
             </div>
@@ -172,7 +228,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
               <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-slate-900">Saldo atual</p>
-                  <p className="text-lg font-bold text-emerald-600">R$ 2.350,00</p>
+                  <p className="text-lg font-bold text-emerald-600">R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                 </div>
                 <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden">
                   <img src="https://picsum.photos/seed/user/100/100" alt="Avatar" referrerPolicy="no-referrer" />
@@ -189,32 +245,32 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard 
                   title="Receita do mês" 
-                  value="R$ 5.000,00" 
-                  trend="+12%" 
+                  value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
+                  trend="+0%" 
                   trendUp={true} 
                   icon={<TrendingUp className="text-emerald-600" />} 
                   bgColor="bg-emerald-50"
                 />
                 <StatCard 
                   title="Despesas do mês" 
-                  value="R$ 2.650,00" 
-                  trend="+5%" 
+                  value={`R$ ${stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
+                  trend="+0%" 
                   trendUp={false} 
                   icon={<TrendingDown className="text-red-600" />} 
                   bgColor="bg-red-50"
                 />
                 <StatCard 
                   title="Economia" 
-                  value="R$ 2.350,00" 
-                  trend="+15%" 
+                  value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
+                  trend="+0%" 
                   trendUp={true} 
                   icon={<Wallet className="text-blue-600" />} 
                   bgColor="bg-blue-50"
                 />
                 <StatCard 
                   title="Percentual gasto" 
-                  value="53%" 
-                  trend="-2%" 
+                  value={`${stats.percentSpent}%`} 
+                  trend="0%" 
                   trendUp={true} 
                   icon={<PieChartIcon className="text-amber-600" />} 
                   bgColor="bg-amber-50"
@@ -264,7 +320,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Evolução do saldo mensal</h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={evolutionData}>
+                      <LineChart data={monthlyData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
@@ -289,7 +345,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Receita vs despesas</h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={comparisonData}>
+                      <BarChart data={monthlyData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />

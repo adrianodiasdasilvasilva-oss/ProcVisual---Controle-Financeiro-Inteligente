@@ -4,12 +4,14 @@ import { motion } from 'motion/react';
 
 interface AuthProps {
   onBack: () => void;
-  onLoginSuccess: () => void;
+  onLoginSuccess: (userName: string) => void;
   initialMode?: 'login' | 'signup';
 }
 
 export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProps) => {
   const [mode, setMode] = React.useState<'login' | 'signup'>(initialMode);
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -19,7 +21,9 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      onLoginSuccess();
+      // If login, use a default name if not provided, if signup use the provided name
+      const userName = mode === 'signup' ? name : (email.split('@')[0] || 'Usuário');
+      onLoginSuccess(userName);
     }, 1000);
   };
 
@@ -96,6 +100,8 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
                     type="text" 
                     placeholder="Seu nome"
                     required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                   />
                 </div>
@@ -109,6 +115,8 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
                     type="email" 
                     placeholder="seu@email.com"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                   />
                 </div>

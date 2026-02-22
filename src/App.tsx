@@ -11,6 +11,7 @@ import { Dashboard } from './components/Dashboard';
 export default function App() {
   const [view, setView] = React.useState<'landing' | 'auth' | 'dashboard'>('landing');
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
+  const [userName, setUserName] = React.useState('');
 
   const handleLogin = () => {
     setAuthMode('login');
@@ -26,7 +27,8 @@ export default function App() {
     setView('landing');
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (name: string) => {
+    setUserName(name);
     setView('dashboard');
   };
 
@@ -35,7 +37,7 @@ export default function App() {
   };
 
   if (view === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} />;
+    return <Dashboard onLogout={handleLogout} userName={userName} />;
   }
 
   if (view === 'auth') {
