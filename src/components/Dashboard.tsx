@@ -127,6 +127,57 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
     });
   }, [transactions]);
 
+  const alerts = React.useMemo(() => {
+    const list: any[] = [];
+    
+    if (transactions.length === 0) {
+      list.push({
+        type: 'info',
+        message: 'Bem-vindo!',
+        description: 'Comece adicionando sua primeira transação para ver insights reais.'
+      });
+      return list;
+    }
+
+    // Alert: High spending in a category
+    categoryData.forEach(cat => {
+      const percentage = stats.expense > 0 ? (cat.value / stats.expense) * 100 : 0;
+      if (percentage > 40) {
+        list.push({
+          type: 'warning',
+          message: `Gasto alto em ${cat.name}`,
+          description: `Esta categoria representa ${Math.round(percentage)}% das suas despesas totais.`
+        });
+      }
+    });
+
+    // Alert: Savings goal
+    if (stats.balance > 0) {
+      list.push({
+        type: 'success',
+        message: 'Saldo positivo!',
+        description: `Você economizou R$ ${stats.balance.toLocaleString('pt-BR')} até agora.`
+      });
+    } else if (stats.balance < 0) {
+      list.push({
+        type: 'warning',
+        message: 'Atenção ao saldo',
+        description: 'Suas despesas superaram suas receitas este mês.'
+      });
+    }
+
+    // Alert: General Insight
+    if (stats.percentSpent > 80) {
+      list.push({
+        type: 'warning',
+        message: 'Limite de gastos próximo',
+        description: `Você já gastou ${stats.percentSpent}% da sua receita total.`
+      });
+    }
+
+    return list.slice(0, 3); // Show top 3 alerts
+  }, [transactions, stats, categoryData]);
+
   const menuItems = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
@@ -365,21 +416,14 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                 <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Alertas e Insights</h3>
                   <div className="space-y-4">
-                    <AlertItem 
-                      type="warning" 
-                      message="Você gastou 30% em lazer" 
-                      description="Isso está acima da sua meta de 20% para esta categoria."
-                    />
-                    <AlertItem 
-                      type="info" 
-                      message="Seus gastos aumentaram 15%" 
-                      description="Comparado ao mesmo período do mês passado."
-                    />
-                    <AlertItem 
-                      type="success" 
-                      message="Meta de economia atingida!" 
-                      description="Parabéns! Você guardou R$ 2.350 este mês."
-                    />
+                    {alerts.map((alert, i) => (
+                      <AlertItem 
+                        key={i}
+                        type={alert.type} 
+                        message={alert.message} 
+                        description={alert.description}
+                      />
+                    ))}
                   </div>
                   <button className="w-full mt-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
                     Ver todos os alertas
@@ -388,7 +432,7 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
               </div>
             </>
           ) : activeTab === 'Relatórios' ? (
-            <Insights />
+            <Insights transactions={transactions} stats={stats} categoryData={categoryData} />
           ) : (
             <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
               <Info className="w-12 h-12 mb-4" />

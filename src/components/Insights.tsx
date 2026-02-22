@@ -7,7 +7,8 @@ import {
   Target, 
   Sparkles,
   DollarSign,
-  Info
+  Info,
+  PieChart as PieChartIcon
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -27,23 +28,52 @@ import {
 } from 'recharts';
 import { motion } from 'motion/react';
 
-const categoryData = [
-  { name: 'Delivery', value: 650, color: '#f43f5e' },
-  { name: 'Assinaturas', value: 150, color: '#8b5cf6' },
-  { name: 'Mercado', value: 1200, color: '#10b981' },
-  { name: 'Transporte', value: 300, color: '#3b82f6' },
-];
+interface InsightsProps {
+  transactions: any[];
+  stats: any;
+  categoryData: any[];
+}
 
-const monthlyComparison = [
-  { month: 'Jan', gastos: 2100, media: 2300 },
-  { month: 'Fev', gastos: 2400, media: 2300 },
-  { month: 'Mar', gastos: 2200, media: 2300 },
-  { month: 'Abr', gastos: 2650, media: 2300 },
-];
-
-export const Insights = () => {
+export const Insights = ({ transactions, stats, categoryData }: InsightsProps) => {
   const [monthlySaving, setMonthlySaving] = React.useState('500');
   const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
+
+  // Find highest expense category for a real insight
+  const topExpense = React.useMemo(() => {
+    if (categoryData.length === 0) return null;
+    return [...categoryData].sort((a, b) => b.value - a.value)[0];
+  }, [categoryData]);
+
+  // Calculate Monthly Data for Comparison
+  const monthlyComparison = React.useMemo(() => {
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const groups: Record<string, number> = {};
+    
+    // Past 4 months
+    const currentMonthIndex = new Date().getMonth();
+    const relevantMonths = [];
+    for (let i = 3; i >= 0; i--) {
+      const m = months[(currentMonthIndex - i + 12) % 12];
+      relevantMonths.push(m);
+      groups[m] = 0;
+    }
+
+    transactions.filter(t => t.type === 'expense').forEach(t => {
+      const date = new Date(t.date);
+      const m = months[date.getMonth()];
+      if (groups[m] !== undefined) {
+        groups[m] += parseFloat(t.amount);
+      }
+    });
+
+    const avg = Object.values(groups).reduce((a, b) => a + b, 0) / relevantMonths.length;
+
+    return relevantMonths.map(m => ({
+      month: m,
+      gastos: groups[m],
+      media: Math.round(avg)
+    }));
+  }, [transactions]);
 
   const calculateProjection = () => {
     const data = [];
@@ -89,10 +119,16 @@ export const Insights = () => {
           </div>
           <div className="flex-1 text-center md:text-left">
             <h3 className="text-2xl font-bold mb-2">Oportunidade de Economia</h3>
-            <p className="text-emerald-50 text-lg leading-relaxed">
-              Você poderia economizar <span className="font-bold text-white">R$ 400,00/mês</span> reduzindo gastos em delivery. 
-              Esse valor investido renderia <span className="font-bold text-white">R$ 5.120,00</span> em um ano.
-            </p>
+            {topExpense ? (
+              <p className="text-emerald-50 text-lg leading-relaxed">
+                Você poderia economizar <span className="font-bold text-white">R$ {(topExpense.value * 0.2).toLocaleString('pt-BR')}/mês</span> reduzindo gastos em <span className="font-bold text-white">{topExpense.name.toLowerCase()}</span> em 20%. 
+                Esse valor investido renderia <span className="font-bold text-white">R$ {(topExpense.value * 0.2 * 12.8).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span> em um ano.
+              </p>
+            ) : (
+              <p className="text-emerald-50 text-lg leading-relaxed">
+                Adicione suas despesas para que nossa IA identifique oportunidades de economia personalizadas para você.
+              </p>
+            )}
           </div>
           <button className="bg-white text-emerald-700 px-6 py-3 rounded-xl font-bold hover:bg-emerald-50 transition-all shrink-0">
             Ver Detalhes
@@ -101,6 +137,28 @@ export const Insights = () => {
         {/* Decorative background elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       </motion.div>
+
+      {/* Financial Health Analysis */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <HealthCard 
+          title="Reserva de Emergência"
+          status={stats.balance > 0 ? 'good' : 'warning'}
+          message={stats.balance > 0 ? 'Você está no caminho certo para construir sua reserva.' : 'Tente reduzir gastos supérfluos para começar sua reserva.'}
+          icon={<DollarSign className="w-5 h-5" />}
+        />
+        <HealthCard 
+          title="Diversificação"
+          status={categoryData.length > 3 ? 'good' : 'info'}
+          message={categoryData.length > 3 ? 'Seus gastos estão bem distribuídos.' : 'Você tem poucos registros de categorias diferentes.'}
+          icon={<PieChartIcon className="w-5 h-5" />}
+        />
+        <HealthCard 
+          title="Poder de Investimento"
+          status={stats.percentSpent < 70 ? 'good' : 'warning'}
+          message={stats.percentSpent < 70 ? 'Ótimo! Você tem margem para investir.' : 'Sua margem para investimentos está apertada.'}
+          icon={<TrendingUp className="w-5 h-5" />}
+        />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Monthly Comparison */}
@@ -214,6 +272,24 @@ export const Insights = () => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const HealthCard = ({ title, status, message, icon }: any) => {
+  const styles = {
+    good: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
+    warning: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
+    info: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
+  }[status as 'good' | 'warning' | 'info'];
+
+  return (
+    <div className={`p-6 rounded-3xl border ${styles.bg} ${styles.border} card-shadow`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${styles.bg} border ${styles.border}`}>
+        <div className={styles.text}>{icon}</div>
+      </div>
+      <h4 className="font-bold text-slate-900 mb-1">{title}</h4>
+      <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
     </div>
   );
 };
