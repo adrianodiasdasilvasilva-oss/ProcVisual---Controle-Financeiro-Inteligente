@@ -202,7 +202,7 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
           <div className="px-4 mb-6">
             <button 
               onClick={() => setIsTransactionFormOpen(true)}
-              className={`w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 ${!isSidebarOpen && 'px-0'}`}
+              className={`w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 ${!isSidebarOpen && 'px-0'}`}
             >
               <TrendingUp className="w-5 h-5" />
               {isSidebarOpen && <span>Nova Transação</span>}
@@ -214,13 +214,15 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
               <button
                 key={index}
                 onClick={() => setActiveTab(item.label)}
-                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all group ${
                   activeTab === item.label 
-                    ? 'bg-emerald-50 text-emerald-600' 
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' 
                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
-                {item.icon}
+                <div className={`${activeTab === item.label ? 'text-white' : 'text-slate-400 group-hover:text-slate-900'}`}>
+                  {item.icon}
+                </div>
                 {isSidebarOpen && <span className="font-medium">{item.label}</span>}
               </button>
             ))}
@@ -279,7 +281,9 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
               <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-slate-900">Saldo atual</p>
-                  <p className="text-lg font-bold text-emerald-600">R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden">
                   <img src="https://picsum.photos/seed/user/100/100" alt="Avatar" referrerPolicy="no-referrer" />
@@ -314,9 +318,10 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                   title="Economia" 
                   value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
                   trend="+0%" 
-                  trendUp={true} 
+                  trendUp={stats.balance >= 0} 
                   icon={<Wallet className="text-blue-600" />} 
                   bgColor="bg-blue-50"
+                  valueColor={stats.balance >= 0 ? 'text-slate-900' : 'text-red-600'}
                 />
                 <StatCard 
                   title="Percentual gasto" 
@@ -465,7 +470,7 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
   );
 };
 
-const StatCard = ({ title, value, trend, trendUp, icon, bgColor }: any) => (
+const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
     className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow"
@@ -480,7 +485,7 @@ const StatCard = ({ title, value, trend, trendUp, icon, bgColor }: any) => (
       </div>
     </div>
     <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-    <h4 className="text-2xl font-bold text-slate-900">{value}</h4>
+    <h4 className={`text-2xl font-bold ${valueColor || 'text-slate-900'}`}>{value}</h4>
   </motion.div>
 );
 
