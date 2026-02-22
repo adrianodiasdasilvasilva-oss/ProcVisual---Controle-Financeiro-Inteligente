@@ -397,26 +397,28 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                         </button>
                       </div>
                     ) : (
-                      <select 
-                        value={selectedYear}
-                        onChange={(e) => {
-                          if (e.target.value === 'custom') {
-                            setIsCustomYear(true);
-                          } else {
-                            setSelectedYear(parseInt(e.target.value));
-                          }
-                        }}
-                        className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 cursor-pointer"
-                      >
-                        <option value="-1">Todos os anos</option>
-                        {years.map((year) => (
-                          <option key={year} value={year}>{year}</option>
-                        ))}
-                        {selectedYear !== -1 && !years.includes(selectedYear) && (
-                          <option value={selectedYear}>{selectedYear}</option>
-                        )}
-                        <option value="custom">Personalizar...</option>
-                      </select>
+                      <div className="flex items-center">
+                        <select 
+                          value={selectedYear}
+                          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                          className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 cursor-pointer"
+                        >
+                          <option value="-1">Todos os anos</option>
+                          {years.map((year) => (
+                            <option key={year} value={year}>{year}</option>
+                          ))}
+                          {selectedYear !== -1 && !years.includes(selectedYear) && (
+                            <option value={selectedYear}>{selectedYear}</option>
+                          )}
+                        </select>
+                        <button 
+                          onClick={() => setIsCustomYear(true)}
+                          className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
+                          title="Personalizar ano"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>

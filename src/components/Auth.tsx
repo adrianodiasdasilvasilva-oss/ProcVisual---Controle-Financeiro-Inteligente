@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { LayoutDashboard, ArrowLeft, Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface AuthProps {
@@ -11,6 +11,7 @@ interface AuthProps {
 export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProps) => {
   const [mode, setMode] = React.useState<'login' | 'signup'>(initialMode);
   const [name, setName] = React.useState('');
+  const [phone, setPhone] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -94,17 +95,33 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               {mode === 'signup' && (
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Nome completo</label>
-                  <input 
-                    type="text" 
-                    placeholder="Seu nome"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Nome completo</label>
+                    <input 
+                      type="text" 
+                      placeholder="Seu nome"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Celular</label>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="tel" 
+                        placeholder="(00) 00000-0000"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </>
               )}
 
               <div>
