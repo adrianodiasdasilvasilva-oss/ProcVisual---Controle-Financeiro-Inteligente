@@ -15,7 +15,8 @@ import {
   AlertTriangle,
   Menu,
   X,
-  Info
+  Info,
+  Calendar
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -44,6 +45,7 @@ interface Transaction {
   category: string;
   date: string;
   description: string;
+  installments?: string;
 }
 
 interface DashboardProps {
@@ -56,17 +58,57 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
   const [isTransactionFormOpen, setIsTransactionFormOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState('Dashboard');
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
+  const [selectedMonth, setSelectedMonth] = React.useState<number>(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
+  const [isCustomYear, setIsCustomYear] = React.useState(false);
 
-  const handleSaveTransaction = (data: Transaction) => {
-    setTransactions(prev => [...prev, data]);
+  const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
+
+  const handleSaveTransaction = (data: any) => {
+    const numInstallments = parseInt(data.installments) || 1;
+    
+    if (numInstallments <= 1) {
+      setTransactions(prev => [...prev, data]);
+    } else {
+      const newTransactions: Transaction[] = [];
+      const baseDate = new Date(data.date);
+      // Ensure we use UTC or local consistently. TransactionForm uses local date string.
+      // We'll parse it and increment months.
+      const [year, month, day] = data.date.split('-').map(Number);
+      
+      const fullAmount = parseFloat(data.amount) || 0;
+
+      for (let i = 0; i < numInstallments; i++) {
+        const d = new Date(year, month - 1 + i, day);
+        const formattedDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        
+        newTransactions.push({
+          ...data,
+          amount: fullAmount.toString(),
+          date: formattedDate,
+          description: `${data.description} (${i + 1}/${numInstallments})`
+        });
+      }
+      setTransactions(prev => [...prev, ...newTransactions]);
+    }
   };
+
+  const filteredTransactions = React.useMemo(() => {
+    return transactions.filter(t => {
+      const date = new Date(t.date);
+      const monthMatch = selectedMonth === -1 || date.getMonth() === selectedMonth;
+      const yearMatch = selectedYear === -1 || date.getFullYear() === selectedYear;
+      return monthMatch && yearMatch;
+    });
+  }, [transactions, selectedMonth, selectedYear]);
 
   // Calculate Stats
   const stats = React.useMemo(() => {
     let income = 0;
     let expense = 0;
     
-    transactions.forEach(t => {
+    filteredTransactions.forEach(t => {
       const val = parseFloat(t.amount) || 0;
       if (t.type === 'income') income += val;
       else expense += val;
@@ -76,12 +118,12 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
     const percentSpent = income > 0 ? Math.round((expense / income) * 100) : 0;
 
     return { income, expense, balance, percentSpent };
-  }, [transactions]);
+  }, [filteredTransactions]);
 
   // Calculate Category Data for Pie Chart
   const categoryData = React.useMemo(() => {
     const groups: Record<string, number> = {};
-    transactions.filter(t => t.type === 'expense').forEach(t => {
+    filteredTransactions.filter(t => t.type === 'expense').forEach(t => {
       groups[t.category] = (groups[t.category] || 0) + parseFloat(t.amount);
     });
 
@@ -90,42 +132,62 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
       value,
       color: COLORS[index % COLORS.length]
     }));
-  }, [transactions]);
+  }, [filteredTransactions]);
 
-  // Calculate Monthly Data for Line and Bar Charts
-  const monthlyData = React.useMemo(() => {
-    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const groups: Record<string, { receita: number, despesa: number, saldo: number }> = {};
-    
-    // Initialize current and past 3 months if empty, or just show months with data
-    const currentMonthIndex = new Date().getMonth();
-    for (let i = 3; i >= 0; i--) {
-      const m = months[(currentMonthIndex - i + 12) % 12];
-      groups[m] = { receita: 0, despesa: 0, saldo: 0 };
+  // Calculate Chart Data (Daily or Monthly depending on filter)
+  const chartData = React.useMemo(() => {
+    if (selectedMonth !== -1) {
+      // Daily evolution for selected month
+      const year = selectedYear === -1 ? new Date().getFullYear() : selectedYear;
+      const daysInMonth = new Date(year, selectedMonth + 1, 0).getDate();
+      const data = [];
+      
+      for (let i = 1; i <= daysInMonth; i++) {
+        data.push({
+          name: `${i}`,
+          receita: 0,
+          despesa: 0,
+          saldo: 0
+        });
+      }
+
+      filteredTransactions.forEach(t => {
+        const date = new Date(t.date);
+        const day = date.getDate();
+        const val = parseFloat(t.amount) || 0;
+        
+        if (data[day - 1]) {
+          if (t.type === 'income') data[day - 1].receita += val;
+          else data[day - 1].despesa += val;
+        }
+      });
+
+      let cumulativeSaldo = 0;
+      return data.map(d => {
+        cumulativeSaldo += (d.receita - d.despesa);
+        return { ...d, saldo: cumulativeSaldo };
+      });
+    } else {
+      // Monthly evolution
+      const shortMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const data = shortMonths.map(m => ({ name: m, receita: 0, despesa: 0, saldo: 0 }));
+
+      filteredTransactions.forEach(t => {
+        const date = new Date(t.date);
+        const monthIndex = date.getMonth();
+        const val = parseFloat(t.amount) || 0;
+        
+        if (t.type === 'income') data[monthIndex].receita += val;
+        else data[monthIndex].despesa += val;
+      });
+
+      let cumulativeSaldo = 0;
+      return data.map(d => {
+        cumulativeSaldo += (d.receita - d.despesa);
+        return { ...d, saldo: cumulativeSaldo };
+      });
     }
-
-    transactions.forEach(t => {
-      const date = new Date(t.date);
-      const m = months[date.getMonth()];
-      const val = parseFloat(t.amount) || 0;
-      
-      if (!groups[m]) groups[m] = { receita: 0, despesa: 0, saldo: 0 };
-      
-      if (t.type === 'income') groups[m].receita += val;
-      else groups[m].despesa += val;
-      
-      groups[m].saldo = groups[m].receita - groups[m].despesa;
-    });
-
-    return Object.entries(groups).map(([name, data]) => ({
-      name,
-      ...data
-    })).sort((a, b) => {
-      const indexA = months.indexOf(a.name);
-      const indexB = months.indexOf(b.name);
-      return indexA - indexB;
-    });
-  }, [transactions]);
+  }, [filteredTransactions, selectedMonth, selectedYear]);
 
   const alerts = React.useMemo(() => {
     const list: any[] = [];
@@ -205,7 +267,7 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
               className={`w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 ${!isSidebarOpen && 'px-0'}`}
             >
               <TrendingUp className="w-5 h-5" />
-              {isSidebarOpen && <span>Nova Transação</span>}
+              {isSidebarOpen && <span>Novo Lançamento</span>}
             </button>
           </div>
 
@@ -264,7 +326,7 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                 className="hidden sm:flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
               >
                 <TrendingUp className="w-4 h-4" />
-                Nova Transação
+                Novo Lançamento
               </button>
               <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2">
                 <Search className="w-4 h-4 text-slate-400" />
@@ -296,6 +358,70 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
         <div className="p-8 space-y-8">
           {activeTab === 'Dashboard' ? (
             <>
+              {/* Month & Year Filter */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <Calendar className="w-4 h-4 text-slate-400 ml-2" />
+                    <select 
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                      className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 pr-4 py-1 cursor-pointer"
+                    >
+                      <option value="-1">Todos os meses</option>
+                      {months.map((month, index) => (
+                        <option key={index} value={index}>{month}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                    {isCustomYear ? (
+                      <div className="flex items-center">
+                        <input 
+                          type="number"
+                          value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
+                          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                          className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 w-20"
+                          autoFocus
+                          onBlur={() => setIsCustomYear(false)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') setIsCustomYear(false);
+                          }}
+                        />
+                        <button 
+                          onClick={() => setIsCustomYear(false)}
+                          className="pr-2 text-slate-400 hover:text-slate-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <select 
+                        value={selectedYear}
+                        onChange={(e) => {
+                          if (e.target.value === 'custom') {
+                            setIsCustomYear(true);
+                          } else {
+                            setSelectedYear(parseInt(e.target.value));
+                          }
+                        }}
+                        className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 cursor-pointer"
+                      >
+                        <option value="-1">Todos os anos</option>
+                        {years.map((year) => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                        {selectedYear !== -1 && !years.includes(selectedYear) && (
+                          <option value={selectedYear}>{selectedYear}</option>
+                        )}
+                        <option value="custom">Personalizar...</option>
+                      </select>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard 
@@ -373,10 +499,12 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
 
                 {/* Line Chart */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">Evolução do saldo mensal</h3>
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">
+                    Evolução do saldo {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
+                  </h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={monthlyData}>
+                      <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
@@ -388,7 +516,7 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                           dataKey="saldo" 
                           stroke="#10b981" 
                           strokeWidth={4} 
-                          dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }}
+                          dot={false}
                           activeDot={{ r: 8 }}
                         />
                       </LineChart>
@@ -398,10 +526,12 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
 
                 {/* Bar Chart */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">Receita vs despesas</h3>
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">
+                    Receita vs despesas {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
+                  </h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={monthlyData}>
+                      <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
@@ -410,8 +540,8 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                           contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                         />
                         <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px' }} />
-                        <Bar dataKey="receita" name="Receita" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
-                        <Bar dataKey="despesa" name="Despesa" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                        <Bar dataKey="receita" name="Receita" fill="#10b981" radius={[4, 4, 0, 0]} barSize={10} />
+                        <Bar dataKey="despesa" name="Despesa" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={10} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -433,6 +563,54 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
                   <button className="w-full mt-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
                     Ver todos os alertas
                   </button>
+                </div>
+
+                {/* Recent Transactions Section */}
+                <div className="lg:col-span-3 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
+                    <button className="text-sm font-bold text-emerald-600 hover:underline">Ver todos</button>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                          <th className="pb-4 px-4">Data</th>
+                          <th className="pb-4 px-4">Descrição</th>
+                          <th className="pb-4 px-4">Categoria</th>
+                          <th className="pb-4 px-4 text-right">Valor</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {filteredTransactions.length > 0 ? (
+                          filteredTransactions.slice(0, 5).map((t, i) => (
+                            <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
+                              <td className="py-4 px-4 text-sm text-slate-500">
+                                {new Date(t.date).toLocaleDateString('pt-BR')}
+                              </td>
+                              <td className="py-4 px-4">
+                                <span className="text-sm font-bold text-slate-900">{t.description}</span>
+                              </td>
+                              <td className="py-4 px-4">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                  {t.category}
+                                </span>
+                              </td>
+                              <td className={`py-4 px-4 text-right font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+                                {t.type === 'income' ? '+' : '-'} R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="py-8 text-center text-slate-400 text-sm italic">
+                              Nenhum lançamento encontrado para este período.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </>
