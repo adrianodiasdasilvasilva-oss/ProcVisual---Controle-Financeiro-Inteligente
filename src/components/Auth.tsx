@@ -1,6 +1,12 @@
 import React from 'react';
-import { LayoutDashboard, ArrowLeft, Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
-import { motion } from 'motion/react';
+import { LayoutDashboard, ArrowLeft, Mail, Lock, Eye, EyeOff, Phone, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import emailjs from 'emailjs-com';
+
+const EMAILJS_PUBLIC_KEY = 'ZEkDn0JfN7ugWRzPW';
+const EMAILJS_SERVICE_ID = 'service_n2kfudg';
+const EMAILJS_WELCOME_TEMPLATE_ID = 'template_rlnfwq7';
+const EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID = 'template_di20fjt';
 
 interface AuthProps {
   onBack: () => void;
@@ -13,19 +19,71 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
   const [name, setName] = React.useState('');
   const [phone, setPhone] = React.useState('');
   const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = React.useState(false);
+  const [forgotPasswordData, setForgotPasswordData] = React.useState({ name: '', phone: '', email: '' });
+  const [message, setMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  React.useEffect(() => {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    setMessage(null);
+
+    try {
+      if (mode === 'signup') {
+        const templateParams = {
+          to_name: name,
+          to_phone: phone,
+          to_email: email,
+          password: password,
+        };
+
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_WELCOME_TEMPLATE_ID, templateParams);
+        setMessage({ text: "Conta criada com sucesso! Enviamos seus dados de acesso para seu email.", type: 'success' });
+      }
+
+      // Simulate API call delay
+      setTimeout(() => {
+        setIsLoading(false);
+        const userName = mode === 'signup' ? name : (email.split('@')[0] || 'Usuário');
+        onLoginSuccess(userName);
+      }, 1500);
+    } catch (error) {
+      console.error('Error sending email:', error);
       setIsLoading(false);
-      // If login, use a default name if not provided, if signup use the provided name
-      const userName = mode === 'signup' ? name : (email.split('@')[0] || 'Usuário');
-      onLoginSuccess(userName);
-    }, 1000);
+      setMessage({ text: "Não foi possível processar o cadastro. Tente novamente.", type: 'error' });
+    }
+  };
+
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const templateParams = {
+        to_name: forgotPasswordData.name,
+        to_phone: forgotPasswordData.phone,
+        to_email: forgotPasswordData.email,
+        reset_link: 'https://procvisual.com/reset-password',
+      };
+
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);
+      setMessage({ text: "Enviamos um link para redefinição de senha no seu email.", type: 'success' });
+      setIsForgotPasswordOpen(false);
+      setForgotPasswordData({ name: '', phone: '', email: '' });
+    } catch (error) {
+      console.error('Error sending forgot password email:', error);
+      setMessage({ text: "Não foi possível enviar o email. Tente novamente.", type: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -147,6 +205,8 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
                     type={showPassword ? "text" : "password"} 
                     placeholder="••••••••"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                   />
                   <button 
@@ -161,9 +221,21 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
               {mode === 'login' && (
                 <div className="flex justify-end">
-                  <button type="button" className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsForgotPasswordOpen(true)}
+                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                  >
                     Esqueceu a senha?
                   </button>
+                </div>
+              )}
+
+              {message && (
+                <div className={`p-4 rounded-xl text-sm font-medium ${
+                  message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                }`}>
+                  {message.text}
                 </div>
               )}
 
@@ -193,6 +265,76 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           </motion.div>
         </div>
       </div>
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {isForgotPasswordOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h2 className="text-xl font-bold text-slate-900">Recuperar Senha</h2>
+                <button 
+                  onClick={() => setIsForgotPasswordOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-white rounded-full transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleForgotPasswordSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Nome Completo</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={forgotPasswordData.name}
+                    onChange={(e) => setForgotPasswordData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Seu nome"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Telefone</label>
+                  <input 
+                    type="tel" 
+                    required
+                    value={forgotPasswordData.phone}
+                    onChange={(e) => setForgotPasswordData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="(00) 00000-0000"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                  <input 
+                    type="email" 
+                    required
+                    value={forgotPasswordData.email}
+                    onChange={(e) => setForgotPasswordData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="seu@email.com"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                  />
+                </div>
+                
+                <button 
+                  disabled={isLoading}
+                  className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isLoading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    'Enviar link de redefinição'
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
