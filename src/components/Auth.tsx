@@ -71,7 +71,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
         to_name: forgotPasswordData.name,
         to_phone: forgotPasswordData.phone,
         to_email: forgotPasswordData.email,
-        reset_link: `${window.location.origin}/reset-password`,
+        reset_link: `${window.location.origin}/#reset-password`,
       };
 
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);

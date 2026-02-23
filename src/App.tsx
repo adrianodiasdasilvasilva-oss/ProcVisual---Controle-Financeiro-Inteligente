@@ -9,12 +9,26 @@ import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 
 export default function App() {
-  const [view, setView] = React.useState<'landing' | 'auth' | 'dashboard' | 'reset-password'>('landing');
+  const [view, setView] = React.useState<'landing' | 'auth' | 'dashboard' | 'reset-password'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const hash = window.location.hash;
+      if (path === '/reset-password' || hash === '#reset-password' || hash.includes('reset-password')) {
+        return 'reset-password';
+      }
+    }
+    return 'landing';
+  });
 
   React.useEffect(() => {
-    if (window.location.pathname === '/reset-password') {
-      setView('reset-password');
-    }
+    const handleHashChange = () => {
+      if (window.location.hash === '#reset-password') {
+        setView('reset-password');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
   const [userName, setUserName] = React.useState('');
