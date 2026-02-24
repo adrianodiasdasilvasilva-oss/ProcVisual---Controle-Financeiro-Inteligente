@@ -51,6 +51,9 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
         } else {
           const text = await signupResponse.text();
           console.error("Non-JSON response from signup:", text);
+          if (text.includes("The page could not be found") || text.includes("NOT_FOUND")) {
+            throw new Error("O servidor de API não está respondendo. Por favor, tente novamente em alguns instantes.");
+          }
           throw new Error(`Erro no servidor: ${signupResponse.status}`);
         }
 
@@ -94,6 +97,9 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
         } else {
           const text = await loginResponse.text();
           console.error("Non-JSON response from login:", text);
+          if (text.includes("The page could not be found") || text.includes("NOT_FOUND")) {
+            throw new Error("O servidor de API não está respondendo. Por favor, tente novamente em alguns instantes.");
+          }
           throw new Error(`Erro no servidor: ${loginResponse.status}`);
         }
 

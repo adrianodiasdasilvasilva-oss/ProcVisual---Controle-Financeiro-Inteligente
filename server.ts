@@ -58,7 +58,7 @@ async function startServer() {
   });
 
   // Auth Endpoints
-  app.post(["/api/auth/signup", "/api/auth/signup/"], (req, res) => {
+  const signupHandler = (req: any, res: any) => {
     console.log("Signup attempt:", req.body.email);
     const { name, email, phone, password } = req.body;
     if (!name || !email || !password) {
@@ -76,9 +76,12 @@ async function startServer() {
         res.status(500).json({ success: false, message: `Erro interno: ${error.message}` });
       }
     }
-  });
+  };
 
-  app.post(["/api/auth/login", "/api/auth/login/"], (req, res) => {
+  app.post("/api/auth/signup", signupHandler);
+  app.post("/api/auth/signup/", signupHandler);
+
+  const loginHandler = (req: any, res: any) => {
     console.log("Login attempt:", req.body.email);
     const { email, password } = req.body;
     try {
@@ -89,12 +92,16 @@ async function startServer() {
         res.status(401).json({ success: false, message: "Email ou senha inválidos" });
       }
     } catch (error: any) {
+      console.error("Login error:", error);
       res.status(500).json({ success: false, message: `Erro interno: ${error.message}` });
     }
-  });
+  };
+
+  app.post("/api/auth/login", loginHandler);
+  app.post("/api/auth/login/", loginHandler);
 
   // Transaction Endpoints
-  app.get(["/api/transactions", "/api/transactions/"], (req, res) => {
+  const getTransactionsHandler = (req: any, res: any) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: "Email is required" });
     
@@ -102,20 +109,28 @@ async function startServer() {
       const transactions = db.prepare("SELECT * FROM transactions WHERE user_email = ? ORDER BY date DESC").all(email);
       res.json(transactions);
     } catch (error: any) {
+      console.error("Get transactions error:", error);
       res.status(500).json({ error: error.message });
     }
-  });
+  };
 
-  app.post(["/api/transactions", "/api/transactions/"], (req, res) => {
+  app.get("/api/transactions", getTransactionsHandler);
+  app.get("/api/transactions/", getTransactionsHandler);
+
+  const postTransactionsHandler = (req: any, res: any) => {
     const { user_email, type, amount, category, date, description, installments } = req.body;
     try {
       const stmt = db.prepare("INSERT INTO transactions (user_email, type, amount, category, date, description, installments) VALUES (?, ?, ?, ?, ?, ?, ?)");
       stmt.run(user_email, type, amount, category, date, description, installments);
       res.json({ success: true });
     } catch (error: any) {
+      console.error("Post transactions error:", error);
       res.status(500).json({ error: error.message });
     }
-  });
+  };
+
+  app.post("/api/transactions", postTransactionsHandler);
+  app.post("/api/transactions/", postTransactionsHandler);
 
   // Catch-all for API routes
   app.all("/api/*", (req, res) => {
