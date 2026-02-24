@@ -3,7 +3,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { createClient } from "@supabase/supabase-js";
+import Database from "better-sqlite3";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,21 +12,34 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const isDev = process.env.NODE_ENV === "development";
 
-// Supabase Client Initialization
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+// Database Connection (Persistent in AI Studio environment)
+const dbPath = path.join(__dirname, "database.db");
+const db = new Database(dbPath);
 
-let supabase: any = null;
-if (supabaseUrl && supabaseKey) {
-  supabase = createClient(supabaseUrl, supabaseKey);
-  console.log("Supabase client initialized");
-} else {
-  console.warn("SUPABASE_URL or SUPABASE_KEY missing. Using In-Memory Fallback.");
-}
+// Initialize database
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT,
+    password TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 
-// Mock Fallback Data
-let mockUsers: any[] = [];
-let mockTransactions: any[] = [];
+  CREATE TABLE IF NOT EXISTS transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_email TEXT NOT NULL,
+    type TEXT NOT NULL,
+    amount TEXT NOT NULL,
+    category TEXT NOT NULL,
+    date TEXT NOT NULL,
+    description TEXT NOT NULL,
+    installments TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_email) REFERENCES users(email)
+  );
+`);
 
 app.use(express.json());
 
@@ -43,7 +56,7 @@ apiRouter.get("/test", (req, res) => {
   res.json({ 
     message: "API is reachable", 
     env: process.env.NODE_ENV, 
-    storage: supabase ? "Supabase (Postgres)" : "In-Memory (Mock)" 
+    storage: "SQLite (Local Persistent)" 
   });
 });
 
@@ -52,115 +65,64 @@ apiRouter.get("/health", (req, res) => {
 });
 
 // Auth Endpoints
-apiRouter.post("/auth/signup", async (req, res) => {
+apiRouter.post("/auth/signup", (req, res) => {
   const { name, email, phone, password } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ success: false, message: "Campos obrigatórios ausentes" });
   }
 
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .insert([{ name, email, phone, password }])
-        .select();
-
-      if (error) {
-        if (error.code === '23505') { // Postgres unique constraint violation
-          return res.status(400).json({ success: false, message: "Email já cadastrado" });
-        }
-        throw error;
-      }
-      return res.json({ success: true, message: "User registered successfully" });
-    } catch (error: any) {
-      console.error("Supabase Signup Error:", error);
-      return res.status(500).json({ success: false, message: error.message });
+  try {
+    const stmt = db.prepare("INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)");
+    stmt.run(name, email, phone, password);
+    res.json({ success: true, message: "User registered successfully" });
+  } catch (error: any) {
+    if (error.code === 'SQLITE_CONSTRAINT') {
+      return res.status(400).json({ success: false, message: "Email já cadastrado" });
     }
-  } else {
-    // Mock Fallback
-    if (mockUsers.find(u => u.email === email)) {
-      return res.status(400).json({ success: false, message: "Email já cadastrado (Mock)" });
-    }
-    mockUsers.push({ name, email, phone, password });
-    return res.json({ success: true, message: "User registered successfully (Mock Mode)" });
+    console.error("Signup Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-apiRouter.post("/auth/login", async (req, res) => {
+apiRouter.post("/auth/login", (req, res) => {
   const { email, password } = req.body;
   
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .eq('password', password)
-        .single();
-
-      if (error || !data) {
-        return res.status(401).json({ success: false, message: "Email ou senha inválidos" });
-      }
-      return res.json({ success: true, user: { name: data.name, email: data.email } });
-    } catch (error: any) {
-      console.error("Supabase Login Error:", error);
-      return res.status(500).json({ success: false, message: error.message });
-    }
-  } else {
-    // Mock Fallback
-    const user = mockUsers.find(u => u.email === email && u.password === password);
+  try {
+    const user = db.prepare("SELECT * FROM users WHERE email = ? AND password = ?").get(email, password) as any;
     if (user) {
       return res.json({ success: true, user: { name: user.name, email: user.email } });
     }
-    return res.status(401).json({ success: false, message: "Email ou senha inválidos (Mock)" });
+    res.status(401).json({ success: false, message: "Email ou senha inválidos" });
+  } catch (error: any) {
+    console.error("Login Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // Transaction Endpoints
-apiRouter.get("/transactions", async (req, res) => {
+apiRouter.get("/transactions", (req, res) => {
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: "Email is required" });
 
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_email', email)
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-      return res.json(data);
-    } catch (error: any) {
-      console.error("Supabase Get Transactions Error:", error);
-      return res.status(500).json({ error: error.message });
-    }
-  } else {
-    // Mock Fallback
-    const transactions = mockTransactions.filter(t => t.user_email === email);
-    return res.json(transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+  try {
+    const transactions = db.prepare("SELECT * FROM transactions WHERE user_email = ? ORDER BY date DESC").all(email);
+    res.json(transactions);
+  } catch (error: any) {
+    console.error("Get Transactions Error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
-apiRouter.post("/transactions", async (req, res) => {
+apiRouter.post("/transactions", (req, res) => {
   const { user_email, type, amount, category, date, description, installments } = req.body;
   
-  if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert([{ user_email, type, amount, category, date, description, installments }]);
-
-      if (error) throw error;
-      return res.json({ success: true });
-    } catch (error: any) {
-      console.error("Supabase Post Transaction Error:", error);
-      return res.status(500).json({ error: error.message });
-    }
-  } else {
-    // Mock Fallback
-    mockTransactions.push({ user_email, type, amount, category, date, description, installments });
-    return res.json({ success: true });
+  try {
+    const stmt = db.prepare("INSERT INTO transactions (user_email, type, amount, category, date, description, installments) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    stmt.run(user_email, type, amount, category, date, description, installments);
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Post Transaction Error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
