@@ -98,7 +98,7 @@ apiRouter.get("/health", (req, res) => {
 
 // Auth Endpoints
 apiRouter.post("/auth/signup", (req, res) => {
-  if (!db) return res.status(503).json({ success: false, message: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
+  if (!db) return res.status(503).json({ success: false, message: "O banco de dados está sendo inicializado. Tente novamente em instantes.", error: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   
   const { name, email, phone, password } = req.body;
   if (!name || !email || !password) {
@@ -119,7 +119,7 @@ apiRouter.post("/auth/signup", (req, res) => {
 });
 
 apiRouter.post("/auth/login", (req, res) => {
-  if (!db) return res.status(503).json({ success: false, message: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
+  if (!db) return res.status(503).json({ success: false, message: "O banco de dados está sendo inicializado. Tente novamente em instantes.", error: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   const { email, password } = req.body;
   
   try {
@@ -136,7 +136,7 @@ apiRouter.post("/auth/login", (req, res) => {
 
 // Transaction Endpoints
 apiRouter.get("/transactions", (req, res) => {
-  if (!db) return res.status(503).json({ error: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
+  if (!db) return res.status(503).json({ error: "O banco de dados está sendo inicializado. Tente novamente em instantes.", message: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: "Email is required" });
 
@@ -150,7 +150,7 @@ apiRouter.get("/transactions", (req, res) => {
 });
 
 apiRouter.post("/transactions", (req, res) => {
-  if (!db) return res.status(503).json({ error: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
+  if (!db) return res.status(503).json({ error: "O banco de dados está sendo inicializado. Tente novamente em instantes.", message: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   const { user_email, type, amount, category, date, description, installments } = req.body;
   
   try {

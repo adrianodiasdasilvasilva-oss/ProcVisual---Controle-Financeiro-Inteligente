@@ -50,6 +50,10 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           body: JSON.stringify({ name, email, phone, password }),
         });
 
+        if (signupResponse.status === 503) {
+          throw new Error("O banco de dados está sendo inicializado. Por favor, aguarde alguns segundos e tente novamente.");
+        }
+
         let signupData;
         const contentType = signupResponse.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
@@ -64,7 +68,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
         }
 
         if (!signupResponse.ok) {
-          throw new Error(signupData.message || 'Erro ao criar conta');
+          throw new Error(signupData.message || signupData.error || 'Erro ao criar conta');
         }
 
         // Send welcome email via EmailJS
@@ -96,6 +100,10 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           body: JSON.stringify({ email, password }),
         });
 
+        if (loginResponse.status === 503) {
+          throw new Error("O banco de dados está sendo inicializado. Por favor, aguarde alguns segundos e tente novamente.");
+        }
+
         let loginData;
         const contentType = loginResponse.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
@@ -110,7 +118,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
         }
 
         if (!loginResponse.ok) {
-          throw new Error(loginData.message || 'Email ou senha inválidos');
+          throw new Error(loginData.message || loginData.error || 'Email ou senha inválidos');
         }
 
         onLoginSuccess(loginData.user.name, loginData.user.email);

@@ -69,18 +69,31 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     const fetchTransactions = async () => {
       try {
         const response = await fetch(`/api/transactions?email=${encodeURIComponent(userEmail)}`);
+        
+        if (response.status === 503) {
+          throw new Error("O banco de dados está sendo inicializado. Seus dados estarão disponíveis em instantes.");
+        }
+
         if (response.ok) {
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.includes("application/json")) {
             const data = await response.json();
-            setTransactions(data);
+            if (Array.isArray(data)) {
+              setTransactions(data);
+            } else if (data.error) {
+              throw new Error(data.error);
+            }
           } else {
             const text = await response.text();
             console.error("Non-JSON response from transactions fetch:", text);
           }
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Erro ao buscar transações: ${response.status}`);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch transactions:', error);
+        // You could set an error state here to show a message in the UI
       } finally {
         setIsLoading(false);
       }
