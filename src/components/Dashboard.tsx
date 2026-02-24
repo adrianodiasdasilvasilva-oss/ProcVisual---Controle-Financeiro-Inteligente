@@ -51,46 +51,80 @@ interface Transaction {
 interface DashboardProps {
   onLogout: () => void;
   userName: string;
+  userEmail: string;
 }
 
-export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
+export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isTransactionFormOpen, setIsTransactionFormOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState('Dashboard');
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [selectedMonth, setSelectedMonth] = React.useState<number>(new Date().getMonth());
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [isCustomYear, setIsCustomYear] = React.useState(false);
 
+  // Fetch transactions on mount
+  React.useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch(`/api/transactions?email=${encodeURIComponent(userEmail)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTransactions(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch transactions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (userEmail) {
+      fetchTransactions();
+    }
+  }, [userEmail]);
+
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
 
-  const handleSaveTransaction = (data: any) => {
+  const handleSaveTransaction = async (data: any) => {
     const numInstallments = parseInt(data.installments) || 1;
+    const newTransactionsToSave: Transaction[] = [];
     
     if (numInstallments <= 1) {
-      setTransactions(prev => [...prev, data]);
+      newTransactionsToSave.push(data);
     } else {
-      const newTransactions: Transaction[] = [];
-      const baseDate = new Date(data.date);
-      // Ensure we use UTC or local consistently. TransactionForm uses local date string.
-      // We'll parse it and increment months.
       const [year, month, day] = data.date.split('-').map(Number);
-      
       const fullAmount = parseFloat(data.amount) || 0;
 
       for (let i = 0; i < numInstallments; i++) {
         const d = new Date(year, month - 1 + i, day);
         const formattedDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         
-        newTransactions.push({
+        newTransactionsToSave.push({
           ...data,
           amount: fullAmount.toString(),
           date: formattedDate,
           description: `${data.description} (${i + 1}/${numInstallments})`
         });
       }
-      setTransactions(prev => [...prev, ...newTransactions]);
+    }
+
+    // Save to backend
+    try {
+      for (const t of newTransactionsToSave) {
+        await fetch('/api/transactions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...t, user_email: userEmail }),
+        });
+      }
+      // Refresh local state
+      setTransactions(prev => [...prev, ...newTransactionsToSave]);
+    } catch (error) {
+      console.error('Failed to save transaction:', error);
+      alert('Erro ao salvar transação. Tente novamente.');
     }
   };
 
@@ -356,7 +390,12 @@ export const Dashboard = ({ onLogout, userName }: DashboardProps) => {
         </header>
 
         <div className="p-8 space-y-8">
-          {activeTab === 'Dashboard' ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-[60vh]">
+              <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
+              <p className="text-slate-500 font-medium">Carregando seus dados...</p>
+            </div>
+          ) : activeTab === 'Dashboard' ? (
             <>
               {/* Month & Year Filter */}
               <div className="flex items-center justify-between">

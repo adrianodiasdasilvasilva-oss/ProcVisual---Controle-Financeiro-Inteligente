@@ -32,6 +32,7 @@ export default function App() {
   }, []);
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
   const [userName, setUserName] = React.useState('');
+  const [userEmail, setUserEmail] = React.useState('');
 
   const handleLogin = () => {
     setAuthMode('login');
@@ -47,8 +48,9 @@ export default function App() {
     setView('landing');
   };
 
-  const handleLoginSuccess = (name: string) => {
+  const handleLoginSuccess = (name: string, email: string) => {
     setUserName(name);
+    setUserEmail(email);
     setView('dashboard');
   };
 
@@ -57,7 +59,7 @@ export default function App() {
   };
 
   if (view === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} userName={userName} />;
+    return <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />;
   }
 
   if (view === 'auth') {

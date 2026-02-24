@@ -10,7 +10,7 @@ const EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID = 'template_di20fjt';
 
 interface AuthProps {
   onBack: () => void;
-  onLoginSuccess: (userName: string) => void;
+  onLoginSuccess: (userName: string, userEmail: string) => void;
   initialMode?: 'login' | 'signup';
 }
 
@@ -37,6 +37,19 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
     try {
       if (mode === 'signup') {
+        // Register user in backend
+        const signupResponse = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, password }),
+        });
+
+        const signupData = await signupResponse.json();
+        if (!signupResponse.ok) {
+          throw new Error(signupData.message || 'Erro ao criar conta');
+        }
+
+        // Send welcome email via EmailJS
         const templateParams = {
           to_name: name,
           to_phone: phone,
@@ -44,20 +57,38 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           password: password,
         };
 
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_WELCOME_TEMPLATE_ID, templateParams);
-        setMessage({ text: "Conta criada com sucesso! Enviamos seus dados de acesso para seu email.", type: 'success' });
-      }
+        try {
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_WELCOME_TEMPLATE_ID, templateParams);
+        } catch (emailErr) {
+          console.error('EmailJS Error:', emailErr);
+          // Don't block signup if email fails, but maybe log it
+        }
 
-      // Simulate API call delay
-      setTimeout(() => {
-        setIsLoading(false);
-        const userName = mode === 'signup' ? name : (email.split('@')[0] || 'Usuário');
-        onLoginSuccess(userName);
-      }, 1500);
-    } catch (error) {
-      console.error('Error sending email:', error);
+        setMessage({ text: "Conta criada com sucesso! Enviamos seus dados de acesso para seu email.", type: 'success' });
+        
+        // Auto login after signup
+        setTimeout(() => {
+          onLoginSuccess(name, email);
+        }, 1500);
+      } else {
+        // Login
+        const loginResponse = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const loginData = await loginResponse.json();
+        if (!loginResponse.ok) {
+          throw new Error(loginData.message || 'Email ou senha inválidos');
+        }
+
+        onLoginSuccess(loginData.user.name, loginData.user.email);
+      }
+    } catch (error: any) {
+      console.error('Auth Error:', error);
       setIsLoading(false);
-      setMessage({ text: "Não foi possível processar o cadastro. Tente novamente.", type: 'error' });
+      setMessage({ text: error.message || "Não foi possível processar a solicitação. Tente novamente.", type: 'error' });
     }
   };
 
