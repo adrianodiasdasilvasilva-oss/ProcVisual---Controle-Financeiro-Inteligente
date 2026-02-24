@@ -3,43 +3,75 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import Database from "better-sqlite3";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Root-level health check (Very early)
+app.get("/ping", (req, res) => res.send("pong"));
+
 const PORT = Number(process.env.PORT) || 3000;
 const isDev = process.env.NODE_ENV === "development";
 
 // Database Connection (Persistent in AI Studio environment)
+let db: any;
+let isInMemory = false;
 const dbPath = path.join(__dirname, "database.db");
-const db = new Database(dbPath);
 
-// Initialize database
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    phone TEXT,
-    password TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+async function initDb() {
+  try {
+    console.log(`Attempting to connect to database at: ${dbPath}`);
+    const { default: Database } = await import("better-sqlite3");
+    db = new Database(dbPath);
+    isInMemory = false;
+    console.log("Database connected successfully");
+    
+    // Initialize database
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        phone TEXT,
+        password TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
 
-  CREATE TABLE IF NOT EXISTS transactions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_email TEXT NOT NULL,
-    type TEXT NOT NULL,
-    amount TEXT NOT NULL,
-    category TEXT NOT NULL,
-    date TEXT NOT NULL,
-    description TEXT NOT NULL,
-    installments TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_email) REFERENCES users(email)
-  );
-`);
+      CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_email TEXT NOT NULL,
+        type TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        category TEXT NOT NULL,
+        date TEXT NOT NULL,
+        description TEXT NOT NULL,
+        installments TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_email) REFERENCES users(email)
+      );
+    `);
+    console.log("Database tables initialized");
+  } catch (error) {
+    console.error("FAILED TO INITIALIZE DATABASE:", error);
+    console.log("Falling back to in-memory database for this session");
+    try {
+      const { default: Database } = await import("better-sqlite3");
+      db = new Database(':memory:');
+      isInMemory = true;
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT UNIQUE, phone TEXT, password TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, user_email TEXT, type TEXT, amount TEXT, category TEXT, date TEXT, description TEXT, installments TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+      `);
+      console.log("In-memory database initialized");
+    } catch (e) {
+      console.error("Even in-memory fallback failed. Database will be unavailable.");
+    }
+  }
+}
+
+initDb();
 
 app.use(express.json());
 
@@ -56,7 +88,7 @@ apiRouter.get("/test", (req, res) => {
   res.json({ 
     message: "API is reachable", 
     env: process.env.NODE_ENV, 
-    storage: "SQLite (Local Persistent)" 
+    storage: db ? (isInMemory ? "SQLite (In-Memory Fallback)" : "SQLite (Local Persistent)") : "Database Unavailable" 
   });
 });
 
@@ -66,6 +98,8 @@ apiRouter.get("/health", (req, res) => {
 
 // Auth Endpoints
 apiRouter.post("/auth/signup", (req, res) => {
+  if (!db) return res.status(503).json({ success: false, message: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
+  
   const { name, email, phone, password } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ success: false, message: "Campos obrigatórios ausentes" });
@@ -85,6 +119,7 @@ apiRouter.post("/auth/signup", (req, res) => {
 });
 
 apiRouter.post("/auth/login", (req, res) => {
+  if (!db) return res.status(503).json({ success: false, message: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   const { email, password } = req.body;
   
   try {
@@ -101,6 +136,7 @@ apiRouter.post("/auth/login", (req, res) => {
 
 // Transaction Endpoints
 apiRouter.get("/transactions", (req, res) => {
+  if (!db) return res.status(503).json({ error: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: "Email is required" });
 
@@ -114,6 +150,7 @@ apiRouter.get("/transactions", (req, res) => {
 });
 
 apiRouter.post("/transactions", (req, res) => {
+  if (!db) return res.status(503).json({ error: "O banco de dados está sendo inicializado. Tente novamente em instantes." });
   const { user_email, type, amount, category, date, description, installments } = req.body;
   
   try {
@@ -159,10 +196,12 @@ async function setupFrontend() {
 
 setupFrontend();
 
-// Na Vercel, não chamamos app.listen(). Exportamos o app e a Vercel lida com o resto.
-if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
+// In AI Studio or local development, we always need to listen on port 3000.
+// On Vercel production, the app is exported and the platform handles it.
+if (process.env.NODE_ENV === "development" || !process.env.VERCEL) {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT} in ${process.env.NODE_ENV} mode`);
+    console.log(`Database path: ${dbPath}`);
   });
 }
 
