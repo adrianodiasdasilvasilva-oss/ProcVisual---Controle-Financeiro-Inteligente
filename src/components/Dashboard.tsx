@@ -70,8 +70,14 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       try {
         const response = await fetch(`/api/transactions?email=${encodeURIComponent(userEmail)}`);
         if (response.ok) {
-          const data = await response.json();
-          setTransactions(data);
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            setTransactions(data);
+          } else {
+            const text = await response.text();
+            console.error("Non-JSON response from transactions fetch:", text);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch transactions:', error);

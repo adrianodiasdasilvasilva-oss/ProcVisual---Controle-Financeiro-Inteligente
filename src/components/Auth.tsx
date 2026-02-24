@@ -44,7 +44,16 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           body: JSON.stringify({ name, email, phone, password }),
         });
 
-        const signupData = await signupResponse.json();
+        let signupData;
+        const contentType = signupResponse.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          signupData = await signupResponse.json();
+        } else {
+          const text = await signupResponse.text();
+          console.error("Non-JSON response from signup:", text);
+          throw new Error(`Erro no servidor: ${signupResponse.status}`);
+        }
+
         if (!signupResponse.ok) {
           throw new Error(signupData.message || 'Erro ao criar conta');
         }
@@ -78,7 +87,16 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           body: JSON.stringify({ email, password }),
         });
 
-        const loginData = await loginResponse.json();
+        let loginData;
+        const contentType = loginResponse.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          loginData = await loginResponse.json();
+        } else {
+          const text = await loginResponse.text();
+          console.error("Non-JSON response from login:", text);
+          throw new Error(`Erro no servidor: ${loginResponse.status}`);
+        }
+
         if (!loginResponse.ok) {
           throw new Error(loginData.message || 'Email ou senha inválidos');
         }
