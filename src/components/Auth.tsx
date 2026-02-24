@@ -43,33 +43,15 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
     try {
       if (mode === 'signup') {
-        // Register user in backend
-        const signupResponse = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, phone, password }),
-        });
-
-        if (signupResponse.status === 503) {
-          throw new Error("O banco de dados está sendo inicializado. Por favor, aguarde alguns segundos e tente novamente.");
+        // Simulate local signup
+        const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
+        if (users.find((u: any) => u.email === email)) {
+          throw new Error("Email já cadastrado");
         }
-
-        let signupData;
-        const contentType = signupResponse.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          signupData = await signupResponse.json();
-        } else {
-          const text = await signupResponse.text();
-          console.error("Non-JSON response from signup:", text);
-          if (text.includes("The page could not be found") || text.includes("NOT_FOUND")) {
-            throw new Error("O servidor de API não está respondendo. Por favor, tente novamente em alguns instantes.");
-          }
-          throw new Error(`Erro no servidor: ${signupResponse.status}`);
-        }
-
-        if (!signupResponse.ok) {
-          throw new Error(signupData.message || signupData.error || 'Erro ao criar conta');
-        }
+        
+        const newUser = { name, email, phone, password };
+        users.push(newUser);
+        localStorage.setItem('procvisual_users', JSON.stringify(users));
 
         // Send welcome email via EmailJS
         const templateParams = {
@@ -83,7 +65,6 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_WELCOME_TEMPLATE_ID, templateParams);
         } catch (emailErr) {
           console.error('EmailJS Error:', emailErr);
-          // Don't block signup if email fails, but maybe log it
         }
 
         setMessage({ text: "Conta criada com sucesso! Enviamos seus dados de acesso para seu email.", type: 'success' });
@@ -93,35 +74,15 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           onLoginSuccess(name, email);
         }, 1500);
       } else {
-        // Login
-        const loginResponse = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (loginResponse.status === 503) {
-          throw new Error("O banco de dados está sendo inicializado. Por favor, aguarde alguns segundos e tente novamente.");
-        }
-
-        let loginData;
-        const contentType = loginResponse.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          loginData = await loginResponse.json();
+        // Simulate local login
+        const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
+        const user = users.find((u: any) => u.email === email && u.password === password);
+        
+        if (user) {
+          onLoginSuccess(user.name, user.email);
         } else {
-          const text = await loginResponse.text();
-          console.error("Non-JSON response from login:", text);
-          if (text.includes("The page could not be found") || text.includes("NOT_FOUND")) {
-            throw new Error("O servidor de API não está respondendo. Por favor, tente novamente em alguns instantes.");
-          }
-          throw new Error(`Erro no servidor: ${loginResponse.status}`);
+          throw new Error('Email ou senha inválidos');
         }
-
-        if (!loginResponse.ok) {
-          throw new Error(loginData.message || loginData.error || 'Email ou senha inválidos');
-        }
-
-        onLoginSuccess(loginData.user.name, loginData.user.email);
       }
     } catch (error: any) {
       console.error('Auth Error:', error);

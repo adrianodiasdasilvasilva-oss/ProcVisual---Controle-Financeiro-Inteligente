@@ -66,34 +66,13 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
 
   // Fetch transactions on mount
   React.useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchTransactions = () => {
       try {
-        const response = await fetch(`/api/transactions?email=${encodeURIComponent(userEmail)}`);
-        
-        if (response.status === 503) {
-          throw new Error("O banco de dados está sendo inicializado. Seus dados estarão disponíveis em instantes.");
-        }
-
-        if (response.ok) {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
-            const data = await response.json();
-            if (Array.isArray(data)) {
-              setTransactions(data);
-            } else if (data.error) {
-              throw new Error(data.error);
-            }
-          } else {
-            const text = await response.text();
-            console.error("Non-JSON response from transactions fetch:", text);
-          }
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Erro ao buscar transações: ${response.status}`);
-        }
-      } catch (error: any) {
+        const key = `procvisual_transactions_${userEmail}`;
+        const localData = JSON.parse(localStorage.getItem(key) || '[]');
+        setTransactions(localData);
+      } catch (error) {
         console.error('Failed to fetch transactions:', error);
-        // You could set an error state here to show a message in the UI
       } finally {
         setIsLoading(false);
       }
@@ -107,7 +86,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
 
-  const handleSaveTransaction = async (data: any) => {
+  const handleSaveTransaction = (data: any) => {
     const numInstallments = parseInt(data.installments) || 1;
     const newTransactionsToSave: Transaction[] = [];
     
@@ -130,20 +109,18 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       }
     }
 
-    // Save to backend
+    // Save to localStorage
     try {
-      for (const t of newTransactionsToSave) {
-        await fetch('/api/transactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...t, user_email: userEmail }),
-        });
-      }
+      const key = `procvisual_transactions_${userEmail}`;
+      const currentTransactions = JSON.parse(localStorage.getItem(key) || '[]');
+      const updatedTransactions = [...currentTransactions, ...newTransactionsToSave];
+      localStorage.setItem(key, JSON.stringify(updatedTransactions));
+      
       // Refresh local state
-      setTransactions(prev => [...prev, ...newTransactionsToSave]);
+      setTransactions(updatedTransactions);
     } catch (error) {
       console.error('Failed to save transaction:', error);
-      alert('Erro ao salvar transação. Tente novamente.');
+      alert('Erro ao salvar transação localmente.');
     }
   };
 
