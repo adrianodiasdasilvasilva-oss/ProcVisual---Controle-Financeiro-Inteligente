@@ -67,6 +67,35 @@ export default function App() {
   }
 
   if (view === 'reset-password') {
+    const [resetEmail, setResetEmail] = React.useState('');
+    const [newPassword, setNewPassword] = React.useState('');
+    const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [resetMessage, setResetMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
+
+    const handleResetSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (newPassword !== confirmPassword) {
+        setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
+      const userIndex = users.findIndex((u: any) => u.email === resetEmail);
+
+      if (userIndex === -1) {
+        setResetMessage({ text: "Email não encontrado.", type: 'error' });
+        return;
+      }
+
+      users[userIndex].password = newPassword;
+      localStorage.setItem('procvisual_users', JSON.stringify(users));
+      setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
+      
+      setTimeout(() => {
+        setView('auth');
+      }, 2000);
+    };
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
@@ -76,19 +105,39 @@ export default function App() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Redefinir Senha</h1>
-          <p className="text-slate-500 mb-8">Digite sua nova senha abaixo para recuperar o acesso à sua conta.</p>
+          <p className="text-slate-500 mb-8">Digite seu email e a nova senha abaixo.</p>
           
-          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setView('auth'); }}>
+          {resetMessage && (
+            <div className={`p-4 rounded-xl text-sm font-medium mb-4 ${
+              resetMessage.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+            }`}>
+              {resetMessage.text}
+            </div>
+          )}
+
+          <form className="space-y-4" onSubmit={handleResetSubmit}>
+            <input 
+              type="email" 
+              placeholder="Seu email cadastrado" 
+              required 
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+            />
             <input 
               type="password" 
               placeholder="Nova senha" 
               required 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
             />
             <input 
               type="password" 
               placeholder="Confirmar nova senha" 
               required 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
             />
             <button className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg">

@@ -97,20 +97,36 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     setMessage(null);
 
     try {
+      // Check if user exists locally first
+      const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
+      const userExists = users.find((u: any) => u.email === forgotPasswordData.email);
+
+      if (!userExists) {
+        throw new Error("Este email não está cadastrado em nossa base de dados.");
+      }
+
       const templateParams = {
-        to_name: forgotPasswordData.name,
-        to_phone: forgotPasswordData.phone,
+        to_name: forgotPasswordData.name || userExists.name,
+        to_phone: forgotPasswordData.phone || userExists.phone,
         to_email: forgotPasswordData.email,
         reset_link: `${window.location.origin}/#reset-password`,
       };
 
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);
-      setMessage({ text: "Enviamos um link para redefinição de senha no seu email.", type: 'success' });
-      setIsForgotPasswordOpen(false);
-      setForgotPasswordData({ name: '', phone: '', email: '' });
-    } catch (error) {
+      console.log("Sending password reset email with params:", templateParams);
+
+      const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);
+      
+      if (response.status === 200) {
+        console.log("EmailJS Success:", response.text);
+        setMessage({ text: "Enviamos um link para redefinição de senha no seu email. Verifique também sua caixa de spam.", type: 'success' });
+        setIsForgotPasswordOpen(false);
+        setForgotPasswordData({ name: '', phone: '', email: '' });
+      } else {
+        throw new Error(`EmailJS returned status ${response.status}: ${response.text}`);
+      }
+    } catch (error: any) {
       console.error('Error sending forgot password email:', error);
-      setMessage({ text: "Não foi possível enviar o email. Tente novamente.", type: 'error' });
+      setMessage({ text: error.message || "Não foi possível enviar o email. Tente novamente.", type: 'error' });
     } finally {
       setIsLoading(false);
     }
