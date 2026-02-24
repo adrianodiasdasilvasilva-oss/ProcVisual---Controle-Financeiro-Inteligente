@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development tsx server.ts",
-    "start": "tsx server.ts",
+    "start": "NODE_ENV=production node server.ts",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "NODE_ENV=production node server.ts",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },

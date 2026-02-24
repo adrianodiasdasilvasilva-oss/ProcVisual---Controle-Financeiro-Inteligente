@@ -3,6 +3,15 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
+
+console.log("Server script starting...");
+console.log("CWD:", process.cwd());
+try {
+  console.log("Files in CWD:", fs.readdirSync("."));
+} catch (e) {
+  console.error("Failed to list files:", e);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,7 +22,7 @@ async function startServer() {
     const app = express();
     const PORT = 3000;
 
-    console.log("Starting server...");
+    console.log(`Starting server in ${process.env.NODE_ENV || 'development'} mode...`);
 
     db = new Database("database.db");
     console.log("Database connected");
@@ -46,16 +55,25 @@ async function startServer() {
 
     app.use(express.json());
 
-  // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", env: process.env.NODE_ENV });
-  });
+    // Request logging - MOVE TO TOP
+    app.use((req, res, next) => {
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+      next();
+    });
 
-  // Request logging
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-  });
+    // Top-level test route
+    app.get("/api/test", (req, res) => {
+      res.json({ message: "API is reachable", env: process.env.NODE_ENV });
+    });
+
+    // Health check
+    app.get("/api/health", (req, res) => {
+      res.json({ 
+        status: "ok", 
+        env: process.env.NODE_ENV,
+        time: new Date().toISOString()
+      });
+    });
 
   // Auth Endpoints
   const signupHandler = (req: any, res: any) => {
@@ -131,6 +149,12 @@ async function startServer() {
 
   app.post("/api/transactions", postTransactionsHandler);
   app.post("/api/transactions/", postTransactionsHandler);
+
+  // Debug: Log all requests that reach this point
+  app.use("/api/*", (req, res, next) => {
+    console.log(`API Fallthrough: ${req.method} ${req.url}`);
+    next();
+  });
 
   // Catch-all for API routes
   app.all("/api/*", (req, res) => {

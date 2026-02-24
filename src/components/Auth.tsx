@@ -28,6 +28,12 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
   React.useEffect(() => {
     emailjs.init(EMAILJS_PUBLIC_KEY);
+    
+    // API Connectivity Test
+    fetch('/api/test')
+      .then(res => res.json())
+      .then(data => console.log("API Test Success:", data))
+      .catch(err => console.error("API Test Failed:", err));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
