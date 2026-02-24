@@ -68,7 +68,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   React.useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`/v1/transactions?email=${encodeURIComponent(userEmail)}`);
+        const response = await fetch(`/api/transactions?email=${encodeURIComponent(userEmail)}`);
         if (response.ok) {
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.includes("application/json")) {
@@ -120,7 +120,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     // Save to backend
     try {
       for (const t of newTransactionsToSave) {
-        await fetch('/v1/transactions', {
+        await fetch('/api/transactions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...t, user_email: userEmail }),

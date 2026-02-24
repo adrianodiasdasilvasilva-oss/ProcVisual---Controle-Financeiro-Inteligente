@@ -22,10 +22,6 @@ async function startServer() {
     const app = express();
     const PORT = 3000;
 
-    app.get("/api/test", (req, res) => {
-      res.json({ message: "API is reachable at the very top", env: process.env.NODE_ENV });
-    });
-
     console.log(`Starting server in ${process.env.NODE_ENV || 'development'} mode...`);
 
     db = new Database("database.db");
@@ -61,11 +57,7 @@ async function startServer() {
 
     // Request logging - MOVE TO TOP
     app.use((req, res, next) => {
-      const logLine = `[${new Date().toISOString()}] ${req.method} ${req.url} (Host: ${req.headers.host})\n`;
-      console.log(logLine.trim());
-      try {
-        fs.appendFileSync("access.log", logLine);
-      } catch (e) {}
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} (Host: ${req.headers.host})`);
       next();
     });
 
@@ -78,10 +70,6 @@ async function startServer() {
 
     apiRouter.get("/test", (req, res) => {
       res.json({ message: "API is reachable", env: process.env.NODE_ENV });
-    });
-
-    apiRouter.get("/debug-headers", (req, res) => {
-      res.json({ headers: req.headers, url: req.url, method: req.method });
     });
 
     apiRouter.get("/health", (req, res) => {
@@ -167,18 +155,18 @@ async function startServer() {
     apiRouter.post("/transactions", postTransactionsHandler);
     apiRouter.post("/transactions/", postTransactionsHandler);
 
-    app.use("/v1", apiRouter);
+    app.use("/api", apiRouter);
 
     // Debug: Log all requests that reach this point
-    app.use("/v1/*", (req, res, next) => {
+    app.use("/api/*", (req, res, next) => {
       console.log(`API Fallthrough: ${req.method} ${req.url}`);
       next();
     });
 
-  // Catch-all for API routes
-  app.all("/v1/*", (req, res) => {
-    res.status(404).json({ error: `API route ${req.method} ${req.url} not found` });
-  });
+    // Catch-all for API routes
+    app.all("/api/*", (req, res) => {
+      res.status(404).json({ error: `API route ${req.method} ${req.url} not found` });
+    });
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
