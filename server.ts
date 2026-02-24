@@ -20,11 +20,11 @@ async function startServer() {
   let db: any;
   try {
     const app = express();
-    const PORT = 3000;
+    const PORT = Number(process.env.PORT) || 3000;
 
     console.log(`Starting server in ${process.env.NODE_ENV || 'development'} mode...`);
 
-    db = new Database("database.db");
+    db = new Database(path.join(__dirname, "database.db"));
     console.log("Database connected");
 
     // Initialize database
@@ -169,7 +169,7 @@ async function startServer() {
     });
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "development") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
