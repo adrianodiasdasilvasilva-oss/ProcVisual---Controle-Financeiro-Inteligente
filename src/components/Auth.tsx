@@ -30,7 +30,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     emailjs.init(EMAILJS_PUBLIC_KEY);
     
     // API Connectivity Test
-    fetch('/api/test')
+    fetch('/v1/test')
       .then(res => res.json())
       .then(data => console.log("API Test Success:", data))
       .catch(err => console.error("API Test Failed:", err));
@@ -44,7 +44,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     try {
       if (mode === 'signup') {
         // Register user in backend
-        const signupResponse = await fetch('/api/auth/signup', {
+        const signupResponse = await fetch('/v1/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, phone, password }),
@@ -90,7 +90,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
         }, 1500);
       } else {
         // Login
-        const loginResponse = await fetch('/api/auth/login', {
+        const loginResponse = await fetch('/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
