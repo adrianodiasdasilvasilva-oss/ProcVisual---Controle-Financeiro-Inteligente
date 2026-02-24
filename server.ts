@@ -11,21 +11,19 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const isDev = process.env.NODE_ENV === "development";
 
-// Database Connection
+// Database Connection & Mock Fallback
 let db: any;
+let mockUsers: any[] = [];
+let mockTransactions: any[] = [];
 
 async function initDb() {
   try {
-    // Importação dinâmica para evitar que o servidor quebre no boot se o binário nativo falhar
     const { default: Database } = await import("better-sqlite3");
-    
     const dbPath = process.env.VERCEL 
       ? path.join("/tmp", "database.db") 
       : path.join(__dirname, "database.db");
       
     db = new Database(dbPath);
-
-    // Initialize database
     db.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +33,6 @@ async function initDb() {
         password TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
-
       CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_email TEXT NOT NULL,
@@ -51,8 +48,8 @@ async function initDb() {
     `);
     console.log("Database initialized successfully at", dbPath);
   } catch (dbError) {
-    console.error("CRITICAL: Database Initialization Failed:", dbError);
-    // Não paramos o servidor, permitimos que ele rode para reportar o erro via API
+    console.error("WARNING: SQLite failed, using In-Memory Fallback:", dbError);
+    db = null; // Indica que usaremos o mock
   }
 }
 
@@ -70,7 +67,11 @@ app.use((req, res, next) => {
 const apiRouter = express.Router();
 
 apiRouter.get("/test", (req, res) => {
-  res.json({ message: "API is reachable", env: process.env.NODE_ENV, dbStatus: db ? "connected" : "failed" });
+  res.json({ 
+    message: "API is reachable", 
+    env: process.env.NODE_ENV, 
+    storage: db ? "SQLite" : "In-Memory (Mock)" 
+  });
 });
 
 apiRouter.get("/health", (req, res) => {
@@ -79,69 +80,89 @@ apiRouter.get("/health", (req, res) => {
 
 // Auth Endpoints
 apiRouter.post("/auth/signup", (req, res) => {
-  if (!db) return res.status(500).json({ success: false, message: "Banco de dados não disponível" });
-  
   const { name, email, phone, password } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ success: false, message: "Campos obrigatórios ausentes" });
   }
-  try {
-    const stmt = db.prepare("INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)");
-    stmt.run(name, email, phone, password);
-    res.json({ success: true, message: "User registered successfully" });
-  } catch (error: any) {
-    console.error("Signup Error:", error);
-    if (error.code === 'SQLITE_CONSTRAINT') {
-      res.status(400).json({ success: false, message: "Email já cadastrado" });
-    } else {
-      res.status(500).json({ success: false, message: `Erro interno: ${error.message}` });
+
+  if (db) {
+    try {
+      const stmt = db.prepare("INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)");
+      stmt.run(name, email, phone, password);
+      return res.json({ success: true, message: "User registered successfully" });
+    } catch (error: any) {
+      if (error.code === 'SQLITE_CONSTRAINT') {
+        return res.status(400).json({ success: false, message: "Email já cadastrado" });
+      }
+      return res.status(500).json({ success: false, message: error.message });
     }
+  } else {
+    // Mock Fallback
+    if (mockUsers.find(u => u.email === email)) {
+      return res.status(400).json({ success: false, message: "Email já cadastrado (Mock)" });
+    }
+    mockUsers.push({ name, email, phone, password });
+    return res.json({ success: true, message: "User registered successfully (Mock Mode)" });
   }
 });
 
 apiRouter.post("/auth/login", (req, res) => {
-  if (!db) return res.status(500).json({ success: false, message: "Banco de dados não disponível" });
-
   const { email, password } = req.body;
-  try {
-    const user = db.prepare("SELECT * FROM users WHERE email = ? AND password = ?").get(email, password) as any;
-    if (user) {
-      res.json({ success: true, user: { name: user.name, email: user.email } });
-    } else {
-      res.status(401).json({ success: false, message: "Email ou senha inválidos" });
+  
+  if (db) {
+    try {
+      const user = db.prepare("SELECT * FROM users WHERE email = ? AND password = ?").get(email, password) as any;
+      if (user) {
+        return res.json({ success: true, user: { name: user.name, email: user.email } });
+      }
+      return res.status(401).json({ success: false, message: "Email ou senha inválidos" });
+    } catch (error: any) {
+      return res.status(500).json({ success: false, message: error.message });
     }
-  } catch (error: any) {
-    console.error("Login Error:", error);
-    res.status(500).json({ success: false, message: `Erro interno: ${error.message}` });
+  } else {
+    // Mock Fallback
+    const user = mockUsers.find(u => u.email === email && u.password === password);
+    if (user) {
+      return res.json({ success: true, user: { name: user.name, email: user.email } });
+    }
+    return res.status(401).json({ success: false, message: "Email ou senha inválidos (Mock)" });
   }
 });
 
 // Transaction Endpoints
 apiRouter.get("/transactions", (req, res) => {
-  if (!db) return res.status(500).json({ error: "Banco de dados não disponível" });
-
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: "Email is required" });
-  try {
-    const transactions = db.prepare("SELECT * FROM transactions WHERE user_email = ? ORDER BY date DESC").all(email);
-    res.json(transactions);
-  } catch (error: any) {
-    console.error("Get Transactions Error:", error);
-    res.status(500).json({ error: error.message });
+
+  if (db) {
+    try {
+      const transactions = db.prepare("SELECT * FROM transactions WHERE user_email = ? ORDER BY date DESC").all(email);
+      return res.json(transactions);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  } else {
+    // Mock Fallback
+    const transactions = mockTransactions.filter(t => t.user_email === email);
+    return res.json(transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
   }
 });
 
 apiRouter.post("/transactions", (req, res) => {
-  if (!db) return res.status(500).json({ error: "Banco de dados não disponível" });
-
   const { user_email, type, amount, category, date, description, installments } = req.body;
-  try {
-    const stmt = db.prepare("INSERT INTO transactions (user_email, type, amount, category, date, description, installments) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    stmt.run(user_email, type, amount, category, date, description, installments);
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error("Post Transaction Error:", error);
-    res.status(500).json({ error: error.message });
+  
+  if (db) {
+    try {
+      const stmt = db.prepare("INSERT INTO transactions (user_email, type, amount, category, date, description, installments) VALUES (?, ?, ?, ?, ?, ?, ?)");
+      stmt.run(user_email, type, amount, category, date, description, installments);
+      return res.json({ success: true });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  } else {
+    // Mock Fallback
+    mockTransactions.push({ user_email, type, amount, category, date, description, installments });
+    return res.json({ success: true });
   }
 });
 
