@@ -161,8 +161,13 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
         <div className="max-w-md w-full mx-auto">
           <div className="flex items-center gap-2 mb-12">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-              <LayoutDashboard className="text-white w-5 h-5" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+              <img 
+                src="https://i.imgur.com/mPPZOMY.jpeg" 
+                alt="ProcVisual Logo" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">ProcVisual</span>
           </div>

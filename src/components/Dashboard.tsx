@@ -289,8 +289,13 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       <aside className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shrink-0">
-              <LayoutDashboard className="text-white w-5 h-5" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
+              <img 
+                src="https://i.imgur.com/mPPZOMY.jpeg" 
+                alt="ProcVisual Logo" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-slate-900">ProcVisual</span>}
           </div>
