@@ -8,6 +8,109 @@ import { Header, Hero, Features, Footer } from './components/LandingPage';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 
+interface ResetPasswordProps {
+  onSuccess: () => void;
+  onBack: () => void;
+}
+
+const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
+  const [resetEmail, setResetEmail] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [resetMessage, setResetMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const handleResetSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    if (newPassword !== confirmPassword) {
+      setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
+    const userIndex = users.findIndex((u: any) => u.email === resetEmail);
+
+    if (userIndex === -1) {
+      setResetMessage({ text: "Email não encontrado.", type: 'error' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    users[userIndex].password = newPassword;
+    localStorage.setItem('procvisual_users', JSON.stringify(users));
+    setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
+    
+    setTimeout(() => {
+      onSuccess();
+    }, 2000);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+      <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
+        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Redefinir Senha</h1>
+        <p className="text-slate-500 mb-8">Digite seu email e a nova senha abaixo.</p>
+        
+        {resetMessage && (
+          <div className={`p-4 rounded-xl text-sm font-medium mb-4 ${
+            resetMessage.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+          }`}>
+            {resetMessage.text}
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleResetSubmit}>
+          <input 
+            type="email" 
+            placeholder="Seu email cadastrado" 
+            required 
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+          />
+          <input 
+            type="password" 
+            placeholder="Nova senha" 
+            required 
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+          />
+          <input 
+            type="password" 
+            placeholder="Confirmar nova senha" 
+            required 
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+          />
+          <button 
+            disabled={isSubmitting}
+            className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg disabled:opacity-50"
+          >
+            {isSubmitting && resetMessage?.type === 'success' ? 'Redirecionando...' : 'Salvar Nova Senha'}
+          </button>
+        </form>
+        
+        <button 
+          onClick={onBack}
+          className="mt-6 text-sm font-medium text-slate-500 hover:text-slate-900"
+        >
+          Voltar para o login
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [view, setView] = React.useState<'landing' | 'auth' | 'dashboard' | 'reset-password'>(() => {
     if (typeof window !== 'undefined') {
@@ -63,6 +166,20 @@ export default function App() {
     setView('landing');
   };
 
+  const handleResetSuccess = () => {
+    // Completely remove the hash from the URL including the '#' symbol
+    if (window.history && window.history.replaceState) {
+      const url = window.location.pathname + window.location.search;
+      window.history.replaceState(null, '', url || '/');
+    } else {
+      window.location.hash = '';
+    }
+    
+    setAuthMode('login');
+    setView('auth');
+    window.scrollTo(0, 0);
+  };
+
   if (view === 'dashboard') {
     return <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />;
   }
@@ -72,107 +189,7 @@ export default function App() {
   }
 
   if (view === 'reset-password') {
-    const [resetEmail, setResetEmail] = React.useState('');
-    const [newPassword, setNewPassword] = React.useState('');
-    const [confirmPassword, setConfirmPassword] = React.useState('');
-    const [resetMessage, setResetMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
-
-    const handleResetSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      if (newPassword !== confirmPassword) {
-        setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
-        return;
-      }
-
-      const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
-      const userIndex = users.findIndex((u: any) => u.email === resetEmail);
-
-      if (userIndex === -1) {
-        setResetMessage({ text: "Email não encontrado.", type: 'error' });
-        return;
-      }
-
-      users[userIndex].password = newPassword;
-      localStorage.setItem('procvisual_users', JSON.stringify(users));
-      setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
-      
-      setTimeout(() => {
-        // Completely remove the hash from the URL including the '#' symbol
-        // This prevents the '#' from staying in the URL and avoids triggering hashchange
-        if (window.history && window.history.replaceState) {
-          const url = window.location.pathname + window.location.search;
-          window.history.replaceState(null, '', url || '/');
-        } else {
-          window.location.hash = '';
-        }
-        
-        // Ensure we are going to the login screen
-        setAuthMode('login');
-        setView('auth');
-        
-        // Scroll to top for the new view
-        window.scrollTo(0, 0);
-      }, 2000);
-    };
-
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Redefinir Senha</h1>
-          <p className="text-slate-500 mb-8">Digite seu email e a nova senha abaixo.</p>
-          
-          {resetMessage && (
-            <div className={`p-4 rounded-xl text-sm font-medium mb-4 ${
-              resetMessage.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-            }`}>
-              {resetMessage.text}
-            </div>
-          )}
-
-          <form className="space-y-4" onSubmit={handleResetSubmit}>
-            <input 
-              type="email" 
-              placeholder="Seu email cadastrado" 
-              required 
-              value={resetEmail}
-              onChange={(e) => setResetEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-            />
-            <input 
-              type="password" 
-              placeholder="Nova senha" 
-              required 
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-            />
-            <input 
-              type="password" 
-              placeholder="Confirmar nova senha" 
-              required 
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-            />
-            <button className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg">
-              Salvar Nova Senha
-            </button>
-          </form>
-          
-          <button 
-            onClick={() => setView('auth')}
-            className="mt-6 text-sm font-medium text-slate-500 hover:text-slate-900"
-          >
-            Voltar para o login
-          </button>
-        </div>
-      </div>
-    );
+    return <ResetPassword onSuccess={handleResetSuccess} onBack={() => setView('auth')} />;
   }
 
   return (
