@@ -25,7 +25,9 @@ export default function App() {
       const hash = window.location.hash;
       if (hash === '#reset-password') {
         setView('reset-password');
-      } else if (hash === '' && view === 'reset-password') {
+      } else if ((hash === '' || hash === '#') && view === 'reset-password') {
+        // Only auto-redirect to landing if the user manually cleared the hash
+        // and we are not in the middle of a controlled transition
         setView('landing');
       }
     };
@@ -95,11 +97,21 @@ export default function App() {
       setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
       
       setTimeout(() => {
-        // Clear the hash from the URL to prevent returning to this view on refresh
-        window.location.hash = '';
-        // Redirect directly to login screen
+        // Completely remove the hash from the URL including the '#' symbol
+        // This prevents the '#' from staying in the URL and avoids triggering hashchange
+        if (window.history && window.history.replaceState) {
+          const url = window.location.pathname + window.location.search;
+          window.history.replaceState(null, '', url || '/');
+        } else {
+          window.location.hash = '';
+        }
+        
+        // Ensure we are going to the login screen
         setAuthMode('login');
         setView('auth');
+        
+        // Scroll to top for the new view
+        window.scrollTo(0, 0);
       }, 2000);
     };
 
