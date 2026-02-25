@@ -275,8 +275,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
     { icon: <PieChartIcon className="w-5 h-5" />, label: 'Relatórios' },
-    { icon: <Target className="w-5 h-5" />, label: 'Metas' },
-    { icon: <Settings className="w-5 h-5" />, label: 'Configurações' },
   ];
 
   return (
@@ -299,7 +297,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
           <div className="px-4 mb-6">
             <button 
               onClick={() => setIsTransactionFormOpen(true)}
-              className={`w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/40 ${!isSidebarOpen && 'px-0'}`}
+              className={`w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] active:scale-95 ${!isSidebarOpen && 'px-0'}`}
             >
               <TrendingUp className="w-5 h-5" />
               {isSidebarOpen && <span>Novo Lançamento</span>}
@@ -349,18 +347,23 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900">Olá, {userName} 👋</h1>
-                <p className="text-sm text-slate-500">Bem-vindo de volta ao seu controle financeiro.</p>
+              <div className="flex flex-col py-1">
+                <h1 className="text-2xl font-bold text-slate-900 leading-tight">{userName}</h1>
+                <span className="text-2xl">👋</span>
+                <p className="text-xs text-slate-500 font-medium max-w-[200px] leading-tight mt-1">
+                  {transactions.length > 0 
+                    ? 'Bem-vindo de volta ao seu controle financeiro.' 
+                    : 'Vamos começar a organizar suas finanças?'}
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-6">
               <button 
                 onClick={() => setIsTransactionFormOpen(true)}
-                className="hidden sm:flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
+                className="hidden sm:flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:shadow-[0_0_40px_rgba(16,185,129,0.7)] active:scale-95"
               >
-                <TrendingUp className="w-4 h-4" />
+                <TrendingUp className="w-5 h-5" />
                 Novo Lançamento
               </button>
               <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2">
