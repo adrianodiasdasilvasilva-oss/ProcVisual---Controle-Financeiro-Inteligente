@@ -22,14 +22,17 @@ export default function App() {
 
   React.useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#reset-password') {
+      const hash = window.location.hash;
+      if (hash === '#reset-password') {
         setView('reset-password');
+      } else if (hash === '' && view === 'reset-password') {
+        setView('landing');
       }
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [view]);
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
@@ -92,7 +95,10 @@ export default function App() {
       setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
       
       setTimeout(() => {
-        setView('auth');
+        // Clear the hash from the URL to prevent returning to this view on refresh
+        window.location.hash = '';
+        // Redirect to landing page
+        setView('landing');
       }, 2000);
     };
 
