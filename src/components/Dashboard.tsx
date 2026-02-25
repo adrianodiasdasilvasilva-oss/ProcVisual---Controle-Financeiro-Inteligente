@@ -65,6 +65,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isCustomYear, setIsCustomYear] = React.useState(false);
 
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
+  const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
 
   // Fetch transactions on mount
@@ -270,8 +271,8 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       });
     }
 
-    return list.slice(0, 3); // Show top 3 alerts
-  }, [transactions, stats, categoryData]);
+    return list.filter(a => !dismissedAlerts.includes(a.message)).slice(0, 3); // Show top 3 non-dismissed alerts
+  }, [transactions, stats, categoryData, dismissedAlerts]);
 
   const menuItems = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
@@ -440,7 +441,13 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                         )}
                       </div>
                       <div className="p-3 bg-slate-50/50 border-t border-slate-50 text-center">
-                        <button className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors">
+                        <button 
+                          onClick={() => {
+                            const allAlertMessages = alerts.map(a => a.message);
+                            setDismissedAlerts(prev => [...new Set([...prev, ...allAlertMessages])]);
+                          }}
+                          className="text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+                        >
                           Marcar todas como lidas
                         </button>
                       </div>
