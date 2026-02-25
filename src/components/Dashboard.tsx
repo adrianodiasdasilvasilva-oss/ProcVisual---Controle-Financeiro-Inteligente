@@ -36,6 +36,8 @@ import {
 import { motion } from 'motion/react';
 import { TransactionForm } from './TransactionForm';
 import { Insights } from './Insights';
+import { IncomeView } from './IncomeView';
+import { ExpenseView } from './ExpenseView';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
@@ -68,6 +70,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
 
   // Fetch transactions on mount
   React.useEffect(() => {
@@ -359,25 +362,8 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-              <div className="flex flex-col py-1 relative group/welcome">
+              <div className="flex flex-col py-1">
                 <h1 className="text-2xl font-bold text-slate-900 leading-tight">{userName}</h1>
-                {isWelcomeVisible && (
-                  <div className="relative">
-                    <span className="text-2xl">👋</span>
-                    <p className="text-xs text-slate-500 font-medium max-w-[200px] leading-tight mt-1 pr-6">
-                      {transactions.length > 0 
-                        ? 'Bem-vindo de volta ao seu controle financeiro.' 
-                        : 'Vamos começar a organizar suas finanças?'}
-                    </p>
-                    <button 
-                      onClick={() => setIsWelcomeVisible(false)}
-                      className="absolute -right-2 top-0 p-1 text-slate-300 hover:text-slate-500 transition-colors"
-                      title="Fechar saudação"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -497,8 +483,105 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
           ) : activeTab === 'Dashboard' ? (
             <>
               {/* Month & Year Filter */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
+                  {isWelcomeVisible && (
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="hidden lg:flex items-center gap-3 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-2xl shadow-sm relative group"
+                    >
+                      <span className="text-xl">👋</span>
+                      <p className="text-xs text-slate-600 font-medium leading-tight max-w-[180px]">
+                        {transactions.length > 0 
+                          ? 'Bem-vindo de volta ao seu controle financeiro.' 
+                          : 'Vamos começar a organizar suas finanças?'}
+                      </p>
+                      <button 
+                        onClick={() => setIsWelcomeVisible(false)}
+                        className="p-1 text-emerald-300 hover:text-emerald-600 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                      {/* Tooltip arrow */}
+                      <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-50 border-l border-b border-emerald-100 rotate-45 hidden md:block"></div>
+                    </motion.div>
+                  )}
+
+                  {monthlyGoal && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
+                        (stats.income / monthlyGoal * 100) < 60 ? 'bg-red-50 border-red-100' : 
+                        (stats.income / monthlyGoal * 100) < 90 ? 'bg-amber-50 border-amber-100' : 
+                        'bg-emerald-50 border-emerald-100'
+                      }`}
+                    >
+                      <div className="relative flex items-center justify-center">
+                        <svg className="w-14 h-14 transform -rotate-90">
+                          <circle
+                            cx="28"
+                            cy="28"
+                            r="24"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="transparent"
+                            className="text-slate-200/30"
+                          />
+                          <circle
+                            cx="28"
+                            cy="28"
+                            r="24"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="transparent"
+                            strokeDasharray={150.8}
+                            strokeDashoffset={150.8 - (Math.min(stats.income / monthlyGoal, 1) * 150.8)}
+                            className={`transition-all duration-1000 ease-out ${
+                              (stats.income / monthlyGoal * 100) < 60 ? 'text-red-500' : 
+                              (stats.income / monthlyGoal * 100) < 90 ? 'text-amber-500' : 
+                              'text-emerald-500'
+                            }`}
+                          />
+                        </svg>
+                        <span className={`absolute text-[10px] font-black ${
+                          (stats.income / monthlyGoal * 100) < 60 ? 'text-red-700' : 
+                          (stats.income / monthlyGoal * 100) < 90 ? 'text-amber-700' : 
+                          'text-emerald-700'
+                        }`}>
+                          {Math.round(stats.income / monthlyGoal * 100)}%
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-1.5">
+                          <Target className={`w-3 h-3 ${
+                            (stats.income / monthlyGoal * 100) < 60 ? 'text-red-600' : 
+                            (stats.income / monthlyGoal * 100) < 90 ? 'text-amber-600' : 
+                            'text-emerald-600'
+                          }`} />
+                          <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta do Mês</span>
+                        </div>
+                        <p className="text-sm font-black text-slate-900 leading-none mt-1">
+                          R$ {monthlyGoal.toLocaleString('pt-BR')}
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-[10px] font-medium opacity-60">Realizado:</span>
+                          <span className="text-[10px] font-bold text-slate-700">R$ {stats.income.toLocaleString('pt-BR')}</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => setMonthlyGoal(null)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-100 rounded-full shadow-md flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
                     <Calendar className="w-4 h-4 text-slate-400 ml-2" />
@@ -754,8 +837,23 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 </div>
               </div>
             </>
+          ) : activeTab === 'Receitas' ? (
+            <IncomeView transactions={transactions} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+          ) : activeTab === 'Despesas' ? (
+            <ExpenseView transactions={transactions} selectedMonth={selectedMonth} selectedYear={selectedYear} />
           ) : activeTab === 'Relatórios' ? (
-            <Insights transactions={transactions} stats={stats} categoryData={categoryData} />
+            <Insights 
+              transactions={transactions} 
+              stats={stats} 
+              categoryData={categoryData} 
+              onNavigate={(tab) => {
+                setActiveTab(tab);
+                if (tab === 'Dashboard') {
+                  // Set a default goal of 200k as per user example if none exists
+                  setMonthlyGoal(200000);
+                }
+              }}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
               <Info className="w-12 h-12 mb-4" />

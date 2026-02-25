@@ -32,9 +32,10 @@ interface InsightsProps {
   transactions: any[];
   stats: any;
   categoryData: any[];
+  onNavigate?: (tab: string) => void;
 }
 
-export const Insights = ({ transactions, stats, categoryData }: InsightsProps) => {
+export const Insights = ({ transactions, stats, categoryData, onNavigate }: InsightsProps) => {
   const [monthlySaving, setMonthlySaving] = React.useState('500');
   const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
 
@@ -265,8 +266,11 @@ export const Insights = ({ transactions, stats, categoryData }: InsightsProps) =
                   <p className="font-bold text-slate-900">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
-                Começar a poupar <ArrowRight className="w-4 h-4" />
+              <button 
+                onClick={() => onNavigate?.('Dashboard')}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+              >
+                Inserir meta no seu Dashboard <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
