@@ -67,6 +67,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   // Fetch transactions on mount
   React.useEffect(() => {
@@ -133,9 +134,16 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       const date = new Date(t.date);
       const monthMatch = selectedMonth === -1 || date.getMonth() === selectedMonth;
       const yearMatch = selectedYear === -1 || date.getFullYear() === selectedYear;
-      return monthMatch && yearMatch;
+      
+      const searchLower = searchQuery.toLowerCase();
+      const searchMatch = !searchQuery || 
+        t.description.toLowerCase().includes(searchLower) || 
+        t.category.toLowerCase().includes(searchLower) ||
+        t.amount.includes(searchQuery);
+
+      return monthMatch && yearMatch && searchMatch;
     });
-  }, [transactions, selectedMonth, selectedYear]);
+  }, [transactions, selectedMonth, selectedYear, searchQuery]);
 
   // Calculate Stats
   const stats = React.useMemo(() => {
@@ -381,13 +389,23 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 <TrendingUp className="w-5 h-5" />
                 Novo Lançamento
               </button>
-              <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2">
+              <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
                 <Search className="w-4 h-4 text-slate-400" />
                 <input 
                   type="text" 
-                  placeholder="Buscar..." 
+                  placeholder="Buscar lançamentos..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="bg-transparent border-none outline-none text-sm w-40"
                 />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="p-0.5 hover:bg-slate-200 rounded-full transition-colors"
+                  >
+                    <X className="w-3 h-3 text-slate-400" />
+                  </button>
+                )}
               </div>
               <div className="relative">
                 <button 
