@@ -97,8 +97,9 @@ export default function App() {
       setTimeout(() => {
         // Clear the hash from the URL to prevent returning to this view on refresh
         window.location.hash = '';
-        // Redirect to landing page
-        setView('landing');
+        // Redirect directly to login screen
+        setAuthMode('login');
+        setView('auth');
       }, 2000);
     };
 
