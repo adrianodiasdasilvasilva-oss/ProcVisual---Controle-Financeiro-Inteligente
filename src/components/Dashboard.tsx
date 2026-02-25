@@ -64,6 +64,8 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [isCustomYear, setIsCustomYear] = React.useState(false);
 
+  const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
+
   // Fetch transactions on mount
   React.useEffect(() => {
     const fetchTransactions = () => {
@@ -347,14 +349,25 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-              <div className="flex flex-col py-1">
+              <div className="flex flex-col py-1 relative group/welcome">
                 <h1 className="text-2xl font-bold text-slate-900 leading-tight">{userName}</h1>
-                <span className="text-2xl">👋</span>
-                <p className="text-xs text-slate-500 font-medium max-w-[200px] leading-tight mt-1">
-                  {transactions.length > 0 
-                    ? 'Bem-vindo de volta ao seu controle financeiro.' 
-                    : 'Vamos começar a organizar suas finanças?'}
-                </p>
+                {isWelcomeVisible && (
+                  <div className="relative">
+                    <span className="text-2xl">👋</span>
+                    <p className="text-xs text-slate-500 font-medium max-w-[200px] leading-tight mt-1 pr-6">
+                      {transactions.length > 0 
+                        ? 'Bem-vindo de volta ao seu controle financeiro.' 
+                        : 'Vamos começar a organizar suas finanças?'}
+                    </p>
+                    <button 
+                      onClick={() => setIsWelcomeVisible(false)}
+                      className="absolute -right-2 top-0 p-1 text-slate-300 hover:text-slate-500 transition-colors"
+                      title="Fechar saudação"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
