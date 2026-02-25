@@ -64,6 +64,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [isCustomYear, setIsCustomYear] = React.useState(false);
 
+  const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
 
   // Fetch transactions on mount
@@ -387,10 +388,66 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                   className="bg-transparent border-none outline-none text-sm w-40"
                 />
               </div>
-              <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  className={`relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-100 text-emerald-600' : ''}`}
+                >
+                  <Bell className="w-5 h-5" />
+                  {alerts.length > 0 && (
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                  )}
+                </button>
+
+                {isNotificationsOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setIsNotificationsOpen(false)}
+                    ></div>
+                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                        <h3 className="font-bold text-slate-900">Notificações</h3>
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                          {alerts.length} novas
+                        </span>
+                      </div>
+                      <div className="max-h-[400px] overflow-y-auto p-2 space-y-1">
+                        {alerts.length > 0 ? (
+                          alerts.map((alert, i) => (
+                            <div 
+                              key={i} 
+                              className="p-3 rounded-xl hover:bg-slate-50 transition-colors flex gap-3 cursor-pointer group"
+                            >
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                                alert.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
+                                alert.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                              }`}>
+                                {alert.type === 'success' ? <Target className="w-5 h-5" /> : 
+                                 alert.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{alert.message}</p>
+                                <p className="text-xs text-slate-500 leading-tight mt-0.5">{alert.description}</p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="py-8 text-center">
+                            <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                            <p className="text-sm text-slate-400">Nenhuma notificação por aqui.</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 bg-slate-50/50 border-t border-slate-50 text-center">
+                        <button className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors">
+                          Marcar todas como lidas
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
               <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-slate-900">Saldo atual</p>
