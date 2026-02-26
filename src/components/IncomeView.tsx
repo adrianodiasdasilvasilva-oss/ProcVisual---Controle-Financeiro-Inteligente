@@ -6,7 +6,8 @@ import {
   DollarSign, 
   Target, 
   Calendar,
-  ChevronRight
+  ChevronRight,
+  Trash2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -36,11 +37,12 @@ interface IncomeViewProps {
   transactions: Transaction[];
   selectedMonth: number;
   selectedYear: number;
+  onDelete?: (transaction: Transaction) => void;
 }
 
 const COLORS = ['#10b981', '#34d399', '#059669', '#065f46', '#064e3b'];
 
-export const IncomeView = ({ transactions, selectedMonth, selectedYear }: IncomeViewProps) => {
+export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete }: IncomeViewProps) => {
   const incomeTransactions = React.useMemo(() => 
     transactions.filter(t => t.type === 'income'),
     [transactions]
@@ -232,6 +234,7 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear }: Income
                   <th className="pb-4 px-4">Descrição</th>
                   <th className="pb-4 px-4">Categoria</th>
                   <th className="pb-4 px-4 text-right">Valor</th>
+                  <th className="pb-4 px-4 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -253,6 +256,15 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear }: Income
                       </td>
                       <td className="py-4 px-4 text-right font-bold text-emerald-600">
                         + R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <button 
+                          onClick={() => onDelete?.(t)}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                          title="Excluir lançamento"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}

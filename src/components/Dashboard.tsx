@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   Info,
-  Calendar
+  Calendar,
+  Trash2
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -129,6 +130,20 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     } catch (error) {
       console.error('Failed to save transaction:', error);
       alert('Erro ao salvar transação localmente.');
+    }
+  };
+
+  const handleDeleteTransaction = (transactionToDelete: Transaction) => {
+    if (!window.confirm('Tem certeza que deseja excluir este lançamento?')) return;
+
+    try {
+      const key = `procvisual_transactions_${userEmail}`;
+      const updatedTransactions = transactions.filter(t => t !== transactionToDelete);
+      localStorage.setItem(key, JSON.stringify(updatedTransactions));
+      setTransactions(updatedTransactions);
+    } catch (error) {
+      console.error('Failed to delete transaction:', error);
+      alert('Erro ao excluir transação.');
     }
   };
 
@@ -834,6 +849,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                           <th className="pb-4 px-4">Descrição</th>
                           <th className="pb-4 px-4">Categoria</th>
                           <th className="pb-4 px-4 text-right">Valor</th>
+                          <th className="pb-4 px-4 text-right">Ações</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
@@ -854,6 +870,15 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                               <td className={`py-4 px-4 text-right font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
                                 {t.type === 'income' ? '+' : '-'} R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </td>
+                              <td className="py-4 px-4 text-right">
+                                <button 
+                                  onClick={() => handleDeleteTransaction(t)}
+                                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                  title="Excluir lançamento"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
                             </tr>
                           ))
                         ) : (
@@ -870,9 +895,19 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               </div>
             </>
           ) : activeTab === 'Receitas' ? (
-            <IncomeView transactions={transactions} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+            <IncomeView 
+              transactions={transactions} 
+              selectedMonth={selectedMonth} 
+              selectedYear={selectedYear} 
+              onDelete={handleDeleteTransaction}
+            />
           ) : activeTab === 'Despesas' ? (
-            <ExpenseView transactions={transactions} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+            <ExpenseView 
+              transactions={transactions} 
+              selectedMonth={selectedMonth} 
+              selectedYear={selectedYear} 
+              onDelete={handleDeleteTransaction}
+            />
           ) : activeTab === 'Análises' ? (
             <Insights 
               transactions={transactions} 
