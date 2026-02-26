@@ -234,6 +234,38 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     }
   }, [filteredTransactions, selectedMonth, selectedYear]);
 
+  // Calculate Annual Goal Stats
+  const annualGoalStats = React.useMemo(() => {
+    if (!monthlyGoal) return null;
+    
+    const year = selectedYear === -1 ? new Date().getFullYear() : selectedYear;
+    const target = monthlyGoal * 12;
+    let realized = 0;
+    
+    // We need to look at all transactions for the selected year
+    const yearTransactions = transactions.filter(t => new Date(t.date).getFullYear() === year);
+    
+    for (let m = 0; m < 12; m++) {
+      const monthTransactions = yearTransactions.filter(t => new Date(t.date).getMonth() === m);
+      const income = monthTransactions
+        .filter(t => t.type === 'income')
+        .reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+      const expense = monthTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+      
+      const balance = income - expense;
+      // Cap contribution at monthlyGoal as per user request
+      realized += Math.min(Math.max(0, balance), monthlyGoal);
+    }
+    
+    return {
+      realized,
+      target,
+      percent: Math.min(100, Math.round((realized / target) * 100))
+    };
+  }, [transactions, monthlyGoal, selectedYear]);
+
   const alerts = React.useMemo(() => {
     const list: any[] = [];
     
@@ -289,7 +321,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
-    { icon: <PieChartIcon className="w-5 h-5" />, label: 'Relatórios' },
+    { icon: <PieChartIcon className="w-5 h-5" />, label: 'Análises' },
   ];
 
   return (
@@ -509,13 +541,13 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                     </motion.div>
                   )}
 
-                  {monthlyGoal && (
+                  {monthlyGoal && annualGoalStats && (
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
-                        (stats.income / monthlyGoal * 100) < 60 ? 'bg-red-50 border-red-100' : 
-                        (stats.income / monthlyGoal * 100) < 90 ? 'bg-amber-50 border-amber-100' : 
+                        annualGoalStats.percent < 60 ? 'bg-red-50 border-red-100' : 
+                        annualGoalStats.percent < 90 ? 'bg-amber-50 border-amber-100' : 
                         'bg-emerald-50 border-emerald-100'
                       }`}
                     >
@@ -538,38 +570,38 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                             strokeWidth="4"
                             fill="transparent"
                             strokeDasharray={150.8}
-                            strokeDashoffset={150.8 - (Math.min(stats.income / monthlyGoal, 1) * 150.8)}
+                            strokeDashoffset={150.8 - (Math.min(annualGoalStats.realized / annualGoalStats.target, 1) * 150.8)}
                             className={`transition-all duration-1000 ease-out ${
-                              (stats.income / monthlyGoal * 100) < 60 ? 'text-red-500' : 
-                              (stats.income / monthlyGoal * 100) < 90 ? 'text-amber-500' : 
+                              annualGoalStats.percent < 60 ? 'text-red-500' : 
+                              annualGoalStats.percent < 90 ? 'text-amber-500' : 
                               'text-emerald-500'
                             }`}
                           />
                         </svg>
                         <span className={`absolute text-[10px] font-black ${
-                          (stats.income / monthlyGoal * 100) < 60 ? 'text-red-700' : 
-                          (stats.income / monthlyGoal * 100) < 90 ? 'text-amber-700' : 
+                          annualGoalStats.percent < 60 ? 'text-red-700' : 
+                          annualGoalStats.percent < 90 ? 'text-amber-700' : 
                           'text-emerald-700'
                         }`}>
-                          {Math.round(stats.income / monthlyGoal * 100)}%
+                          {annualGoalStats.percent}%
                         </span>
                       </div>
                       
                       <div className="flex flex-col">
                         <div className="flex items-center gap-1.5">
                           <Target className={`w-3 h-3 ${
-                            (stats.income / monthlyGoal * 100) < 60 ? 'text-red-600' : 
-                            (stats.income / monthlyGoal * 100) < 90 ? 'text-amber-600' : 
+                            annualGoalStats.percent < 60 ? 'text-red-600' : 
+                            annualGoalStats.percent < 90 ? 'text-amber-600' : 
                             'text-emerald-600'
                           }`} />
-                          <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta do Mês</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta Anual</span>
                         </div>
                         <p className="text-sm font-black text-slate-900 leading-none mt-1">
-                          R$ {monthlyGoal.toLocaleString('pt-BR')}
+                          R$ {annualGoalStats.target.toLocaleString('pt-BR')}
                         </p>
                         <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[10px] font-medium opacity-60">Realizado:</span>
-                          <span className="text-[10px] font-bold text-slate-700">R$ {stats.income.toLocaleString('pt-BR')}</span>
+                          <span className="text-[10px] font-medium opacity-60">Acumulado:</span>
+                          <span className="text-[10px] font-bold text-slate-700">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
                         </div>
                       </div>
 
@@ -841,16 +873,15 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
             <IncomeView transactions={transactions} selectedMonth={selectedMonth} selectedYear={selectedYear} />
           ) : activeTab === 'Despesas' ? (
             <ExpenseView transactions={transactions} selectedMonth={selectedMonth} selectedYear={selectedYear} />
-          ) : activeTab === 'Relatórios' ? (
+          ) : activeTab === 'Análises' ? (
             <Insights 
               transactions={transactions} 
               stats={stats} 
               categoryData={categoryData} 
-              onNavigate={(tab) => {
+              onNavigate={(tab, value) => {
                 setActiveTab(tab);
-                if (tab === 'Dashboard') {
-                  // Set a default goal of 200k as per user example if none exists
-                  setMonthlyGoal(200000);
+                if (tab === 'Dashboard' && value !== undefined) {
+                  setMonthlyGoal(value);
                 }
               }}
             />

@@ -8,6 +8,7 @@ import {
   Sparkles,
   DollarSign,
   Info,
+  AlertCircle,
   PieChart as PieChartIcon
 } from 'lucide-react';
 import { 
@@ -32,7 +33,7 @@ interface InsightsProps {
   transactions: any[];
   stats: any;
   categoryData: any[];
-  onNavigate?: (tab: string) => void;
+  onNavigate?: (tab: string, value?: number) => void;
 }
 
 export const Insights = ({ transactions, stats, categoryData, onNavigate }: InsightsProps) => {
@@ -266,12 +267,29 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
                   <p className="font-bold text-slate-900">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
                 </div>
               </div>
-              <button 
-                onClick={() => onNavigate?.('Dashboard')}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-              >
-                Inserir meta no seu Dashboard <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="space-y-3">
+                <button 
+                  onClick={() => {
+                    if (stats.balance > 0) {
+                      onNavigate?.('Dashboard', parseFloat(monthlySaving));
+                    }
+                  }}
+                  disabled={stats.balance <= 0}
+                  className={`w-full px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
+                    stats.balance > 0 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  Inserir meta no seu Dashboard <ArrowRight className="w-4 h-4" />
+                </button>
+                {stats.balance <= 0 && (
+                  <p className="text-[10px] text-red-500 font-medium text-center leading-tight">
+                    <AlertCircle className="w-3 h-3 inline mr-1 mb-0.5" />
+                    Você precisa ter saldo positivo em 'Economia' para definir uma meta.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
