@@ -14,7 +14,6 @@ import { auth, db } from '../firebase';
 const EMAILJS_PUBLIC_KEY = 'ZEkDn0JfN7ugWRzPW';
 const EMAILJS_SERVICE_ID = 'service_n2kfudg';
 const EMAILJS_WELCOME_TEMPLATE_ID = 'template_rlnfwq7';
-const EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID = 'template_di20fjt';
 
 interface AuthProps {
   onBack: () => void;
@@ -31,7 +30,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = React.useState(false);
-  const [forgotPasswordData, setForgotPasswordData] = React.useState({ name: '', phone: '', email: '' });
+  const [forgotPasswordEmail, setForgotPasswordEmail] = React.useState('');
   const [message, setMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
   React.useEffect(() => {
@@ -109,26 +108,15 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
     try {
       // Firebase Password Reset
-      await sendPasswordResetEmail(auth, forgotPasswordData.email);
-
-      const templateParams = {
-        to_name: forgotPasswordData.name,
-        to_phone: forgotPasswordData.phone,
-        to_email: forgotPasswordData.email,
-        reset_link: `${window.location.origin}/#reset-password`,
+      const actionCodeSettings = {
+        url: window.location.origin + '/#reset-password',
+        handleCodeInApp: false,
       };
-
-      console.log("Sending password reset notification via EmailJS...");
-
-      try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);
-      } catch (emailErr) {
-        console.error('EmailJS Notification Error:', emailErr);
-      }
+      await sendPasswordResetEmail(auth, forgotPasswordEmail, actionCodeSettings);
       
       setMessage({ text: "Enviamos um link para redefinição de senha no seu email. Verifique também sua caixa de spam.", type: 'success' });
       setIsForgotPasswordOpen(false);
-      setForgotPasswordData({ name: '', phone: '', email: '' });
+      setForgotPasswordEmail('');
     } catch (error: any) {
       console.error('Error sending forgot password email:', error);
       let errorMessage = "Não foi possível enviar o email. Tente novamente.";
@@ -346,34 +334,12 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
               
               <form onSubmit={handleForgotPasswordSubmit} className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Nome Completo</label>
-                  <input 
-                    type="text" 
-                    required
-                    value={forgotPasswordData.name}
-                    onChange={(e) => setForgotPasswordData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Seu nome"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Telefone</label>
-                  <input 
-                    type="tel" 
-                    required
-                    value={forgotPasswordData.phone}
-                    onChange={(e) => setForgotPasswordData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="(00) 00000-0000"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                  />
-                </div>
-                <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
                   <input 
                     type="email" 
                     required
-                    value={forgotPasswordData.email}
-                    onChange={(e) => setForgotPasswordData(prev => ({ ...prev, email: e.target.value }))}
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
                     placeholder="seu@email.com"
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                   />
