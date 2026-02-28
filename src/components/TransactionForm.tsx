@@ -6,12 +6,15 @@ interface TransactionFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: any) => void;
+  customCategories?: { income: string[], expense: string[] };
 }
 
-export const TransactionForm = ({ isOpen, onClose, onSave }: TransactionFormProps) => {
+export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { income: [], expense: [] } }: TransactionFormProps) => {
   const [type, setType] = React.useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = React.useState('');
   const [category, setCategory] = React.useState('');
+  const [customCategory, setCustomCategory] = React.useState('');
+  const [isCustom, setIsCustom] = React.useState(false);
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = React.useState('');
   const [installments, setInstallments] = React.useState('1');
@@ -22,19 +25,29 @@ export const TransactionForm = ({ isOpen, onClose, onSave }: TransactionFormProp
       setAmount('');
       setDescription('');
       setCategory('');
+      setCustomCategory('');
+      setIsCustom(false);
       setType('expense');
       setDate(new Date().toISOString().split('T')[0]);
       setInstallments('1');
     }
   }, [isOpen]);
 
-  const categories = type === 'income' 
+  const defaultCategories = type === 'income' 
     ? ['Salário', 'Investimentos', 'Freelance', 'Presente', 'Outros']
     : ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros'];
 
+  const userCategories = customCategories[type] || [];
+  const allCategories = [...defaultCategories, ...userCategories];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ type, amount, category, date, description, installments });
+    const finalCategory = isCustom ? customCategory : category;
+    if (!finalCategory) {
+      alert('Por favor, selecione ou digite uma categoria.');
+      return;
+    }
+    onSave({ type, amount, category: finalCategory, date, description, installments });
     onClose();
   };
 
@@ -118,19 +131,48 @@ export const TransactionForm = ({ isOpen, onClose, onSave }: TransactionFormProp
                 {/* Category */}
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
-                  <div className="relative">
-                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-                    <select
-                      required
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none text-slate-900 font-bold text-sm"
-                    >
-                      <option value="">Selecionar...</option>
-                      {categories.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <select
+                        required
+                        value={isCustom ? 'CUSTOM' : category}
+                        onChange={(e) => {
+                          if (e.target.value === 'CUSTOM') {
+                            setIsCustom(true);
+                            setCategory('');
+                          } else {
+                            setIsCustom(false);
+                            setCategory(e.target.value);
+                          }
+                        }}
+                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none text-slate-900 font-bold text-sm"
+                      >
+                        <option value="">Selecionar...</option>
+                        {allCategories.map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                        <option value="CUSTOM" className="text-emerald-600 font-bold">+ Personalizar...</option>
+                      </select>
+                    </div>
+
+                    {isCustom && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="relative"
+                      >
+                        <input
+                          type="text"
+                          required
+                          placeholder="Digite o nome da categoria..."
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          className="w-full px-5 py-3 bg-emerald-50/50 border border-emerald-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm placeholder:text-emerald-300"
+                          autoFocus
+                        />
+                      </motion.div>
+                    )}
                   </div>
                 </div>
 

@@ -87,16 +87,19 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [searchQuery, setSearchQuery] = React.useState('');
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
+  const [customCategories, setCustomCategories] = React.useState<{income: string[], expense: string[]}>({ income: [], expense: [] });
   const [isUploading, setIsUploading] = React.useState(false);
 
-  // Fetch user profile data (including image)
+  // Fetch user profile data (including image and custom categories)
   React.useEffect(() => {
     if (!auth.currentUser) return;
     
     const userDocRef = doc(db, 'users', auth.currentUser.uid);
     const unsubscribe = onSnapshot(userDocRef, (doc) => {
       if (doc.exists()) {
-        setProfileImage(doc.data().profileImage || null);
+        const data = doc.data();
+        setProfileImage(data.profileImage || null);
+        setCustomCategories(data.customCategories || { income: [], expense: [] });
       }
     });
 
@@ -132,6 +135,26 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     const numInstallments = parseInt(data.installments) || 1;
     const newTransactionsToSave: any[] = [];
     
+    // Check if this is a new custom category and save it to user profile
+    if (auth.currentUser) {
+      const type = data.type as 'income' | 'expense';
+      const currentCustom = customCategories[type] || [];
+      const defaultCategories = type === 'income' 
+        ? ['Salário', 'Investimentos', 'Freelance', 'Presente', 'Outros']
+        : ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros'];
+      
+      if (!defaultCategories.includes(data.category) && !currentCustom.includes(data.category)) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const updatedCustom = [...currentCustom, data.category];
+        await setDoc(userDocRef, { 
+          customCategories: {
+            ...customCategories,
+            [type]: updatedCustom
+          }
+        }, { merge: true });
+      }
+    }
+
     if (numInstallments <= 1) {
       newTransactionsToSave.push({ ...data, userEmail });
     } else {
@@ -1107,6 +1130,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         isOpen={isTransactionFormOpen} 
         onClose={() => setIsTransactionFormOpen(false)} 
         onSave={handleSaveTransaction} 
+        customCategories={customCategories}
       />
 
       {/* Mobile FAB */}
