@@ -8,8 +8,8 @@ import { Header, Hero, Features, Footer } from './components/LandingPage';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 import { auth, db } from './firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut, sendPasswordResetEmail, confirmPasswordReset } from 'firebase/auth';
+import { doc, getDoc, updateDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { CheckCircle2, CreditCard, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -25,9 +25,10 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
   const [resetMessage, setResetMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleResetSubmit = (e: React.FormEvent) => {
+  const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setResetMessage(null);
     
     if (newPassword !== confirmPassword) {
       setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
@@ -35,22 +36,43 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
-    const userIndex = users.findIndex((u: any) => u.email === resetEmail);
+    try {
+      // Check if email exists in Firestore
+      const q = query(collection(db, 'users'), where('email', '==', resetEmail));
+      const querySnapshot = await getDocs(q);
 
-    if (userIndex === -1) {
-      setResetMessage({ text: "Email não encontrado.", type: 'error' });
+      if (querySnapshot.empty) {
+        setResetMessage({ text: "Email não encontrado em nossa base de dados.", type: 'error' });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check for oobCode in URL (Firebase standard for password reset)
+      const urlParams = new URLSearchParams(window.location.search);
+      const oobCode = urlParams.get('oobCode');
+
+      if (oobCode) {
+        await confirmPasswordReset(auth, oobCode, newPassword);
+        setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
+        setTimeout(() => onSuccess(), 2000);
+      } else {
+        // If no code, send the reset email
+        await sendPasswordResetEmail(auth, resetEmail);
+        setResetMessage({ 
+          text: "Para sua segurança, enviamos um link de confirmação para seu email. Clique no link recebido para concluir a alteração da senha.", 
+          type: 'success' 
+        });
+      }
+    } catch (error: any) {
+      console.error('Reset Error:', error);
+      let errorMsg = "Ocorreu um erro ao processar sua solicitação.";
+      if (error.code === 'auth/invalid-action-code') errorMsg = "O link de redefinição expirou ou já foi usado.";
+      if (error.code === 'auth/weak-password') errorMsg = "A nova senha deve ter pelo menos 6 caracteres.";
+      
+      setResetMessage({ text: errorMsg, type: 'error' });
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    users[userIndex].password = newPassword;
-    localStorage.setItem('procvisual_users', JSON.stringify(users));
-    setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
-    
-    setTimeout(() => {
-      onSuccess();
-    }, 2000);
   };
 
   return (
