@@ -17,7 +17,9 @@ import {
   X,
   Info,
   Calendar,
-  Trash2
+  Trash2,
+  Camera,
+  Upload
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -43,7 +45,8 @@ import {
   where, 
   deleteDoc, 
   doc,
-  writeBatch
+  writeBatch,
+  setDoc
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { TransactionForm } from './TransactionForm';
@@ -83,6 +86,22 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
+  const [profileImage, setProfileImage] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  // Fetch user profile data (including image)
+  React.useEffect(() => {
+    if (!auth.currentUser) return;
+    
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const unsubscribe = onSnapshot(userDocRef, (doc) => {
+      if (doc.exists()) {
+        setProfileImage(doc.data().profileImage || null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Fetch transactions on mount
   React.useEffect(() => {
@@ -163,7 +182,10 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       
       // Reset user profile access (optional, but requested to "clear registrations")
       const userDocRef = doc(db, 'users', auth.currentUser?.uid || '');
-      batch.update(userDocRef, { hasLifetimeAccess: false });
+      batch.update(userDocRef, { 
+        hasLifetimeAccess: false,
+        profileImage: null 
+      });
       
       await batch.commit();
       alert('Dados excluídos com sucesso! Sua conta foi resetada.');
@@ -173,6 +195,38 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       alert('Erro ao resetar conta.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !auth.currentUser) return;
+
+    // Validate file type and size (max 2MB for base64 storage in Firestore)
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione uma imagem válida.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 2MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+        const userDocRef = doc(db, 'users', auth.currentUser!.uid);
+        await setDoc(userDocRef, { profileImage: base64String }, { merge: true });
+        setProfileImage(base64String);
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Erro ao carregar imagem.');
+      setIsUploading(false);
     }
   };
   const handleDeleteTransaction = async (transactionToDelete: any) => {
@@ -558,8 +612,14 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden">
-                  <img src="https://picsum.photos/seed/user/100/100" alt="Avatar" referrerPolicy="no-referrer" />
+                <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden border border-slate-200">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-emerald-100 text-emerald-600 font-bold">
+                      {userName.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -975,11 +1035,33 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 
                 <div className="space-y-6">
                   <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h3 className="font-bold text-slate-900 mb-2">Perfil</h3>
-                    <p className="text-sm text-slate-500 mb-4">Informações da sua conta conectada.</p>
-                    <div className="space-y-2">
-                      <p className="text-sm"><strong>Nome:</strong> {userName}</p>
-                      <p className="text-sm"><strong>Email:</strong> {userEmail}</p>
+                    <h3 className="font-bold text-slate-900 mb-4">Perfil</h3>
+                    <div className="flex flex-col sm:flex-row items-center gap-6">
+                      <div className="relative group">
+                        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-emerald-100 flex items-center justify-center">
+                          {profileImage ? (
+                            <img src={profileImage} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          ) : (
+                            <span className="text-3xl font-bold text-emerald-600">
+                              {userName.charAt(0).toUpperCase() || 'U'}
+                            </span>
+                          )}
+                          {isUploading && (
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            </div>
+                          )}
+                        </div>
+                        <label className="absolute bottom-0 right-0 p-2 bg-emerald-600 text-white rounded-full shadow-lg cursor-pointer hover:bg-emerald-700 transition-all group-hover:scale-110">
+                          <Camera className="w-4 h-4" />
+                          <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
+                        </label>
+                      </div>
+                      <div className="flex-1 space-y-2 text-center sm:text-left">
+                        <p className="text-sm"><strong>Nome:</strong> {userName}</p>
+                        <p className="text-sm"><strong>Email:</strong> {userEmail}</p>
+                        <p className="text-xs text-slate-500 mt-2">Clique no ícone da câmera para alterar sua foto de perfil.</p>
+                      </div>
                     </div>
                   </div>
 
