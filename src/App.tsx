@@ -9,7 +9,7 @@ import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { CheckCircle2, CreditCard, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -129,53 +129,23 @@ export default function App() {
   });
 
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
+  const [user, setUser] = React.useState<any>(null);
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
   const [hasLifetimeAccess, setHasLifetimeAccess] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isUpdatingAccess, setIsUpdatingAccess] = React.useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = React.useState(false);
 
+  // 1. Auth Listener
   React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUserName(user.displayName || '');
-        setUserEmail(user.email || '');
-        
-        // Check for payment success parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const paymentStatus = urlParams.get('payment');
-        
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          let access = false;
-          if (userDoc.exists()) {
-            access = userDoc.data().hasLifetimeAccess;
-          }
-          
-          if (paymentStatus === 'success' && !access) {
-            setIsUpdatingAccess(true);
-            // Use setDoc with merge to create or update
-            await setDoc(userDocRef, { 
-              hasLifetimeAccess: true,
-              updatedAt: new Date().toISOString()
-            }, { merge: true });
-            access = true;
-            setIsUpdatingAccess(false);
-            
-            // Clean up URL
-            const cleanSearch = window.location.search.replace(/[?&]payment=success/, '');
-            const newUrl = window.location.pathname + (cleanSearch === '?' ? '' : cleanSearch);
-            window.history.replaceState(null, '', newUrl);
-          }
-          
-          setHasLifetimeAccess(access);
-        } catch (error) {
-          console.error('Error fetching user data:', error);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      if (firebaseUser) {
+        setUserName(firebaseUser.displayName || '');
+        setUserEmail(firebaseUser.email || '');
+        if (view === 'landing' || view === 'auth') {
+          setView('dashboard');
         }
-        
-        setView('dashboard');
       } else {
         setUserName('');
         setUserEmail('');
@@ -186,7 +156,49 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [view]);
+  }, []);
+
+  // 2. Access & Payment Check
+  const checkAccess = React.useCallback(async () => {
+    if (!user) return;
+    
+    setIsCheckingAccess(true);
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      let access = false;
+      if (userDoc.exists()) {
+        access = userDoc.data().hasLifetimeAccess;
+      }
+
+      // If payment just succeeded, update Firestore
+      if (paymentStatus === 'success' && !access) {
+        await setDoc(userDocRef, { 
+          hasLifetimeAccess: true,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        access = true;
+        
+        // Clean up URL
+        const cleanSearch = window.location.search.replace(/[?&]payment=success/, '');
+        const newUrl = window.location.pathname + (cleanSearch === '?' ? '' : cleanSearch);
+        window.history.replaceState(null, '', newUrl);
+      }
+      
+      setHasLifetimeAccess(access);
+    } catch (error) {
+      console.error('Error checking access:', error);
+    } finally {
+      setIsCheckingAccess(false);
+    }
+  }, [user]);
+
+  React.useEffect(() => {
+    checkAccess();
+  }, [checkAccess]);
 
   React.useEffect(() => {
     const handleHashChange = () => {
@@ -302,10 +314,15 @@ export default function App() {
                 <ArrowRight className="w-5 h-5" />
               </a>
               <button 
-                onClick={() => window.location.reload()}
-                className="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                onClick={checkAccess}
+                disabled={isCheckingAccess}
+                className="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                Já paguei, liberar acesso
+                {isCheckingAccess ? (
+                  <div className="w-5 h-5 border-2 border-slate-400 border-t-slate-600 rounded-full animate-spin"></div>
+                ) : (
+                  'Já paguei, liberar acesso'
+                )}
               </button>
               <button 
                 onClick={handleLogout}
