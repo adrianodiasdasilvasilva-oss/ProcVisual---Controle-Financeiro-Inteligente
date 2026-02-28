@@ -57,9 +57,13 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
         setTimeout(() => onSuccess(), 2000);
       } else {
         // If no code, send the reset email
-        await sendPasswordResetEmail(auth, resetEmail);
+        const actionCodeSettings = {
+          url: window.location.origin,
+          handleCodeInApp: false,
+        };
+        await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
         setResetMessage({ 
-          text: "Para sua segurança, enviamos um link de confirmação para seu email. Clique no link recebido para concluir a alteração da senha.", 
+          text: "Para sua segurança, enviamos um link de confirmação para seu email. Clique no link recebido para concluir a alteração da senha. (Verifique sua caixa de spam, pois as vezes o link pode ser filtrado incorretamente).", 
           type: 'success' 
         });
       }
