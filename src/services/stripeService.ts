@@ -18,8 +18,15 @@ export const stripeService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || errorData.error || 'Failed to create checkout session');
+        } else {
+          const textError = await response.text();
+          console.error('Non-JSON error response:', textError);
+          throw new Error('O servidor retornou um erro inesperado. Verifique se as chaves do Stripe estão configuradas.');
+        }
       }
 
       const { url } = await response.json();

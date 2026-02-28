@@ -815,9 +815,9 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Pie Chart */}
-                <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow min-w-0">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Gastos por categoria</h3>
-                  <div className="h-64">
+                  <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -851,11 +851,11 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 </div>
 
                 {/* Line Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow min-w-0">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Evolução do saldo {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
                   </h3>
-                  <div className="h-80">
+                  <div className="h-80 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -878,11 +878,11 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 </div>
 
                 {/* Bar Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow min-w-0">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Receita vs despesas {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
                   </h3>
-                  <div className="h-80">
+                  <div className="h-80 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />

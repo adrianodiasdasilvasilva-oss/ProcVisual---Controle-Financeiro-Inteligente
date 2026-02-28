@@ -121,15 +121,22 @@ apiRouter.post("/create-checkout-session", async (req, res) => {
   try {
     const { userEmail } = req.body;
     if (!userEmail) {
-      return res.status(400).json({ error: "userEmail is required" });
+      return res.status(400).json({ error: "Email do usuário é obrigatório" });
+    }
+
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    const priceId = process.env.STRIPE_PRICE_ID;
+
+    if (!secretKey || !priceId) {
+      console.error("Stripe keys missing:", { secretKey: !!secretKey, priceId: !!priceId });
+      return res.status(400).json({ 
+        error: "Configuração incompleta", 
+        message: "As chaves do Stripe (Secret Key ou Price ID) não foram configuradas nos Segredos do projeto." 
+      });
     }
 
     const stripeInstance = getStripe();
-    const priceId = process.env.STRIPE_PRICE_ID;
-    if (!priceId) {
-      return res.status(500).json({ error: "STRIPE_PRICE_ID is not set" });
-    }
-
+    
     const session = await stripeInstance.checkout.sessions.create({
       payment_method_types: ["card", "pix"],
       line_items: [
@@ -147,7 +154,10 @@ apiRouter.post("/create-checkout-session", async (req, res) => {
     res.json({ id: session.id, url: session.url });
   } catch (error: any) {
     console.error("Stripe Session Error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      error: "Erro no Stripe", 
+      message: error.message 
+    });
   }
 });
 
