@@ -174,8 +174,15 @@ export default function App() {
       const path = window.location.pathname;
       const hash = window.location.hash;
       const urlParams = new URLSearchParams(window.location.search);
+      
       if (path === '/reset-password' || hash === '#reset-password' || hash.includes('reset-password') || urlParams.get('mode') === 'resetPassword') {
         return 'reset-password';
+      }
+      
+      // If there are any query params (like payment=success or firebase params), 
+      // default to auth/dashboard flow instead of landing
+      if (urlParams.toString().length > 0) {
+        return 'auth';
       }
     }
     return 'landing';
