@@ -7,6 +7,8 @@ import React from 'react';
 import { Header, Hero, Features, Footer } from './components/LandingPage';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
+import { auth } from './firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 interface ResetPasswordProps {
   onSuccess: () => void;
@@ -123,14 +125,34 @@ export default function App() {
     return 'landing';
   });
 
+  const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
+  const [userName, setUserName] = React.useState('');
+  const [userEmail, setUserEmail] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserName(user.displayName || '');
+        setUserEmail(user.email || '');
+        setView('dashboard');
+      } else {
+        setUserName('');
+        setUserEmail('');
+        if (view === 'dashboard') setView('landing');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [view]);
+
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash === '#reset-password') {
         setView('reset-password');
       } else if ((hash === '' || hash === '#') && view === 'reset-password') {
-        // Only auto-redirect to landing if the user manually cleared the hash
-        // and we are not in the middle of a controlled transition
         setView('landing');
       }
     };
@@ -138,9 +160,6 @@ export default function App() {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [view]);
-  const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
-  const [userName, setUserName] = React.useState('');
-  const [userEmail, setUserEmail] = React.useState('');
 
   const handleLogin = () => {
     setAuthMode('login');
@@ -157,13 +176,16 @@ export default function App() {
   };
 
   const handleLoginSuccess = (name: string, email: string) => {
-    setUserName(name);
-    setUserEmail(email);
-    setView('dashboard');
+    // This is now handled by onAuthStateChanged
   };
 
-  const handleLogout = () => {
-    setView('landing');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setView('landing');
+    } catch (error) {
+      console.error('Logout Error:', error);
+    }
   };
 
   const handleResetSuccess = () => {
@@ -179,6 +201,14 @@ export default function App() {
     setView('auth');
     window.scrollTo(0, 0);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (view === 'dashboard') {
     return <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />;

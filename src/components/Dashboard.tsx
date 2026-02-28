@@ -35,6 +35,17 @@ import {
   Legend 
 } from 'recharts';
 import { motion } from 'motion/react';
+import { 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  where, 
+  deleteDoc, 
+  doc,
+  writeBatch
+} from 'firebase/firestore';
+import { db, auth } from '../firebase';
 import { TransactionForm } from './TransactionForm';
 import { Insights } from './Insights';
 import { IncomeView } from './IncomeView';
@@ -75,32 +86,35 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
 
   // Fetch transactions on mount
   React.useEffect(() => {
-    const fetchTransactions = () => {
-      try {
-        const key = `procvisual_transactions_${userEmail}`;
-        const localData = JSON.parse(localStorage.getItem(key) || '[]');
-        setTransactions(localData);
-      } catch (error) {
-        console.error('Failed to fetch transactions:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (!userEmail) return;
 
-    if (userEmail) {
-      fetchTransactions();
-    }
+    setIsLoading(true);
+    const q = query(collection(db, 'transactions'), where('userEmail', '==', userEmail));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedTransactions: Transaction[] = [];
+      snapshot.forEach((doc) => {
+        fetchedTransactions.push({ id: doc.id, ...doc.data() } as any);
+      });
+      setTransactions(fetchedTransactions);
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Firestore fetch error:', error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [userEmail]);
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
 
-  const handleSaveTransaction = (data: any) => {
+  const handleSaveTransaction = async (data: any) => {
     const numInstallments = parseInt(data.installments) || 1;
-    const newTransactionsToSave: Transaction[] = [];
+    const newTransactionsToSave: any[] = [];
     
     if (numInstallments <= 1) {
-      newTransactionsToSave.push(data);
+      newTransactionsToSave.push({ ...data, userEmail });
     } else {
       const [year, month, day] = data.date.split('-').map(Number);
       const fullAmount = parseFloat(data.amount) || 0;
@@ -111,6 +125,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         
         newTransactionsToSave.push({
           ...data,
+          userEmail,
           amount: fullAmount.toString(),
           date: formattedDate,
           description: `${data.description} (${i + 1}/${numInstallments})`
@@ -118,31 +133,32 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       }
     }
 
-    // Save to localStorage
+    // Save to Firestore
     try {
-      const key = `procvisual_transactions_${userEmail}`;
-      const currentTransactions = JSON.parse(localStorage.getItem(key) || '[]');
-      const updatedTransactions = [...currentTransactions, ...newTransactionsToSave];
-      localStorage.setItem(key, JSON.stringify(updatedTransactions));
-      
-      // Refresh local state
-      setTransactions(updatedTransactions);
+      const batch = writeBatch(db);
+      newTransactionsToSave.forEach(t => {
+        const newDocRef = doc(collection(db, 'transactions'));
+        batch.set(newDocRef, t);
+      });
+      await batch.commit();
     } catch (error) {
-      console.error('Failed to save transaction:', error);
-      alert('Erro ao salvar transação localmente.');
+      console.error('Failed to save transaction to Firestore:', error);
+      alert('Erro ao salvar transação no banco de dados.');
     }
   };
 
-  const handleDeleteTransaction = (transactionToDelete: Transaction) => {
+  const handleDeleteTransaction = async (transactionToDelete: any) => {
     if (!window.confirm('Tem certeza que deseja excluir este lançamento?')) return;
 
     try {
-      const key = `procvisual_transactions_${userEmail}`;
-      const updatedTransactions = transactions.filter(t => t !== transactionToDelete);
-      localStorage.setItem(key, JSON.stringify(updatedTransactions));
-      setTransactions(updatedTransactions);
+      if (transactionToDelete.id) {
+        await deleteDoc(doc(db, 'transactions', transactionToDelete.id));
+      } else {
+        // Fallback for local-only items if any
+        setTransactions(prev => prev.filter(t => t !== transactionToDelete));
+      }
     } catch (error) {
-      console.error('Failed to delete transaction:', error);
+      console.error('Failed to delete transaction from Firestore:', error);
       alert('Erro ao excluir transação.');
     }
   };

@@ -2,6 +2,14 @@ import React from 'react';
 import { LayoutDashboard, ArrowLeft, Mail, Lock, Eye, EyeOff, Phone, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import emailjs from 'emailjs-com';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  sendPasswordResetEmail,
+  updateProfile
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 
 const EMAILJS_PUBLIC_KEY = 'ZEkDn0JfN7ugWRzPW';
 const EMAILJS_SERVICE_ID = 'service_n2kfudg';
@@ -43,15 +51,20 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
     try {
       if (mode === 'signup') {
-        // Simulate local signup
-        const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
-        if (users.find((u: any) => u.email === email)) {
-          throw new Error("Email já cadastrado");
-        }
-        
-        const newUser = { name, email, phone, password };
-        users.push(newUser);
-        localStorage.setItem('procvisual_users', JSON.stringify(users));
+        // Firebase Signup
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Update profile with name
+        await updateProfile(user, { displayName: name });
+
+        // Save extra data to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          name,
+          phone,
+          email,
+          createdAt: new Date().toISOString()
+        });
 
         // Send welcome email via EmailJS
         const templateParams = {
@@ -69,25 +82,22 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
         setMessage({ text: "Conta criada com sucesso! Enviamos seus dados de acesso para seu email.", type: 'success' });
         
-        // Auto login after signup
-        setTimeout(() => {
-          onLoginSuccess(name, email);
-        }, 1500);
+        // onLoginSuccess will be handled by onAuthStateChanged in App.tsx
       } else {
-        // Simulate local login
-        const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
-        const user = users.find((u: any) => u.email === email && u.password === password);
-        
-        if (user) {
-          onLoginSuccess(user.name, user.email);
-        } else {
-          throw new Error('Email ou senha inválidos');
-        }
+        // Firebase Login
+        await signInWithEmailAndPassword(auth, email, password);
+        // onLoginSuccess will be handled by onAuthStateChanged in App.tsx
       }
     } catch (error: any) {
       console.error('Auth Error:', error);
       setIsLoading(false);
-      setMessage({ text: error.message || "Não foi possível processar a solicitação. Tente novamente.", type: 'error' });
+      
+      let errorMessage = "Não foi possível processar a solicitação. Tente novamente.";
+      if (error.code === 'auth/email-already-in-use') errorMessage = "Este email já está em uso.";
+      if (error.code === 'auth/invalid-credential') errorMessage = "Email ou senha inválidos.";
+      if (error.code === 'auth/weak-password') errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+      
+      setMessage({ text: error.message || errorMessage, type: 'error' });
     }
   };
 
@@ -97,36 +107,33 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     setMessage(null);
 
     try {
-      // Check if user exists locally first
-      const users = JSON.parse(localStorage.getItem('procvisual_users') || '[]');
-      const userExists = users.find((u: any) => u.email === forgotPasswordData.email);
-
-      if (!userExists) {
-        throw new Error("Este email não está cadastrado em nossa base de dados.");
-      }
+      // Firebase Password Reset
+      await sendPasswordResetEmail(auth, forgotPasswordData.email);
 
       const templateParams = {
-        to_name: forgotPasswordData.name || userExists.name,
-        to_phone: forgotPasswordData.phone || userExists.phone,
+        to_name: forgotPasswordData.name,
+        to_phone: forgotPasswordData.phone,
         to_email: forgotPasswordData.email,
         reset_link: `${window.location.origin}/#reset-password`,
       };
 
-      console.log("Sending password reset email with params:", templateParams);
+      console.log("Sending password reset notification via EmailJS...");
 
-      const response = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);
-      
-      if (response.status === 200) {
-        console.log("EmailJS Success:", response.text);
-        setMessage({ text: "Enviamos um link para redefinição de senha no seu email. Verifique também sua caixa de spam.", type: 'success' });
-        setIsForgotPasswordOpen(false);
-        setForgotPasswordData({ name: '', phone: '', email: '' });
-      } else {
-        throw new Error(`EmailJS returned status ${response.status}: ${response.text}`);
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_FORGOT_PASSWORD_TEMPLATE_ID, templateParams);
+      } catch (emailErr) {
+        console.error('EmailJS Notification Error:', emailErr);
       }
+      
+      setMessage({ text: "Enviamos um link para redefinição de senha no seu email. Verifique também sua caixa de spam.", type: 'success' });
+      setIsForgotPasswordOpen(false);
+      setForgotPasswordData({ name: '', phone: '', email: '' });
     } catch (error: any) {
       console.error('Error sending forgot password email:', error);
-      setMessage({ text: error.message || "Não foi possível enviar o email. Tente novamente.", type: 'error' });
+      let errorMessage = "Não foi possível enviar o email. Tente novamente.";
+      if (error.code === 'auth/user-not-found') errorMessage = "Este email não está cadastrado.";
+      
+      setMessage({ text: error.message || errorMessage, type: 'error' });
     } finally {
       setIsLoading(false);
     }
