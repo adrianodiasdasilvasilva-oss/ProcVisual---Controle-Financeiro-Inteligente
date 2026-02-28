@@ -160,7 +160,7 @@ export default function App() {
   const [userEmail, setUserEmail] = React.useState('');
   const [hasLifetimeAccess, setHasLifetimeAccess] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isCheckingAccess, setIsCheckingAccess] = React.useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = React.useState(true);
 
   // 1. Auth Listener
   React.useEffect(() => {
@@ -169,6 +169,7 @@ export default function App() {
       if (firebaseUser) {
         setUserName(firebaseUser.displayName || '');
         setUserEmail(firebaseUser.email || '');
+        setIsCheckingAccess(true); // Ensure checking starts as true when user is found
         if (view === 'landing' || view === 'auth') {
           setView('dashboard');
         }
@@ -176,6 +177,7 @@ export default function App() {
         setUserName('');
         setUserEmail('');
         setHasLifetimeAccess(false);
+        setIsCheckingAccess(false);
         if (view === 'dashboard') setView('landing');
       }
       setIsLoading(false);
@@ -281,7 +283,7 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  if (isLoading) {
+  if (isLoading || (user && isCheckingAccess)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
