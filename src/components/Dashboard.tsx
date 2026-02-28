@@ -189,35 +189,21 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     }
   };
 
-  const handleResetAccount = async () => {
-    if (!window.confirm('ATENÇÃO: Isso excluirá TODOS os seus lançamentos e dados de perfil permanentemente. Deseja continuar?')) return;
-    
-    setIsLoading(true);
+  const handleDeleteCustomCategory = async (type: 'income' | 'expense', categoryToDelete: string) => {
+    if (!auth.currentUser) return;
+    if (!window.confirm(`Tem certeza que deseja excluir a categoria "${categoryToDelete}"?`)) return;
+
     try {
-      const batch = writeBatch(db);
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      const updatedCategories = {
+        ...customCategories,
+        [type]: (customCategories[type] || []).filter(cat => cat !== categoryToDelete)
+      };
       
-      // Delete all transactions
-      transactions.forEach(t => {
-        if ((t as any).id) {
-          batch.delete(doc(db, 'transactions', (t as any).id));
-        }
-      });
-      
-      // Reset user profile access (optional, but requested to "clear registrations")
-      const userDocRef = doc(db, 'users', auth.currentUser?.uid || '');
-      batch.update(userDocRef, { 
-        hasLifetimeAccess: false,
-        profileImage: null 
-      });
-      
-      await batch.commit();
-      alert('Dados excluídos com sucesso! Sua conta foi resetada.');
-      window.location.reload();
+      await setDoc(userDocRef, { customCategories: updatedCategories }, { merge: true });
     } catch (error) {
-      console.error('Error resetting account:', error);
-      alert('Erro ao resetar conta.');
-    } finally {
-      setIsLoading(false);
+      console.error('Error deleting custom category:', error);
+      alert('Erro ao excluir categoria.');
     }
   };
 
@@ -1088,25 +1074,53 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl bg-red-50 border border-red-100">
-                    <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
-                      <Trash2 className="w-5 h-5" />
-                      Zona de Perigo
-                    </h3>
-                    <p className="text-sm text-red-600 mb-6">
-                      Use estas opções para limpar seus dados de teste. Isso não excluirá sua conta do Firebase Auth, apenas os dados no banco de dados.
-                    </p>
-                    
-                    <button 
-                      onClick={handleResetAccount}
-                      disabled={isLoading}
-                      className="w-full bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
-                    >
-                      {isLoading ? 'Limpando...' : 'Resetar Todos os Meus Dados'}
-                    </button>
-                    <p className="text-[10px] text-red-400 mt-4 text-center">
-                      *Para excluir o email e permitir novo cadastro, você deve deletar o usuário manualmente no Console do Firebase.
-                    </p>
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h3 className="font-bold text-slate-900 mb-4">Categorias Personalizadas</h3>
+                    <div className="space-y-4">
+                      {/* Income Categories */}
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Receitas</p>
+                        <div className="flex flex-wrap gap-2">
+                          {customCategories.income.length > 0 ? (
+                            customCategories.income.map((cat, i) => (
+                              <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 shadow-sm group">
+                                {cat}
+                                <button 
+                                  onClick={() => handleDeleteCustomCategory('income', cat)}
+                                  className="text-slate-300 hover:text-red-500 transition-colors"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-xs text-slate-400 italic">Nenhuma categoria de receita personalizada.</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expense Categories */}
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Despesas</p>
+                        <div className="flex flex-wrap gap-2">
+                          {customCategories.expense.length > 0 ? (
+                            customCategories.expense.map((cat, i) => (
+                              <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 shadow-sm group">
+                                {cat}
+                                <button 
+                                  onClick={() => handleDeleteCustomCategory('expense', cat)}
+                                  className="text-slate-300 hover:text-red-500 transition-colors"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-xs text-slate-400 italic">Nenhuma categoria de despesa personalizada.</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
