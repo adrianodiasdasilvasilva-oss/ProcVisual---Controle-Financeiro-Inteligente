@@ -81,12 +81,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           console.error('EmailJS Error:', emailErr);
         }
 
-        setMessage({ text: "Conta criada com sucesso! Redirecionando para o pagamento...", type: 'success' });
-        
-        // Redirect to Stripe
-        setTimeout(() => {
-          window.location.href = 'https://buy.stripe.com/6oUeV6ggQ1Kq30B9nRdMI00';
-        }, 2000);
+        setMessage({ text: "Conta criada com sucesso! Acesse agora para ativar seu plano.", type: 'success' });
         
         // onLoginSuccess will be handled by onAuthStateChanged in App.tsx
       } else {
