@@ -50,6 +50,8 @@ import { TransactionForm } from './TransactionForm';
 import { Insights } from './Insights';
 import { IncomeView } from './IncomeView';
 import { ExpenseView } from './ExpenseView';
+import { stripeService } from '../services/stripeService';
+import { CreditCard } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
@@ -83,6 +85,20 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
+  const [paymentStatus, setPaymentStatus] = React.useState<'success' | 'cancel' | null>(null);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    if (payment === 'success') {
+      setPaymentStatus('success');
+      // Clear URL params
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (payment === 'cancel') {
+      setPaymentStatus('cancel');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   // Fetch transactions on mount
   React.useEffect(() => {
@@ -399,6 +415,15 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 {isSidebarOpen && <span className="font-medium">{item.label}</span>}
               </button>
             ))}
+            
+            {/* Stripe Upgrade Button */}
+            <button
+              onClick={() => stripeService.redirectToCheckout(userEmail)}
+              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all group text-emerald-600 hover:bg-emerald-50 font-bold mt-4 border border-emerald-100`}
+            >
+              <CreditCard className="w-5 h-5" />
+              {isSidebarOpen && <span>Seja PRO</span>}
+            </button>
           </nav>
 
           <div className="p-4 border-t border-slate-100">
@@ -538,6 +563,48 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         </header>
 
         <div className="p-8 space-y-8">
+          {paymentStatus === 'success' && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-emerald-900">Pagamento realizado com sucesso!</p>
+                  <p className="text-sm text-emerald-700">Obrigado por apoiar o ProcVisual. Sua conta PRO está ativa.</p>
+                </div>
+              </div>
+              <button onClick={() => setPaymentStatus(null)} className="text-emerald-400 hover:text-emerald-600">
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          )}
+
+          {paymentStatus === 'cancel' && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-amber-900">Pagamento cancelado</p>
+                  <p className="text-sm text-amber-700">O processo de pagamento foi interrompido. Nenhuma cobrança foi feita.</p>
+                </div>
+              </div>
+              <button onClick={() => setPaymentStatus(null)} className="text-amber-400 hover:text-amber-600">
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          )}
+
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-[60vh]">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>

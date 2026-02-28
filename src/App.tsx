@@ -9,6 +9,8 @@ import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface ResetPasswordProps {
   onSuccess: () => void;
@@ -129,6 +131,19 @@ export default function App() {
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(true);
+  const [paymentStatus, setPaymentStatus] = React.useState<'success' | 'cancel' | null>(null);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      setPaymentStatus('success');
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (params.get('payment') === 'cancel') {
+      setPaymentStatus('cancel');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -210,48 +225,76 @@ export default function App() {
     );
   }
 
-  if (view === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />;
-  }
-
-  if (view === 'auth') {
-    return <Auth onBack={handleBack} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />;
-  }
-
-  if (view === 'reset-password') {
-    return <ResetPassword onSuccess={handleResetSuccess} onBack={() => setView('auth')} />;
-  }
-
   return (
     <div className="min-h-screen">
-      <Header onLogin={handleLogin} onSignup={handleSignup} />
-      <main>
-        <Hero onSignup={handleSignup} />
-        <Features />
-        
-        {/* Extra Section for better flow */}
-        <section className="py-24 bg-emerald-600 overflow-hidden relative">
-          <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
-              Pronto para transformar sua vida financeira?
-            </h2>
-            <p className="text-emerald-50 text-lg mb-10 max-w-2xl mx-auto">
-              Junte-se a milhares de pessoas que já estão economizando mais e vivendo melhor com o ProcVisual.
-            </p>
-            <button 
-              onClick={handleSignup}
-              className="bg-white text-emerald-600 px-10 py-4 rounded-full text-lg font-bold hover:bg-emerald-50 transition-all shadow-xl"
-            >
-              Criar minha conta grátis
-            </button>
-          </div>
-          
-          {/* Decorative circles */}
-          <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-1/3 translate-y-1/3"></div>
-        </section>
-      </main>
-      <Footer />
+      <AnimatePresence>
+        {paymentStatus && (
+          <motion.div 
+            initial={{ opacity: 0, y: -100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -100 }}
+            className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4"
+          >
+            <div className={`p-4 rounded-2xl shadow-2xl flex items-center gap-4 ${
+              paymentStatus === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+            }`}>
+              {paymentStatus === 'success' ? <CheckCircle2 className="w-6 h-6" /> : <XCircle className="w-6 h-6" />}
+              <div className="flex-1">
+                <p className="font-bold">
+                  {paymentStatus === 'success' ? 'Pagamento realizado!' : 'Pagamento cancelado'}
+                </p>
+                <p className="text-sm opacity-90">
+                  {paymentStatus === 'success' 
+                    ? 'Sua assinatura Premium foi ativada com sucesso.' 
+                    : 'Não foi possível processar seu pagamento.'}
+                </p>
+              </div>
+              <button onClick={() => setPaymentStatus(null)} className="p-1 hover:bg-white/20 rounded-lg">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {view === 'dashboard' ? (
+        <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />
+      ) : view === 'auth' ? (
+        <Auth onBack={handleBack} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />
+      ) : view === 'reset-password' ? (
+        <ResetPassword onSuccess={handleResetSuccess} onBack={() => setView('auth')} />
+      ) : (
+        <>
+          <Header onLogin={handleLogin} onSignup={handleSignup} />
+          <main>
+            <Hero onSignup={handleSignup} />
+            <Features />
+            
+            {/* Extra Section for better flow */}
+            <section className="py-24 bg-emerald-600 overflow-hidden relative">
+              <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
+                  Pronto para transformar sua vida financeira?
+                </h2>
+                <p className="text-emerald-50 text-lg mb-10 max-w-2xl mx-auto">
+                  Junte-se a milhares de pessoas que já estão economizando mais e vivendo melhor com o ProcVisual.
+                </p>
+                <button 
+                  onClick={handleSignup}
+                  className="bg-white text-emerald-600 px-10 py-4 rounded-full text-lg font-bold hover:bg-emerald-50 transition-all shadow-xl"
+                >
+                  Criar minha conta grátis
+                </button>
+              </div>
+              
+              {/* Decorative circles */}
+              <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-1/3 translate-y-1/3"></div>
+            </section>
+          </main>
+          <Footer />
+        </>
+      )}
     </div>
   );
 }
