@@ -53,6 +53,8 @@ import { TransactionForm } from './TransactionForm';
 import { Insights } from './Insights';
 import { IncomeView } from './IncomeView';
 import { ExpenseView } from './ExpenseView';
+import { ImageCropper } from './ImageCropper';
+import { AnimatePresence } from 'motion/react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
@@ -89,6 +91,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [customCategories, setCustomCategories] = React.useState<{income: string[], expense: string[]}>({ income: [], expense: [] });
   const [isUploading, setIsUploading] = React.useState(false);
+  const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
 
   // Fetch user profile data (including image and custom categories)
   React.useEffect(() => {
@@ -211,30 +214,40 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     const file = e.target.files?.[0];
     if (!file || !auth.currentUser) return;
 
-    // Validate file type and size (max 2MB for base64 storage in Firestore)
+    // Validate file type and size (max 6MB)
     if (!file.type.startsWith('image/')) {
       alert('Por favor, selecione uma imagem válida.');
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 2MB.');
+    if (file.size > 6 * 1024 * 1024) {
+      alert('A imagem deve ter no máximo 6MB.');
       return;
     }
 
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImageToCrop(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    // Clear the input value so the same file can be selected again if needed
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedImage: string) => {
+    if (!auth.currentUser) return;
+    
     setIsUploading(true);
+    setImageToCrop(null);
+    
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64String = reader.result as string;
-        const userDocRef = doc(db, 'users', auth.currentUser!.uid);
-        await setDoc(userDocRef, { profileImage: base64String }, { merge: true });
-        setProfileImage(base64String);
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(userDocRef, { profileImage: croppedImage }, { merge: true });
+      setProfileImage(croppedImage);
     } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Erro ao carregar imagem.');
+      console.error('Error saving cropped image:', error);
+      alert('Erro ao salvar imagem ajustada.');
+    } finally {
       setIsUploading(false);
     }
   };
@@ -1146,6 +1159,16 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         onSave={handleSaveTransaction} 
         customCategories={customCategories}
       />
+
+      <AnimatePresence>
+        {imageToCrop && (
+          <ImageCropper
+            image={imageToCrop}
+            onCropComplete={handleCropComplete}
+            onCancel={() => setImageToCrop(null)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Mobile FAB */}
       <button 
