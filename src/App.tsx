@@ -297,10 +297,9 @@ export default function App() {
   };
 
   const handleResetSuccess = () => {
-    // Completely remove the hash from the URL including the '#' symbol
+    // Completely clear the URL (hash and search params)
     if (window.history && window.history.replaceState) {
-      const url = window.location.pathname + window.location.search;
-      window.history.replaceState(null, '', url || '/');
+      window.history.replaceState(null, '', window.location.pathname);
     } else {
       window.location.hash = '';
     }
