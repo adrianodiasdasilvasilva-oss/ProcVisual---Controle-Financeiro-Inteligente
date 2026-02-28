@@ -50,8 +50,6 @@ import { TransactionForm } from './TransactionForm';
 import { Insights } from './Insights';
 import { IncomeView } from './IncomeView';
 import { ExpenseView } from './ExpenseView';
-import { stripeService } from '../services/stripeService';
-import { CreditCard } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
@@ -85,20 +83,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
-  const [paymentStatus, setPaymentStatus] = React.useState<'success' | 'cancel' | null>(null);
-
-  React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const payment = params.get('payment');
-    if (payment === 'success') {
-      setPaymentStatus('success');
-      // Clear URL params
-      window.history.replaceState({}, '', window.location.pathname);
-    } else if (payment === 'cancel') {
-      setPaymentStatus('cancel');
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, []);
 
   // Fetch transactions on mount
   React.useEffect(() => {
@@ -163,6 +147,34 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     }
   };
 
+  const handleResetAccount = async () => {
+    if (!window.confirm('ATENÇÃO: Isso excluirá TODOS os seus lançamentos e dados de perfil permanentemente. Deseja continuar?')) return;
+    
+    setIsLoading(true);
+    try {
+      const batch = writeBatch(db);
+      
+      // Delete all transactions
+      transactions.forEach(t => {
+        if ((t as any).id) {
+          batch.delete(doc(db, 'transactions', (t as any).id));
+        }
+      });
+      
+      // Reset user profile access (optional, but requested to "clear registrations")
+      const userDocRef = doc(db, 'users', auth.currentUser?.uid || '');
+      batch.update(userDocRef, { hasLifetimeAccess: false });
+      
+      await batch.commit();
+      alert('Dados excluídos com sucesso! Sua conta foi resetada.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error resetting account:', error);
+      alert('Erro ao resetar conta.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleDeleteTransaction = async (transactionToDelete: any) => {
     if (!window.confirm('Tem certeza que deseja excluir este lançamento?')) return;
 
@@ -369,6 +381,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
     { icon: <PieChartIcon className="w-5 h-5" />, label: 'Análises' },
+    { icon: <Settings className="w-5 h-5" />, label: 'Configurações' },
   ];
 
   return (
@@ -415,15 +428,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 {isSidebarOpen && <span className="font-medium">{item.label}</span>}
               </button>
             ))}
-            
-            {/* Stripe Upgrade Button */}
-            <button
-              onClick={() => stripeService.redirectToCheckout(userEmail)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all group text-emerald-600 hover:bg-emerald-50 font-bold mt-4 border border-emerald-100`}
-            >
-              <CreditCard className="w-5 h-5" />
-              {isSidebarOpen && <span>Seja PRO</span>}
-            </button>
           </nav>
 
           <div className="p-4 border-t border-slate-100">
@@ -563,48 +567,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         </header>
 
         <div className="p-8 space-y-8">
-          {paymentStatus === 'success' && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
-                  <CreditCard className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-bold text-emerald-900">Pagamento realizado com sucesso!</p>
-                  <p className="text-sm text-emerald-700">Obrigado por apoiar o ProcVisual. Sua conta PRO está ativa.</p>
-                </div>
-              </div>
-              <button onClick={() => setPaymentStatus(null)} className="text-emerald-400 hover:text-emerald-600">
-                <X className="w-5 h-5" />
-              </button>
-            </motion.div>
-          )}
-
-          {paymentStatus === 'cancel' && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
-                  <AlertTriangle className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-bold text-amber-900">Pagamento cancelado</p>
-                  <p className="text-sm text-amber-700">O processo de pagamento foi interrompido. Nenhuma cobrança foi feita.</p>
-                </div>
-              </div>
-              <button onClick={() => setPaymentStatus(null)} className="text-amber-400 hover:text-amber-600">
-                <X className="w-5 h-5" />
-              </button>
-            </motion.div>
-          )}
-
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-[60vh]">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
@@ -815,9 +777,9 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Pie Chart */}
-                <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow min-w-0">
+                <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Gastos por categoria</h3>
-                  <div className="h-64 w-full">
+                  <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -851,11 +813,11 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 </div>
 
                 {/* Line Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow min-w-0">
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Evolução do saldo {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
                   </h3>
-                  <div className="h-80 w-full">
+                  <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -878,11 +840,11 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 </div>
 
                 {/* Bar Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow min-w-0">
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Receita vs despesas {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
                   </h3>
-                  <div className="h-80 w-full">
+                  <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -1003,6 +965,47 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                 }
               }}
             />
+          ) : activeTab === 'Configurações' ? (
+            <div className="max-w-2xl mx-auto space-y-8">
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 card-shadow">
+                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <Settings className="w-6 h-6 text-emerald-600" />
+                  Configurações da Conta
+                </h2>
+                
+                <div className="space-y-6">
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h3 className="font-bold text-slate-900 mb-2">Perfil</h3>
+                    <p className="text-sm text-slate-500 mb-4">Informações da sua conta conectada.</p>
+                    <div className="space-y-2">
+                      <p className="text-sm"><strong>Nome:</strong> {userName}</p>
+                      <p className="text-sm"><strong>Email:</strong> {userEmail}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-red-50 border border-red-100">
+                    <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2">
+                      <Trash2 className="w-5 h-5" />
+                      Zona de Perigo
+                    </h3>
+                    <p className="text-sm text-red-600 mb-6">
+                      Use estas opções para limpar seus dados de teste. Isso não excluirá sua conta do Firebase Auth, apenas os dados no banco de dados.
+                    </p>
+                    
+                    <button 
+                      onClick={handleResetAccount}
+                      disabled={isLoading}
+                      className="w-full bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
+                    >
+                      {isLoading ? 'Limpando...' : 'Resetar Todos os Meus Dados'}
+                    </button>
+                    <p className="text-[10px] text-red-400 mt-4 text-center">
+                      *Para excluir o email e permitir novo cadastro, você deve deletar o usuário manualmente no Console do Firebase.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
               <Info className="w-12 h-12 mb-4" />

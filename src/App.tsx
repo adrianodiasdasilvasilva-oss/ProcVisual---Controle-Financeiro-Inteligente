@@ -149,26 +149,28 @@ export default function App() {
           const userDocRef = doc(db, 'users', user.uid);
           const userDoc = await getDoc(userDocRef);
           
+          let access = false;
           if (userDoc.exists()) {
-            let access = userDoc.data().hasLifetimeAccess;
-            
-            if (paymentStatus === 'success' && !access) {
-              setIsUpdatingAccess(true);
-              await updateDoc(userDocRef, { hasLifetimeAccess: true });
-              access = true;
-              setIsUpdatingAccess(false);
-              
-              // Clean up URL
-              const newUrl = window.location.pathname + window.location.search.replace(/[?&]payment=success/, '');
-              window.history.replaceState(null, '', newUrl);
-            }
-            
-            setHasLifetimeAccess(access);
-          } else {
-            // If doc doesn't exist (e.g. old user), create it
-            await updateDoc(userDocRef, { hasLifetimeAccess: false });
-            setHasLifetimeAccess(false);
+            access = userDoc.data().hasLifetimeAccess;
           }
+          
+          if (paymentStatus === 'success' && !access) {
+            setIsUpdatingAccess(true);
+            // Use setDoc with merge to create or update
+            await setDoc(userDocRef, { 
+              hasLifetimeAccess: true,
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+            access = true;
+            setIsUpdatingAccess(false);
+            
+            // Clean up URL
+            const cleanSearch = window.location.search.replace(/[?&]payment=success/, '');
+            const newUrl = window.location.pathname + (cleanSearch === '?' ? '' : cleanSearch);
+            window.history.replaceState(null, '', newUrl);
+          }
+          
+          setHasLifetimeAccess(access);
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
@@ -299,6 +301,12 @@ export default function App() {
                 Pagar agora
                 <ArrowRight className="w-5 h-5" />
               </a>
+              <button 
+                onClick={() => window.location.reload()}
+                className="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+              >
+                Já paguei, liberar acesso
+              </button>
               <button 
                 onClick={handleLogout}
                 className="w-full text-slate-500 font-medium hover:text-slate-800 transition-colors"
