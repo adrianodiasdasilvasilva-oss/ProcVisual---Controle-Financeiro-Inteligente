@@ -97,7 +97,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
       if (error.code === 'auth/invalid-credential') errorMessage = "Email ou senha inválidos.";
       if (error.code === 'auth/weak-password') errorMessage = "A senha deve ter pelo menos 6 caracteres.";
       
-      setMessage({ text: error.message || errorMessage, type: 'error' });
+      setMessage({ text: errorMessage, type: 'error' });
     }
   };
 
@@ -122,7 +122,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
       let errorMessage = "Não foi possível enviar o email. Tente novamente.";
       if (error.code === 'auth/user-not-found') errorMessage = "Este email não está cadastrado.";
       
-      setMessage({ text: error.message || errorMessage, type: 'error' });
+      setMessage({ text: errorMessage, type: 'error' });
     } finally {
       setIsLoading(false);
     }
