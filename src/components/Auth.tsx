@@ -63,6 +63,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           name,
           phone,
           email,
+          hasLifetimeAccess: false,
           createdAt: new Date().toISOString()
         });
 
@@ -80,7 +81,12 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
           console.error('EmailJS Error:', emailErr);
         }
 
-        setMessage({ text: "Conta criada com sucesso! Enviamos seus dados de acesso para seu email.", type: 'success' });
+        setMessage({ text: "Conta criada com sucesso! Redirecionando para o pagamento...", type: 'success' });
+        
+        // Redirect to Stripe
+        setTimeout(() => {
+          window.location.href = 'https://buy.stripe.com/6oUeV6ggQ1Kq30B9nRdMI00';
+        }, 2000);
         
         // onLoginSuccess will be handled by onAuthStateChanged in App.tsx
       } else {

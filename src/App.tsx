@@ -7,8 +7,11 @@ import React from 'react';
 import { Header, Hero, Features, Footer } from './components/LandingPage';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { CheckCircle2, CreditCard, ArrowRight } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface ResetPasswordProps {
   onSuccess: () => void;
@@ -128,17 +131,53 @@ export default function App() {
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
+  const [hasLifetimeAccess, setHasLifetimeAccess] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isUpdatingAccess, setIsUpdatingAccess] = React.useState(false);
 
   React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserName(user.displayName || '');
         setUserEmail(user.email || '');
+        
+        // Check for payment success parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            let access = userDoc.data().hasLifetimeAccess;
+            
+            if (paymentStatus === 'success' && !access) {
+              setIsUpdatingAccess(true);
+              await updateDoc(userDocRef, { hasLifetimeAccess: true });
+              access = true;
+              setIsUpdatingAccess(false);
+              
+              // Clean up URL
+              const newUrl = window.location.pathname + window.location.search.replace(/[?&]payment=success/, '');
+              window.history.replaceState(null, '', newUrl);
+            }
+            
+            setHasLifetimeAccess(access);
+          } else {
+            // If doc doesn't exist (e.g. old user), create it
+            await updateDoc(userDocRef, { hasLifetimeAccess: false });
+            setHasLifetimeAccess(false);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+        
         setView('dashboard');
       } else {
         setUserName('');
         setUserEmail('');
+        setHasLifetimeAccess(false);
         if (view === 'dashboard') setView('landing');
       }
       setIsLoading(false);
@@ -211,6 +250,66 @@ export default function App() {
   }
 
   if (view === 'dashboard') {
+    if (!hasLifetimeAccess) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-lg w-full text-center"
+          >
+            <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8">
+              <CreditCard className="w-10 h-10" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Ative seu acesso vitalício</h1>
+            <p className="text-slate-600 mb-8 text-lg">
+              Para liberar o acesso completo ao dashboard e todas as funcionalidades do ProcVisual, é necessário concluir o pagamento único.
+            </p>
+            
+            <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-left">
+              <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                O que você recebe:
+              </h3>
+              <ul className="space-y-3 text-slate-600">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Acesso vitalício sem mensalidades
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Dashboard completo de receitas e despesas
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Insights inteligentes com IA
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Suporte prioritário
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <a 
+                href="https://buy.stripe.com/6oUeV6ggQ1Kq30B9nRdMI00"
+                className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 text-lg"
+              >
+                Pagar agora
+                <ArrowRight className="w-5 h-5" />
+              </a>
+              <button 
+                onClick={handleLogout}
+                className="w-full text-slate-500 font-medium hover:text-slate-800 transition-colors"
+              >
+                Sair da conta
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
     return <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />;
   }
 
@@ -242,7 +341,7 @@ export default function App() {
               onClick={handleSignup}
               className="bg-white text-emerald-600 px-10 py-4 rounded-full text-lg font-bold hover:bg-emerald-50 transition-all shadow-xl"
             >
-              Criar minha conta grátis
+              Ativar meu acesso
             </button>
           </div>
           
