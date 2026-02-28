@@ -30,10 +30,10 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     emailjs.init(EMAILJS_PUBLIC_KEY);
     
     // API Connectivity Test
-    fetch('/api/test')
+    fetch('/api/health')
       .then(res => res.json())
-      .then(data => console.log("API Test Success:", data))
-      .catch(err => console.error("API Test Failed:", err));
+      .then(data => console.log("API Health Check:", data))
+      .catch(err => console.error("API Health Check Failed:", err));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
