@@ -4,7 +4,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import { promises as fsPromises } from "fs";
-import Stripe from "stripe";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,19 +38,6 @@ async function ensureDataFile() {
   if (!fs.existsSync(USER_DATA_FILE)) {
     await fsPromises.writeFile(USER_DATA_FILE, JSON.stringify({}));
   }
-}
-
-// Stripe Lazy Initialization
-let stripe: Stripe | null = null;
-function getStripe() {
-  if (!stripe) {
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    if (!secretKey) {
-      throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
-    }
-    stripe = new Stripe(secretKey);
-  }
-  return stripe;
 }
 
 apiRouter.get("/health", (req, res) => {
@@ -111,51 +97,6 @@ apiRouter.post("/user-data", async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: "Internal Server Error", 
-      message: error.message 
-    });
-  }
-});
-
-// Create Stripe Checkout Session
-apiRouter.post("/create-checkout-session", async (req, res) => {
-  try {
-    const { userEmail } = req.body;
-    if (!userEmail) {
-      return res.status(400).json({ error: "Email do usuário é obrigatório" });
-    }
-
-    const secretKey = process.env.STRIPE_SECRET_KEY;
-    const priceId = process.env.STRIPE_PRICE_ID;
-
-    if (!secretKey || !priceId) {
-      console.error("Stripe keys missing:", { secretKey: !!secretKey, priceId: !!priceId });
-      return res.status(400).json({ 
-        error: "Configuração incompleta", 
-        message: "As chaves do Stripe (Secret Key ou Price ID) não foram configuradas nos Segredos do projeto." 
-      });
-    }
-
-    const stripeInstance = getStripe();
-    
-    const session = await stripeInstance.checkout.sessions.create({
-      payment_method_types: ["card", "pix"],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      customer_email: userEmail,
-      success_url: `${process.env.APP_URL || 'http://localhost:3000'}/?payment=success`,
-      cancel_url: `${process.env.APP_URL || 'http://localhost:3000'}/?payment=cancel`,
-    });
-
-    res.json({ id: session.id, url: session.url });
-  } catch (error: any) {
-    console.error("Stripe Session Error:", error);
-    res.status(500).json({ 
-      error: "Erro no Stripe", 
       message: error.message 
     });
   }
