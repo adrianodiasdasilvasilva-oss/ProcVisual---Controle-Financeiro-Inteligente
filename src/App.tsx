@@ -156,30 +156,13 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
             {isSubmitting ? 'Processando...' : (isConfirmMode ? 'Salvar Nova Senha' : 'Enviar Link de Redefinição')}
           </button>
         </form>
-
-        {resetMessage?.type === 'success' && isConfirmMode && (
-          <button 
-            onClick={onSuccess}
-            className="w-full mt-4 bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg"
-          >
-            Fazer Login Agora
-          </button>
-        )}
         
-        <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col gap-3">
-          <button 
-            onClick={onBack}
-            className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
-          >
-            Voltar para o login
-          </button>
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
-          >
-            Ir para a página inicial
-          </button>
-        </div>
+        <button 
+          onClick={onBack}
+          className="mt-6 text-sm font-medium text-slate-500 hover:text-slate-900"
+        >
+          Voltar para o login
+        </button>
       </div>
     </div>
   );
