@@ -109,7 +109,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
     try {
       // Firebase Password Reset
       const actionCodeSettings = {
-        url: window.location.origin + '/#reset-password',
+        url: 'https://proc-visual-controle-financeiro-int.vercel.app/',
         handleCodeInApp: false,
       };
       await sendPasswordResetEmail(auth, forgotPasswordEmail, actionCodeSettings);
