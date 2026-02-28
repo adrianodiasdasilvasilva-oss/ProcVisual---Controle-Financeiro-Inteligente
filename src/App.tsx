@@ -25,53 +25,67 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
   const [resetMessage, setResetMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  // Check if we are in "confirm" mode (have oobCode in URL)
+  const urlParams = new URLSearchParams(window.location.search);
+  const oobCode = urlParams.get('oobCode');
+  const isConfirmMode = !!oobCode;
+
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setResetMessage(null);
     
-    if (newPassword !== confirmPassword) {
-      setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      // Check if email exists in Firestore
-      const q = query(collection(db, 'users'), where('email', '==', resetEmail));
-      const querySnapshot = await getDocs(q);
+      if (isConfirmMode) {
+        // STEP 2: Confirm the new password
+        if (newPassword !== confirmPassword) {
+          setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+        if (newPassword.length < 6) {
+          setResetMessage({ text: "A senha deve ter pelo menos 6 caracteres.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
 
-      if (querySnapshot.empty) {
-        setResetMessage({ text: "Email não encontrado em nossa base de dados.", type: 'error' });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Check for oobCode in URL (Firebase standard for password reset)
-      const urlParams = new URLSearchParams(window.location.search);
-      const oobCode = urlParams.get('oobCode');
-
-      if (oobCode) {
         await confirmPasswordReset(auth, oobCode, newPassword);
-        setResetMessage({ text: "Senha alterada com sucesso! Redirecionando...", type: 'success' });
-        setTimeout(() => onSuccess(), 2000);
+        setResetMessage({ text: "Senha alterada com sucesso! Você já pode fazer login.", type: 'success' });
+        setTimeout(() => onSuccess(), 3000);
       } else {
-        // If no code, send the reset email
+        // STEP 1: Request the reset email
+        if (!resetEmail) {
+          setResetMessage({ text: "Por favor, informe seu email.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Check if email exists in Firestore
+        const q = query(collection(db, 'users'), where('email', '==', resetEmail));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          setResetMessage({ text: "Email não encontrado em nossa base de dados.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+
         const actionCodeSettings = {
-          url: window.location.origin,
+          url: window.location.origin + '/#reset-password',
           handleCodeInApp: false,
         };
         await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
         setResetMessage({ 
-          text: "Para sua segurança, enviamos um link de confirmação para seu email. Clique no link recebido para concluir a alteração da senha. (Verifique sua caixa de spam, pois as vezes o link pode ser filtrado incorretamente).", 
+          text: "Link enviado! Verifique seu email para concluir a alteração. (Não esqueça de checar a caixa de spam).", 
           type: 'success' 
         });
       }
     } catch (error: any) {
       console.error('Reset Error:', error);
       let errorMsg = "Ocorreu um erro ao processar sua solicitação.";
-      if (error.code === 'auth/invalid-action-code') errorMsg = "O link de redefinição expirou ou já foi usado.";
+      if (error.code === 'auth/invalid-action-code') errorMsg = "O link de redefinição expirou ou já foi usado. Solicite um novo link.";
       if (error.code === 'auth/weak-password') errorMsg = "A nova senha deve ter pelo menos 6 caracteres.";
+      if (error.code === 'auth/user-not-found') errorMsg = "Usuário não encontrado.";
       
       setResetMessage({ text: errorMsg, type: 'error' });
     } finally {
@@ -87,8 +101,14 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Redefinir Senha</h1>
-        <p className="text-slate-500 mb-8">Digite seu email e a nova senha abaixo.</p>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">
+          {isConfirmMode ? 'Definir Nova Senha' : 'Redefinir Senha'}
+        </h1>
+        <p className="text-slate-500 mb-8">
+          {isConfirmMode 
+            ? 'Agora você pode escolher sua nova senha de acesso.' 
+            : 'Digite seu email abaixo para receber o link de redefinição.'}
+        </p>
         
         {resetMessage && (
           <div className={`p-4 rounded-xl text-sm font-medium mb-4 ${
@@ -99,35 +119,41 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
         )}
 
         <form className="space-y-4" onSubmit={handleResetSubmit}>
-          <input 
-            type="email" 
-            placeholder="Seu email cadastrado" 
-            required 
-            value={resetEmail}
-            onChange={(e) => setResetEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-          />
-          <input 
-            type="password" 
-            placeholder="Nova senha" 
-            required 
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-          />
-          <input 
-            type="password" 
-            placeholder="Confirmar nova senha" 
-            required 
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-          />
+          {!isConfirmMode ? (
+            <input 
+              type="email" 
+              placeholder="Seu email cadastrado" 
+              required 
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+            />
+          ) : (
+            <>
+              <input 
+                type="password" 
+                placeholder="Nova senha (mínimo 6 caracteres)" 
+                required 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+              />
+              <input 
+                type="password" 
+                placeholder="Confirmar nova senha" 
+                required 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+              />
+            </>
+          )}
+          
           <button 
             disabled={isSubmitting}
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg disabled:opacity-50"
           >
-            {isSubmitting && resetMessage?.type === 'success' ? 'Redirecionando...' : 'Salvar Nova Senha'}
+            {isSubmitting ? 'Processando...' : (isConfirmMode ? 'Salvar Nova Senha' : 'Enviar Link de Redefinição')}
           </button>
         </form>
         
@@ -147,7 +173,8 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       const hash = window.location.hash;
-      if (path === '/reset-password' || hash === '#reset-password' || hash.includes('reset-password')) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (path === '/reset-password' || hash === '#reset-password' || hash.includes('reset-password') || urlParams.get('mode') === 'resetPassword') {
         return 'reset-password';
       }
     }
