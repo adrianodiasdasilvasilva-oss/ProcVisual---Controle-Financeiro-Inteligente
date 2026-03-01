@@ -24,7 +24,7 @@ export const sendWhatsAppMessage = async (to: string, text: string) => {
         to: `${formattedPhone}@s.whatsapp.net`,
         body: text,
         view_once: false,
-        preview_url: false
+        no_link_preview: true
       })
     });
 

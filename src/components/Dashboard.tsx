@@ -209,7 +209,7 @@ ${title}
 ━━━━━━━━━━━━━━━
 
 🔗 *ProcVisual*
-Acesse seu dashboard: ${window.location.origin}
+Acesse seu dashboard: \u200B${window.location.origin}
 
 Seu controle financeiro inteligente`.trim();
 
