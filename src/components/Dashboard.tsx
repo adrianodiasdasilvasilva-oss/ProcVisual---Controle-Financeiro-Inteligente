@@ -130,15 +130,25 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
 
     // Calculate current month stats for the message
     let totalGastoMes = 0;
+    let totalReceitaMes = 0;
+    
     currentTransactions.forEach(t => {
-      const tDate = new Date(t.date);
-      if (t.type === 'expense' && tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
-        totalGastoMes += parseFloat(t.amount) || 0;
+      // Robust date parsing to avoid timezone shifts (YYYY-MM-DD)
+      const [y, m, d] = t.date.split('-').map(Number);
+      const tDate = new Date(y, m - 1, d);
+      
+      if (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
+        const amount = parseFloat(t.amount) || 0;
+        if (t.type === 'expense') {
+          totalGastoMes += amount;
+        } else {
+          totalReceitaMes += amount;
+        }
       }
     });
 
-    const goalValue = goal || 0;
-    const restanteOrcamento = Math.max(0, goalValue - totalGastoMes);
+    const economia = totalReceitaMes - totalGastoMes;
+    const goalValue = goal || totalReceitaMes || 0; // Use goal if set, otherwise use income as limit
     const percentUtilizado = goalValue > 0 ? Math.round((totalGastoMes / goalValue) * 100) : 0;
 
     const batch = writeBatch(db);
@@ -176,7 +186,7 @@ ${title}
 
 📊 Resumo do mês:
 • Total gasto: ${formatCurrency(totalGastoMes)}
-• Restante do orçamento: ${formatCurrency(restanteOrcamento)}
+• Restante do orçamento: ${formatCurrency(economia)}
 
 ⚠️ Atenção: Você já utilizou ${percentUtilizado}% do seu limite mensal.
 
