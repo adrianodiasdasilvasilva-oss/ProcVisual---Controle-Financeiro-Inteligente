@@ -99,6 +99,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [isUploading, setIsUploading] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
+  const processingNotificationsRef = React.useRef<Set<string>>(new Set());
 
   // Fetch user profile data (including image, custom categories, and phone)
   React.useEffect(() => {
@@ -112,17 +113,33 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         setCustomCategories(data.customCategories || { income: [], expense: [] });
         setUserPhone(data.phone || '');
         setNotificationsEnabled(data.notificationsEnabled !== false);
+        setMonthlyGoal(data.monthlyGoal || null);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  const checkAndSendNotifications = React.useCallback(async (currentTransactions: Transaction[], phone: string, enabled: boolean) => {
+  const checkAndSendNotifications = React.useCallback(async (currentTransactions: Transaction[], phone: string, enabled: boolean, goal: number | null) => {
     if (!enabled || !phone || currentTransactions.length === 0) return;
 
     const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
     today.setHours(0, 0, 0, 0);
+
+    // Calculate current month stats for the message
+    let totalGastoMes = 0;
+    currentTransactions.forEach(t => {
+      const tDate = new Date(t.date);
+      if (t.type === 'expense' && tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
+        totalGastoMes += parseFloat(t.amount) || 0;
+      }
+    });
+
+    const goalValue = goal || 0;
+    const restanteOrcamento = Math.max(0, goalValue - totalGastoMes);
+    const percentUtilizado = goalValue > 0 ? Math.round((totalGastoMes / goalValue) * 100) : 0;
 
     const batch = writeBatch(db);
     let hasUpdates = false;
@@ -138,23 +155,60 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       const diffTime = dueDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+      const fiveDayKey = `${t.id}_5days`;
+      const dueDayKey = `${t.id}_due`;
+
+      const formatCurrency = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      const formatDate = (date: Date) => date.toLocaleDateString('pt-BR');
+
+      const buildMessage = (title: string) => `
+${title} 
+
+━━━━━━━━━━━━━━━
+
+📂 Categoria: ${t.category}
+🧾 Descrição: ${t.description}
+💰 Valor: ${formatCurrency(parseFloat(t.amount))}
+
+📅 Data: ${formatDate(dueDate)}
+
+━━━━━━━━━━━━━━━
+
+📊 Resumo do mês:
+• Total gasto: ${formatCurrency(totalGastoMes)}
+• Restante do orçamento: ${formatCurrency(restanteOrcamento)}
+
+⚠️ Atenção: Você já utilizou ${percentUtilizado}% do seu limite mensal.
+
+━━━━━━━━━━━━━━━
+
+ProcVisual • Seu controle financeiro inteligente`.trim();
+
       // 5 days before
-      if (diffDays === 5 && !t.notified5DaysBefore) {
-        const message = `Lembrete ProcVisual: Sua despesa "${t.description}" no valor de R$ ${parseFloat(t.amount).toLocaleString('pt-BR')} vence em 5 dias (${dueDate.toLocaleDateString('pt-BR')}).`;
+      if (diffDays === 5 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
+        processingNotificationsRef.current.add(fiveDayKey);
+        const message = buildMessage('💸 Alerta de vencimento próximo');
         const res = await sendWhatsAppMessage(phone, message);
         if (res.success) {
           batch.update(doc(db, 'transactions', t.id), { notified5DaysBefore: true });
           hasUpdates = true;
+        } else {
+          // If failed, remove from ref so it can be retried on next snapshot
+          processingNotificationsRef.current.delete(fiveDayKey);
         }
       }
 
       // On due date
-      if (diffDays === 0 && !t.notifiedOnDueDate) {
-        const message = `Lembrete ProcVisual: Sua despesa "${t.description}" no valor de R$ ${parseFloat(t.amount).toLocaleString('pt-BR')} vence HOJE!`;
+      if (diffDays === 0 && !t.notifiedOnDueDate && !processingNotificationsRef.current.has(dueDayKey)) {
+        processingNotificationsRef.current.add(dueDayKey);
+        const message = buildMessage('🚨 Alerta de vencimento HOJE');
         const res = await sendWhatsAppMessage(phone, message);
         if (res.success) {
           batch.update(doc(db, 'transactions', t.id), { notifiedOnDueDate: true });
           hasUpdates = true;
+        } else {
+          // If failed, remove from ref so it can be retried on next snapshot
+          processingNotificationsRef.current.delete(dueDayKey);
         }
       }
     }
@@ -185,7 +239,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       
       // Run notification check
       if (userPhone) {
-        checkAndSendNotifications(fetchedTransactions, userPhone, notificationsEnabled);
+        checkAndSendNotifications(fetchedTransactions, userPhone, notificationsEnabled, monthlyGoal);
       }
     }, (error) => {
       console.error('Firestore fetch error:', error);
@@ -193,7 +247,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     });
 
     return () => unsubscribe();
-  }, [userEmail, userPhone, notificationsEnabled, checkAndSendNotifications]);
+  }, [userEmail, userPhone, notificationsEnabled, monthlyGoal, checkAndSendNotifications]);
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
@@ -1104,10 +1158,13 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
               transactions={transactions} 
               stats={stats} 
               categoryData={categoryData} 
-              onNavigate={(tab, value) => {
+              onNavigate={async (tab, value) => {
                 setActiveTab(tab);
                 if (tab === 'Dashboard' && value !== undefined) {
                   setMonthlyGoal(value);
+                  if (auth.currentUser) {
+                    await setDoc(doc(db, 'users', auth.currentUser.uid), { monthlyGoal: value }, { merge: true });
+                  }
                 }
               }}
             />
