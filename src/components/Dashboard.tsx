@@ -60,6 +60,11 @@ import { MessageSquare, Phone as PhoneIcon } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
+const parseDate = (dateStr: string) => {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
 interface Transaction {
   id?: string;
   type: 'income' | 'expense';
@@ -133,8 +138,12 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     let totalReceitaMes = 0;
     
     currentTransactions.forEach(t => {
+      if (!t.date) return;
       // Robust date parsing to avoid timezone shifts (YYYY-MM-DD)
-      const [y, m, d] = t.date.split('-').map(Number);
+      const parts = t.date.split('-');
+      if (parts.length !== 3) return;
+      
+      const [y, m, d] = parts.map(Number);
       const tDate = new Date(y, m - 1, d);
       
       if (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
@@ -155,10 +164,13 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
     let hasUpdates = false;
 
     for (const t of currentTransactions) {
-      if (t.type !== 'expense' || !t.id) continue;
+      if (t.type !== 'expense' || !t.id || !t.date) continue;
 
       // Parse date correctly (assuming YYYY-MM-DD)
-      const [year, month, day] = t.date.split('-').map(Number);
+      const parts = t.date.split('-');
+      if (parts.length !== 3) continue;
+      
+      const [year, month, day] = parts.map(Number);
       const dueDate = new Date(year, month - 1, day);
       dueDate.setHours(0, 0, 0, 0);
 
@@ -243,16 +255,16 @@ Seu controle financeiro inteligente`.trim();
     const q = query(collection(db, 'transactions'), where('userEmail', '==', userEmail));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedTransactions: Transaction[] = [];
-      snapshot.forEach((doc) => {
-        fetchedTransactions.push({ id: doc.id, ...doc.data() } as any);
-      });
-      setTransactions(fetchedTransactions);
-      setIsLoading(false);
-      
-      // Run notification check
-      if (userPhone) {
-        checkAndSendNotifications(fetchedTransactions, userPhone, notificationsEnabled, monthlyGoal);
+      try {
+        const fetchedTransactions: Transaction[] = [];
+        snapshot.forEach((doc) => {
+          fetchedTransactions.push({ id: doc.id, ...doc.data() } as any);
+        });
+        setTransactions(fetchedTransactions);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error processing transactions snapshot:', error);
+        setIsLoading(false);
       }
     }, (error) => {
       console.error('Firestore fetch error:', error);
@@ -260,7 +272,14 @@ Seu controle financeiro inteligente`.trim();
     });
 
     return () => unsubscribe();
-  }, [userEmail, userPhone, notificationsEnabled, monthlyGoal, checkAndSendNotifications]);
+  }, [userEmail]);
+
+  // Separate effect for notifications to avoid blocking UI updates
+  React.useEffect(() => {
+    if (userPhone && transactions.length > 0) {
+      checkAndSendNotifications(transactions, userPhone, notificationsEnabled, monthlyGoal);
+    }
+  }, [transactions, userPhone, notificationsEnabled, monthlyGoal, checkAndSendNotifications]);
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
@@ -400,7 +419,7 @@ Seu controle financeiro inteligente`.trim();
 
   const filteredTransactions = React.useMemo(() => {
     return transactions.filter(t => {
-      const date = new Date(t.date);
+      const date = parseDate(t.date);
       const monthMatch = selectedMonth === -1 || date.getMonth() === selectedMonth;
       const yearMatch = selectedYear === -1 || date.getFullYear() === selectedYear;
       
@@ -463,7 +482,7 @@ Seu controle financeiro inteligente`.trim();
       }
 
       filteredTransactions.forEach(t => {
-        const date = new Date(t.date);
+        const date = parseDate(t.date);
         const day = date.getDate();
         const val = parseFloat(t.amount) || 0;
         
@@ -484,7 +503,7 @@ Seu controle financeiro inteligente`.trim();
       const data = shortMonths.map(m => ({ name: m, receita: 0, despesa: 0, saldo: 0 }));
 
       filteredTransactions.forEach(t => {
-        const date = new Date(t.date);
+        const date = parseDate(t.date);
         const monthIndex = date.getMonth();
         const val = parseFloat(t.amount) || 0;
         
@@ -509,10 +528,10 @@ Seu controle financeiro inteligente`.trim();
     let realized = 0;
     
     // We need to look at all transactions for the selected year
-    const yearTransactions = transactions.filter(t => new Date(t.date).getFullYear() === year);
+    const yearTransactions = transactions.filter(t => parseDate(t.date).getFullYear() === year);
     
     for (let m = 0; m < 12; m++) {
-      const monthTransactions = yearTransactions.filter(t => new Date(t.date).getMonth() === m);
+      const monthTransactions = yearTransactions.filter(t => parseDate(t.date).getMonth() === m);
       const income = monthTransactions
         .filter(t => t.type === 'income')
         .reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
@@ -1115,7 +1134,7 @@ Seu controle financeiro inteligente`.trim();
                           filteredTransactions.slice(0, 5).map((t, i) => (
                             <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
                               <td className="py-4 px-4 text-sm text-slate-500">
-                                {new Date(t.date).toLocaleDateString('pt-BR')}
+                                {parseDate(t.date).toLocaleDateString('pt-BR')}
                               </td>
                               <td className="py-4 px-4">
                                 <span className="text-sm font-bold text-slate-900">{t.description}</span>

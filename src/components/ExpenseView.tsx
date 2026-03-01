@@ -43,6 +43,11 @@ interface ExpenseViewProps {
 
 const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#dc2626', '#991b1b'];
 
+const parseDate = (dateStr: string) => {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
 export const ExpenseView = ({ transactions, selectedMonth, selectedYear, onDelete }: ExpenseViewProps) => {
   const expenseTransactions = React.useMemo(() => 
     transactions.filter(t => t.type === 'expense'),
@@ -51,7 +56,7 @@ export const ExpenseView = ({ transactions, selectedMonth, selectedYear, onDelet
 
   const stats = React.useMemo(() => {
     const currentPeriod = expenseTransactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseDate(t.date);
       return (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
              (selectedYear === -1 || d.getFullYear() === selectedYear);
     });
@@ -60,7 +65,7 @@ export const ExpenseView = ({ transactions, selectedMonth, selectedYear, onDelet
     const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
     
     const previousPeriod = expenseTransactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseDate(t.date);
       return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
     });
 
@@ -72,7 +77,7 @@ export const ExpenseView = ({ transactions, selectedMonth, selectedYear, onDelet
     // Calculate Burn Rate (Expense / Total Income in period)
     const totalIncome = transactions
       .filter(t => {
-        const d = new Date(t.date);
+        const d = parseDate(t.date);
         return t.type === 'income' && 
                (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
                (selectedYear === -1 || d.getFullYear() === selectedYear);
@@ -108,7 +113,7 @@ export const ExpenseView = ({ transactions, selectedMonth, selectedYear, onDelet
     return months.map((m, i) => {
       const total = expenseTransactions
         .filter(t => {
-          const d = new Date(t.date);
+          const d = parseDate(t.date);
           return d.getMonth() === i && d.getFullYear() === (selectedYear === -1 ? new Date().getFullYear() : selectedYear);
         })
         .reduce((acc, t) => acc + parseFloat(t.amount), 0);
@@ -254,7 +259,7 @@ export const ExpenseView = ({ transactions, selectedMonth, selectedYear, onDelet
                   .map((t, i) => (
                     <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
                       <td className="py-4 px-4 text-sm text-slate-500">
-                        {new Date(t.date).toLocaleDateString('pt-BR')}
+                        {parseDate(t.date).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="py-4 px-4">
                         <span className="text-sm font-bold text-slate-900">{t.description}</span>

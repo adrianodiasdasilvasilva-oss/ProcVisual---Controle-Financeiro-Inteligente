@@ -42,6 +42,11 @@ interface IncomeViewProps {
 
 const COLORS = ['#10b981', '#34d399', '#059669', '#065f46', '#064e3b'];
 
+const parseDate = (dateStr: string) => {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+
 export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete }: IncomeViewProps) => {
   const incomeTransactions = React.useMemo(() => 
     transactions.filter(t => t.type === 'income'),
@@ -50,7 +55,7 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete
 
   const stats = React.useMemo(() => {
     const currentPeriod = incomeTransactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseDate(t.date);
       return (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
              (selectedYear === -1 || d.getFullYear() === selectedYear);
     });
@@ -59,7 +64,7 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete
     const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
     
     const previousPeriod = incomeTransactions.filter(t => {
-      const d = new Date(t.date);
+      const d = parseDate(t.date);
       return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
     });
 
@@ -96,7 +101,7 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete
     return months.map((m, i) => {
       const total = incomeTransactions
         .filter(t => {
-          const d = new Date(t.date);
+          const d = parseDate(t.date);
           return d.getMonth() === i && d.getFullYear() === (selectedYear === -1 ? new Date().getFullYear() : selectedYear);
         })
         .reduce((acc, t) => acc + parseFloat(t.amount), 0);
@@ -244,7 +249,7 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete
                   .map((t, i) => (
                     <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
                       <td className="py-4 px-4 text-sm text-slate-500">
-                        {new Date(t.date).toLocaleDateString('pt-BR')}
+                        {parseDate(t.date).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="py-4 px-4">
                         <span className="text-sm font-bold text-slate-900">{t.description}</span>

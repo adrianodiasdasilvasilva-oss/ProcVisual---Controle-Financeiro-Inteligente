@@ -61,10 +61,11 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
     }
 
     transactions.filter(t => t.type === 'expense').forEach(t => {
-      const date = new Date(t.date);
-      const m = months[date.getMonth()];
-      if (groups[m] !== undefined) {
-        groups[m] += parseFloat(t.amount);
+      const [y, m, d] = t.date.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+      const mName = months[date.getMonth()];
+      if (groups[mName] !== undefined) {
+        groups[mName] += parseFloat(t.amount);
       }
     });
 
