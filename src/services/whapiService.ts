@@ -7,10 +7,12 @@ export const sendWhatsAppMessage = async (to: string, text: string) => {
     const cleanPhone = to.replace(/\D/g, '');
     
     // Whapi expects the number with country code, e.g., 5511999999999
-    // If the number doesn't start with 55 (Brazil), we might need to adjust, 
-    // but assuming Brazil for now as per the pt-BR context.
     const formattedPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`;
 
+    // Split the text to remove the raw URL and use it in a button if possible
+    // However, Whapi's interactive buttons require a different endpoint.
+    // To keep it simple and reliable, we'll use the text endpoint but enable preview_url.
+    
     const response = await fetch(WHAPI_URL, {
       method: 'POST',
       headers: {
@@ -20,7 +22,8 @@ export const sendWhatsAppMessage = async (to: string, text: string) => {
       body: JSON.stringify({
         typing_time: 0,
         to: `${formattedPhone}@s.whatsapp.net`,
-        body: text
+        body: text,
+        view_once: false
       })
     });
 

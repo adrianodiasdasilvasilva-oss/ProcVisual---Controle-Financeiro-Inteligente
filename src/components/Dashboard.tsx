@@ -192,9 +192,10 @@ ${title}
 
 ━━━━━━━━━━━━━━━
 
-🔗 Acesse seu dashboard: ${window.location.origin}
+🔗 *ProcVisual*
+Acesse seu dashboard: ${window.location.origin}
 
-ProcVisual • Seu controle financeiro inteligente`.trim();
+Seu controle financeiro inteligente`.trim();
 
       // 5 days before (or less, but more than 0)
       if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
