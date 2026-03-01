@@ -108,6 +108,8 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [customCategories, setCustomCategories] = React.useState<{income: string[], expense: string[]}>({ income: [], expense: [] });
+  const [selectedTransactions, setSelectedTransactions] = React.useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = React.useState<'all' | 'paid' | 'pending'>('all');
   const [userPhone, setUserPhone] = React.useState('');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -452,6 +454,38 @@ Seu controle financeiro inteligente`.trim();
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedTransactions.length === 0) return;
+    if (!window.confirm(`Tem certeza que deseja excluir ${selectedTransactions.length} lançamentos?`)) return;
+
+    try {
+      const batch = writeBatch(db);
+      selectedTransactions.forEach(id => {
+        batch.delete(doc(db, 'transactions', id));
+      });
+      await batch.commit();
+      setSelectedTransactions([]);
+    } catch (error) {
+      console.error('Failed to delete transactions:', error);
+      alert('Erro ao excluir lançamentos selecionados.');
+    }
+  };
+
+  const toggleSelectAll = (ids: string[]) => {
+    const allSelected = ids.length > 0 && ids.every(id => selectedTransactions.includes(id));
+    if (allSelected) {
+      setSelectedTransactions(prev => prev.filter(id => !ids.includes(id)));
+    } else {
+      setSelectedTransactions(prev => [...new Set([...prev, ...ids])]);
+    }
+  };
+
+  const toggleSelectTransaction = (id: string) => {
+    setSelectedTransactions(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
   const filteredTransactions = React.useMemo(() => {
     return transactions.filter(t => {
       if (!t.date) return false;
@@ -465,29 +499,53 @@ Seu controle financeiro inteligente`.trim();
         (t.category || '').toLowerCase().includes(searchLower) ||
         (t.amount || '').includes(searchQuery);
 
-      return monthMatch && yearMatch && searchMatch;
+      const statusMatch = statusFilter === 'all' || 
+        (statusFilter === 'paid' && t.paid) || 
+        (statusFilter === 'pending' && !t.paid);
+
+      return monthMatch && yearMatch && searchMatch && statusMatch;
     }).sort((a, b) => {
       const dateA = parseDate(a.date).getTime();
       const dateB = parseDate(b.date).getTime();
       return dateB - dateA;
     });
-  }, [transactions, selectedMonth, selectedYear, searchQuery]);
+  }, [transactions, selectedMonth, selectedYear, searchQuery, statusFilter]);
 
   // Calculate Stats
   const stats = React.useMemo(() => {
     let income = 0;
     let expense = 0;
+    let paidIncome = 0;
+    let pendingIncome = 0;
+    let paidExpense = 0;
+    let pendingExpense = 0;
     
     filteredTransactions.forEach(t => {
       const val = parseFloat(t.amount) || 0;
-      if (t.type === 'income') income += val;
-      else expense += val;
+      if (t.type === 'income') {
+        income += val;
+        if (t.paid) paidIncome += val;
+        else pendingIncome += val;
+      } else {
+        expense += val;
+        if (t.paid) paidExpense += val;
+        else pendingExpense += val;
+      }
     });
 
     const balance = income - expense;
     const percentSpent = income > 0 ? Math.round((expense / income) * 100) : 0;
 
-    return { income, expense, balance, percentSpent };
+    return { 
+      income, 
+      expense, 
+      balance, 
+      percentSpent,
+      paidIncome,
+      pendingIncome,
+      paidExpense,
+      pendingExpense
+    };
   }, [filteredTransactions]);
 
   // Calculate Category Data for Pie Chart
@@ -1006,6 +1064,40 @@ Seu controle financeiro inteligente`.trim();
                       </div>
                     )}
                   </div>
+
+                  {/* Status Filter */}
+                  <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+                    <button
+                      onClick={() => setStatusFilter('all')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        statusFilter === 'all' 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'text-slate-500 hover:bg-slate-50'
+                      }`}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('paid')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        statusFilter === 'paid' 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'text-slate-500 hover:bg-slate-50'
+                      }`}
+                    >
+                      Pagos/Recebidos
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('pending')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        statusFilter === 'pending' 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'text-slate-500 hover:bg-slate-50'
+                      }`}
+                    >
+                      Pendentes
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1044,6 +1136,49 @@ Seu controle financeiro inteligente`.trim();
                   icon={<PieChartIcon className="text-amber-600" />} 
                   bgColor="bg-amber-50"
                 />
+              </div>
+
+              {/* Status Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Receitas</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Recebido</p>
+                      <p className="text-xl font-black text-emerald-600">R$ {stats.paidIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pendente</p>
+                      <p className="text-xl font-black text-amber-500">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
+                    <div 
+                      className="h-full bg-emerald-500 transition-all duration-500" 
+                      style={{ width: `${stats.income > 0 ? (stats.paidIncome / stats.income) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Despesas</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pago</p>
+                      <p className="text-xl font-black text-red-600">R$ {stats.paidExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pendente</p>
+                      <p className="text-xl font-black text-amber-500">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
+                    <div 
+                      className="h-full bg-red-500 transition-all duration-500" 
+                      style={{ width: `${stats.expense > 0 ? (stats.paidExpense / stats.expense) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Charts Grid */}
@@ -1155,13 +1290,40 @@ Seu controle financeiro inteligente`.trim();
                 {/* Recent Transactions Section */}
                 <div className="lg:col-span-3 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
+                    <div className="flex items-center gap-4">
+                      <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
+                      {selectedTransactions.length > 0 && (
+                        <motion.button
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          onClick={handleBulkDelete}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 transition-all"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Excluir ({selectedTransactions.length})
+                        </motion.button>
+                      )}
+                    </div>
                     <button className="text-sm font-bold text-emerald-600 hover:underline">Ver todos</button>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
                         <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                          <th className="pb-4 px-4 w-10">
+                            <input 
+                              type="checkbox" 
+                              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                              checked={(() => {
+                                const ids = filteredTransactions.slice(0, 5).map(t => t.id).filter((id): id is string => !!id);
+                                return ids.length > 0 && ids.every(id => selectedTransactions.includes(id));
+                              })()}
+                              onChange={() => {
+                                const ids = filteredTransactions.slice(0, 5).map(t => t.id).filter((id): id is string => !!id);
+                                toggleSelectAll(ids);
+                              }}
+                            />
+                          </th>
                           <th className="pb-4 px-4">Data</th>
                           <th className="pb-4 px-4">Descrição</th>
                           <th className="pb-4 px-4">Categoria</th>
@@ -1172,7 +1334,15 @@ Seu controle financeiro inteligente`.trim();
                       <tbody className="divide-y divide-slate-50">
                         {filteredTransactions.length > 0 ? (
                           filteredTransactions.slice(0, 5).map((t, i) => (
-                            <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
+                            <tr key={i} className={`group hover:bg-slate-50/50 transition-colors ${t.id && selectedTransactions.includes(t.id) ? 'bg-slate-50' : ''}`}>
+                              <td className="py-4 px-4">
+                                <input 
+                                  type="checkbox" 
+                                  className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                  checked={!!t.id && selectedTransactions.includes(t.id)}
+                                  onChange={() => t.id && toggleSelectTransaction(t.id)}
+                                />
+                              </td>
                               <td className="py-4 px-4 text-sm text-slate-500">
                                 {parseDate(t.date).toLocaleDateString('pt-BR')}
                               </td>
@@ -1213,7 +1383,7 @@ Seu controle financeiro inteligente`.trim();
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={4} className="py-8 text-center text-slate-400 text-sm italic">
+                            <td colSpan={6} className="py-8 text-center text-slate-400 text-sm italic">
                               Nenhum lançamento encontrado para este período.
                             </td>
                           </tr>
@@ -1229,6 +1399,7 @@ Seu controle financeiro inteligente`.trim();
               transactions={transactions} 
               selectedMonth={selectedMonth} 
               selectedYear={selectedYear} 
+              statusFilter={statusFilter}
               onDelete={handleDeleteTransaction}
               onTogglePaid={handleTogglePaid}
             />
@@ -1237,6 +1408,7 @@ Seu controle financeiro inteligente`.trim();
               transactions={transactions} 
               selectedMonth={selectedMonth} 
               selectedYear={selectedYear} 
+              statusFilter={statusFilter}
               onDelete={handleDeleteTransaction}
               onTogglePaid={handleTogglePaid}
             />

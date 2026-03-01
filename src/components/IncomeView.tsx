@@ -40,6 +40,7 @@ interface IncomeViewProps {
   transactions: Transaction[];
   selectedMonth: number;
   selectedYear: number;
+  statusFilter?: 'all' | 'paid' | 'pending';
   onDelete?: (transaction: Transaction) => void;
   onTogglePaid?: (transaction: Transaction) => void;
 }
@@ -55,7 +56,14 @@ const parseDate = (dateStr: string) => {
   return new Date(y, m - 1, d);
 };
 
-export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete, onTogglePaid }: IncomeViewProps) => {
+export const IncomeView = ({ 
+  transactions, 
+  selectedMonth, 
+  selectedYear, 
+  statusFilter = 'all',
+  onDelete, 
+  onTogglePaid 
+}: IncomeViewProps) => {
   const incomeTransactions = React.useMemo(() => 
     transactions.filter(t => t.type === 'income'),
     [transactions]
@@ -64,8 +72,12 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete
   const stats = React.useMemo(() => {
     const currentPeriod = incomeTransactions.filter(t => {
       const d = parseDate(t.date);
-      return (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
-             (selectedYear === -1 || d.getFullYear() === selectedYear);
+      const periodMatch = (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
+                         (selectedYear === -1 || d.getFullYear() === selectedYear);
+      const statusMatch = statusFilter === 'all' || 
+                         (statusFilter === 'paid' && t.paid) || 
+                         (statusFilter === 'pending' && !t.paid);
+      return periodMatch && statusMatch;
     });
 
     const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
