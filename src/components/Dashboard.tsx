@@ -47,7 +47,8 @@ import {
   doc,
   writeBatch,
   setDoc,
-  updateDoc
+  updateDoc,
+  getDoc
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { TransactionForm } from './TransactionForm';
@@ -216,6 +217,17 @@ Seu controle financeiro inteligente`.trim();
         // 5 days before (or less, but more than 0)
         if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
           processingNotificationsRef.current.add(fiveDayKey);
+          
+          // Double check with a fresh fetch to be absolutely sure
+          try {
+            const freshDoc = await getDoc(doc(db, 'transactions', t.id));
+            if (freshDoc.exists() && freshDoc.data().notified5DaysBefore) {
+              continue; 
+            }
+          } catch (e) {
+            console.error("Error double checking notification status:", e);
+          }
+
           const message = buildMessage('💸 Alerta de vencimento próximo');
           const res = await sendWhatsAppMessage(phone, message);
           if (res.success) {
@@ -229,6 +241,17 @@ Seu controle financeiro inteligente`.trim();
         // On due date
         if (diffDays === 0 && !t.notifiedOnDueDate && !processingNotificationsRef.current.has(dueDayKey)) {
           processingNotificationsRef.current.add(dueDayKey);
+
+          // Double check with a fresh fetch
+          try {
+            const freshDoc = await getDoc(doc(db, 'transactions', t.id));
+            if (freshDoc.exists() && freshDoc.data().notifiedOnDueDate) {
+              continue; 
+            }
+          } catch (e) {
+            console.error("Error double checking notification status:", e);
+          }
+
           const message = buildMessage('🚨 Alerta de vencimento HOJE');
           const res = await sendWhatsAppMessage(phone, message);
           if (res.success) {
