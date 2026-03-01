@@ -46,7 +46,8 @@ import {
   deleteDoc, 
   doc,
   writeBatch,
-  setDoc
+  setDoc,
+  updateDoc
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { TransactionForm } from './TransactionForm';
@@ -61,7 +62,11 @@ import { MessageSquare, Phone as PhoneIcon } from 'lucide-react';
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
 const parseDate = (dateStr: string) => {
-  const [y, m, d] = dateStr.split('-').map(Number);
+  if (!dateStr || typeof dateStr !== 'string') return new Date();
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return new Date();
+  const [y, m, d] = parts.map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return new Date();
   return new Date(y, m - 1, d);
 };
 
@@ -105,6 +110,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isUploading, setIsUploading] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
   const processingNotificationsRef = React.useRef<Set<string>>(new Set());
+  const isProcessingNotificationsRef = React.useRef(false);
 
   // Fetch user profile data (including image, custom categories, and phone)
   React.useEffect(() => {
@@ -126,64 +132,62 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   }, []);
 
   const checkAndSendNotifications = React.useCallback(async (currentTransactions: Transaction[], phone: string, enabled: boolean, goal: number | null) => {
-    if (!enabled || !phone || currentTransactions.length === 0) return;
+    if (!enabled || !phone || currentTransactions.length === 0 || isProcessingNotificationsRef.current) return;
 
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-    today.setHours(0, 0, 0, 0);
+    isProcessingNotificationsRef.current = true;
+    try {
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      today.setHours(0, 0, 0, 0);
 
-    // Calculate current month stats for the message
-    let totalGastoMes = 0;
-    let totalReceitaMes = 0;
-    
-    currentTransactions.forEach(t => {
-      if (!t.date) return;
-      // Robust date parsing to avoid timezone shifts (YYYY-MM-DD)
-      const parts = t.date.split('-');
-      if (parts.length !== 3) return;
+      // Calculate current month stats for the message
+      let totalGastoMes = 0;
+      let totalReceitaMes = 0;
       
-      const [y, m, d] = parts.map(Number);
-      const tDate = new Date(y, m - 1, d);
-      
-      if (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
-        const amount = parseFloat(t.amount) || 0;
-        if (t.type === 'expense') {
-          totalGastoMes += amount;
-        } else {
-          totalReceitaMes += amount;
+      currentTransactions.forEach(t => {
+        if (!t.date) return;
+        // Robust date parsing to avoid timezone shifts (YYYY-MM-DD)
+        const parts = t.date.split('-');
+        if (parts.length !== 3) return;
+        
+        const [y, m, d] = parts.map(Number);
+        const tDate = new Date(y, m - 1, d);
+        
+        if (tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
+          const amount = parseFloat(t.amount) || 0;
+          if (t.type === 'expense') {
+            totalGastoMes += amount;
+          } else {
+            totalReceitaMes += amount;
+          }
         }
-      }
-    });
+      });
 
-    const economia = totalReceitaMes - totalGastoMes;
-    const goalValue = goal || totalReceitaMes || 0; // Use goal if set, otherwise use income as limit
-    const percentUtilizado = goalValue > 0 ? Math.round((totalGastoMes / goalValue) * 100) : 0;
+      const economia = totalReceitaMes - totalGastoMes;
+      const goalValue = goal || totalReceitaMes || 0;
+      const percentUtilizado = goalValue > 0 ? Math.round((totalGastoMes / goalValue) * 100) : 0;
 
-    const batch = writeBatch(db);
-    let hasUpdates = false;
+      for (const t of currentTransactions) {
+        if (t.type !== 'expense' || !t.id || !t.date) continue;
 
-    for (const t of currentTransactions) {
-      if (t.type !== 'expense' || !t.id || !t.date) continue;
+        const parts = t.date.split('-');
+        if (parts.length !== 3) continue;
+        
+        const [year, month, day] = parts.map(Number);
+        const dueDate = new Date(year, month - 1, day);
+        dueDate.setHours(0, 0, 0, 0);
 
-      // Parse date correctly (assuming YYYY-MM-DD)
-      const parts = t.date.split('-');
-      if (parts.length !== 3) continue;
-      
-      const [year, month, day] = parts.map(Number);
-      const dueDate = new Date(year, month - 1, day);
-      dueDate.setHours(0, 0, 0, 0);
+        const diffTime = dueDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      const diffTime = dueDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const fiveDayKey = `${t.id}_5days`;
+        const dueDayKey = `${t.id}_due`;
 
-      const fiveDayKey = `${t.id}_5days`;
-      const dueDayKey = `${t.id}_due`;
+        const formatCurrency = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const formatDate = (date: Date) => date.toLocaleDateString('pt-BR');
 
-      const formatCurrency = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      const formatDate = (date: Date) => date.toLocaleDateString('pt-BR');
-
-      const buildMessage = (title: string) => `
+        const buildMessage = (title: string) => `
 ${title} 
 
 ━━━━━━━━━━━━━━━
@@ -209,41 +213,36 @@ Acesse seu dashboard: ${window.location.origin}
 
 Seu controle financeiro inteligente`.trim();
 
-      // 5 days before (or less, but more than 0)
-      if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
-        processingNotificationsRef.current.add(fiveDayKey);
-        const message = buildMessage('💸 Alerta de vencimento próximo');
-        const res = await sendWhatsAppMessage(phone, message);
-        if (res.success) {
-          batch.update(doc(db, 'transactions', t.id), { notified5DaysBefore: true });
-          hasUpdates = true;
-        } else {
-          // If failed, remove from ref so it can be retried on next snapshot
-          processingNotificationsRef.current.delete(fiveDayKey);
+        // 5 days before (or less, but more than 0)
+        if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
+          processingNotificationsRef.current.add(fiveDayKey);
+          const message = buildMessage('💸 Alerta de vencimento próximo');
+          const res = await sendWhatsAppMessage(phone, message);
+          if (res.success) {
+            // Update immediately to prevent duplicate if app closes or re-runs
+            await updateDoc(doc(db, 'transactions', t.id), { notified5DaysBefore: true });
+          } else {
+            processingNotificationsRef.current.delete(fiveDayKey);
+          }
+        }
+
+        // On due date
+        if (diffDays === 0 && !t.notifiedOnDueDate && !processingNotificationsRef.current.has(dueDayKey)) {
+          processingNotificationsRef.current.add(dueDayKey);
+          const message = buildMessage('🚨 Alerta de vencimento HOJE');
+          const res = await sendWhatsAppMessage(phone, message);
+          if (res.success) {
+            // Update immediately
+            await updateDoc(doc(db, 'transactions', t.id), { notifiedOnDueDate: true });
+          } else {
+            processingNotificationsRef.current.delete(dueDayKey);
+          }
         }
       }
-
-      // On due date
-      if (diffDays === 0 && !t.notifiedOnDueDate && !processingNotificationsRef.current.has(dueDayKey)) {
-        processingNotificationsRef.current.add(dueDayKey);
-        const message = buildMessage('🚨 Alerta de vencimento HOJE');
-        const res = await sendWhatsAppMessage(phone, message);
-        if (res.success) {
-          batch.update(doc(db, 'transactions', t.id), { notifiedOnDueDate: true });
-          hasUpdates = true;
-        } else {
-          // If failed, remove from ref so it can be retried on next snapshot
-          processingNotificationsRef.current.delete(dueDayKey);
-        }
-      }
-    }
-
-    if (hasUpdates) {
-      try {
-        await batch.commit();
-      } catch (err) {
-        console.error('Error updating notification status:', err);
-      }
+    } catch (error) {
+      console.error('Error in notification cycle:', error);
+    } finally {
+      isProcessingNotificationsRef.current = false;
     }
   }, []);
 
@@ -419,17 +418,22 @@ Seu controle financeiro inteligente`.trim();
 
   const filteredTransactions = React.useMemo(() => {
     return transactions.filter(t => {
+      if (!t.date) return false;
       const date = parseDate(t.date);
       const monthMatch = selectedMonth === -1 || date.getMonth() === selectedMonth;
       const yearMatch = selectedYear === -1 || date.getFullYear() === selectedYear;
       
       const searchLower = searchQuery.toLowerCase();
       const searchMatch = !searchQuery || 
-        t.description.toLowerCase().includes(searchLower) || 
-        t.category.toLowerCase().includes(searchLower) ||
-        t.amount.includes(searchQuery);
+        (t.description || '').toLowerCase().includes(searchLower) || 
+        (t.category || '').toLowerCase().includes(searchLower) ||
+        (t.amount || '').includes(searchQuery);
 
       return monthMatch && yearMatch && searchMatch;
+    }).sort((a, b) => {
+      const dateA = parseDate(a.date).getTime();
+      const dateB = parseDate(b.date).getTime();
+      return dateB - dateA;
     });
   }, [transactions, selectedMonth, selectedYear, searchQuery]);
 

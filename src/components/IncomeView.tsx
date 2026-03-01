@@ -43,7 +43,11 @@ interface IncomeViewProps {
 const COLORS = ['#10b981', '#34d399', '#059669', '#065f46', '#064e3b'];
 
 const parseDate = (dateStr: string) => {
-  const [y, m, d] = dateStr.split('-').map(Number);
+  if (!dateStr || typeof dateStr !== 'string') return new Date();
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return new Date();
+  const [y, m, d] = parts.map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return new Date();
   return new Date(y, m - 1, d);
 };
 
