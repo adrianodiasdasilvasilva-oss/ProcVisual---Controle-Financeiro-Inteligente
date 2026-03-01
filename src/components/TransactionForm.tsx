@@ -18,6 +18,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = React.useState('');
   const [installments, setInstallments] = React.useState('1');
+  const [paid, setPaid] = React.useState(true);
 
   // Reset form when opened
   React.useEffect(() => {
@@ -30,6 +31,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
       setType('expense');
       setDate(new Date().toISOString().split('T')[0]);
       setInstallments('1');
+      setPaid(true);
     }
   }, [isOpen]);
 
@@ -47,7 +49,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
       alert('Por favor, selecione ou digite uma categoria.');
       return;
     }
-    onSave({ type, amount, category: finalCategory, date, description, installments });
+    onSave({ type, amount, category: finalCategory, date, description, installments, paid });
     onClose();
   };
 
@@ -220,6 +222,32 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                     className="w-full pl-11 pr-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm placeholder:text-slate-300"
                   />
                 </div>
+              </div>
+
+              {/* Paid Status Toggle */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${paid ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-400'}`}>
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">{type === 'income' ? 'Recebido?' : 'Pago?'}</p>
+                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Status do Lançamento</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPaid(!paid)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    paid ? 'bg-emerald-600' : 'bg-slate-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      paid ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
               </div>
 
               <button

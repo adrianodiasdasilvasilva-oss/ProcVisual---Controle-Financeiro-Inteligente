@@ -19,7 +19,8 @@ import {
   Calendar,
   Trash2,
   Camera,
-  Upload
+  Upload,
+  CheckCircle2
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -81,6 +82,7 @@ interface Transaction {
   installments?: string;
   notified5DaysBefore?: boolean;
   notifiedOnDueDate?: boolean;
+  paid?: boolean;
 }
 
 interface DashboardProps {
@@ -436,6 +438,17 @@ Seu controle financeiro inteligente`.trim();
     } catch (error) {
       console.error('Failed to delete transaction from Firestore:', error);
       alert('Erro ao excluir transação.');
+    }
+  };
+
+  const handleTogglePaid = async (transaction: Transaction) => {
+    if (!transaction.id) return;
+    try {
+      await updateDoc(doc(db, 'transactions', transaction.id), {
+        paid: !transaction.paid
+      });
+    } catch (error) {
+      console.error('Failed to toggle paid status:', error);
     }
   };
 
@@ -1175,13 +1188,26 @@ Seu controle financeiro inteligente`.trim();
                                 {t.type === 'income' ? '+' : '-'} R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </td>
                               <td className="py-4 px-4 text-right">
-                                <button 
-                                  onClick={() => handleDeleteTransaction(t)}
-                                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                  title="Excluir lançamento"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
+                                <div className="flex items-center justify-end gap-1">
+                                  <button 
+                                    onClick={() => handleTogglePaid(t)}
+                                    title={t.paid ? "Marcar como pendente" : "Marcar como pago"}
+                                    className={`p-2 rounded-lg transition-all ${
+                                      t.paid 
+                                        ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' 
+                                        : 'text-slate-300 hover:text-emerald-600 hover:bg-emerald-50'
+                                    }`}
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteTransaction(t)}
+                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                    title="Excluir lançamento"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           ))
@@ -1204,6 +1230,7 @@ Seu controle financeiro inteligente`.trim();
               selectedMonth={selectedMonth} 
               selectedYear={selectedYear} 
               onDelete={handleDeleteTransaction}
+              onTogglePaid={handleTogglePaid}
             />
           ) : activeTab === 'Despesas' ? (
             <ExpenseView 
@@ -1211,6 +1238,7 @@ Seu controle financeiro inteligente`.trim();
               selectedMonth={selectedMonth} 
               selectedYear={selectedYear} 
               onDelete={handleDeleteTransaction}
+              onTogglePaid={handleTogglePaid}
             />
           ) : activeTab === 'Análises' ? (
             <Insights 

@@ -7,7 +7,8 @@ import {
   Target, 
   Calendar,
   ChevronRight,
-  Trash2
+  Trash2,
+  CheckCircle2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -26,11 +27,13 @@ import {
 import { motion } from 'motion/react';
 
 interface Transaction {
+  id?: string;
   type: 'income' | 'expense';
   amount: string;
   category: string;
   date: string;
   description: string;
+  paid?: boolean;
 }
 
 interface IncomeViewProps {
@@ -38,6 +41,7 @@ interface IncomeViewProps {
   selectedMonth: number;
   selectedYear: number;
   onDelete?: (transaction: Transaction) => void;
+  onTogglePaid?: (transaction: Transaction) => void;
 }
 
 const COLORS = ['#10b981', '#34d399', '#059669', '#065f46', '#064e3b'];
@@ -51,7 +55,7 @@ const parseDate = (dateStr: string) => {
   return new Date(y, m - 1, d);
 };
 
-export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete }: IncomeViewProps) => {
+export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete, onTogglePaid }: IncomeViewProps) => {
   const incomeTransactions = React.useMemo(() => 
     transactions.filter(t => t.type === 'income'),
     [transactions]
@@ -267,13 +271,26 @@ export const IncomeView = ({ transactions, selectedMonth, selectedYear, onDelete
                         + R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <button 
-                          onClick={() => onDelete?.(t)}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                          title="Excluir lançamento"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button 
+                            onClick={() => onTogglePaid?.(t)}
+                            title={t.paid ? "Marcar como pendente" : "Marcar como recebido"}
+                            className={`p-2 rounded-lg transition-all ${
+                              t.paid 
+                                ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' 
+                                : 'text-slate-300 hover:text-emerald-600 hover:bg-emerald-50'
+                            }`}
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => onDelete?.(t)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            title="Excluir lançamento"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
