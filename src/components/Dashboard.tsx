@@ -194,8 +194,8 @@ ${title}
 
 ProcVisual • Seu controle financeiro inteligente`.trim();
 
-      // 5 days before
-      if (diffDays === 5 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
+      // 5 days before (or less, but more than 0)
+      if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
         processingNotificationsRef.current.add(fiveDayKey);
         const message = buildMessage('💸 Alerta de vencimento próximo');
         const res = await sendWhatsAppMessage(phone, message);
