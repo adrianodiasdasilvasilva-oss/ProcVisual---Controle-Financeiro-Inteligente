@@ -55,16 +55,21 @@ import { IncomeView } from './IncomeView';
 import { ExpenseView } from './ExpenseView';
 import { ImageCropper } from './ImageCropper';
 import { AnimatePresence } from 'motion/react';
+import { sendWhatsAppMessage } from '../services/whapiService';
+import { MessageSquare, Phone as PhoneIcon } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
 
 interface Transaction {
+  id?: string;
   type: 'income' | 'expense';
   amount: string;
   category: string;
   date: string;
   description: string;
   installments?: string;
+  notified5DaysBefore?: boolean;
+  notifiedOnDueDate?: boolean;
 }
 
 interface DashboardProps {
@@ -90,10 +95,12 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [customCategories, setCustomCategories] = React.useState<{income: string[], expense: string[]}>({ income: [], expense: [] });
+  const [userPhone, setUserPhone] = React.useState('');
+  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [isUploading, setIsUploading] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
 
-  // Fetch user profile data (including image and custom categories)
+  // Fetch user profile data (including image, custom categories, and phone)
   React.useEffect(() => {
     if (!auth.currentUser) return;
     
@@ -103,10 +110,62 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         const data = doc.data();
         setProfileImage(data.profileImage || null);
         setCustomCategories(data.customCategories || { income: [], expense: [] });
+        setUserPhone(data.phone || '');
+        setNotificationsEnabled(data.notificationsEnabled !== false);
       }
     });
 
     return () => unsubscribe();
+  }, []);
+
+  const checkAndSendNotifications = React.useCallback(async (currentTransactions: Transaction[], phone: string, enabled: boolean) => {
+    if (!enabled || !phone || currentTransactions.length === 0) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const batch = writeBatch(db);
+    let hasUpdates = false;
+
+    for (const t of currentTransactions) {
+      if (t.type !== 'expense' || !t.id) continue;
+
+      // Parse date correctly (assuming YYYY-MM-DD)
+      const [year, month, day] = t.date.split('-').map(Number);
+      const dueDate = new Date(year, month - 1, day);
+      dueDate.setHours(0, 0, 0, 0);
+
+      const diffTime = dueDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      // 5 days before
+      if (diffDays === 5 && !t.notified5DaysBefore) {
+        const message = `Lembrete ProcVisual: Sua despesa "${t.description}" no valor de R$ ${parseFloat(t.amount).toLocaleString('pt-BR')} vence em 5 dias (${dueDate.toLocaleDateString('pt-BR')}).`;
+        const res = await sendWhatsAppMessage(phone, message);
+        if (res.success) {
+          batch.update(doc(db, 'transactions', t.id), { notified5DaysBefore: true });
+          hasUpdates = true;
+        }
+      }
+
+      // On due date
+      if (diffDays === 0 && !t.notifiedOnDueDate) {
+        const message = `Lembrete ProcVisual: Sua despesa "${t.description}" no valor de R$ ${parseFloat(t.amount).toLocaleString('pt-BR')} vence HOJE!`;
+        const res = await sendWhatsAppMessage(phone, message);
+        if (res.success) {
+          batch.update(doc(db, 'transactions', t.id), { notifiedOnDueDate: true });
+          hasUpdates = true;
+        }
+      }
+    }
+
+    if (hasUpdates) {
+      try {
+        await batch.commit();
+      } catch (err) {
+        console.error('Error updating notification status:', err);
+      }
+    }
   }, []);
 
   // Fetch transactions on mount
@@ -123,13 +182,18 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       });
       setTransactions(fetchedTransactions);
       setIsLoading(false);
+      
+      // Run notification check
+      if (userPhone) {
+        checkAndSendNotifications(fetchedTransactions, userPhone, notificationsEnabled);
+      }
     }, (error) => {
       console.error('Firestore fetch error:', error);
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, [userEmail]);
+  }, [userEmail, userPhone, notificationsEnabled, checkAndSendNotifications]);
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
@@ -1083,6 +1147,51 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
                         <p className="text-sm"><strong>Nome:</strong> {userName}</p>
                         <p className="text-sm"><strong>Email:</strong> {userEmail}</p>
                         <p className="text-xs text-slate-500 mt-2">Clique no ícone da câmera para alterar sua foto de perfil.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-emerald-600" />
+                      Notificações WhatsApp
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200">
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">Ativar Lembretes</p>
+                          <p className="text-xs text-slate-500">Receba avisos 5 dias antes e no dia do vencimento.</p>
+                        </div>
+                        <button 
+                          onClick={async () => {
+                            if (!auth.currentUser) return;
+                            const newStatus = !notificationsEnabled;
+                            setNotificationsEnabled(newStatus);
+                            await setDoc(doc(db, 'users', auth.currentUser.uid), { notificationsEnabled: newStatus }, { merge: true });
+                          }}
+                          className={`w-12 h-6 rounded-full transition-all relative ${notificationsEnabled ? 'bg-emerald-600' : 'bg-slate-300'}`}
+                        >
+                          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${notificationsEnabled ? 'left-7' : 'left-1'}`}></div>
+                        </button>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Número do WhatsApp</label>
+                        <div className="relative">
+                          <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                          <input 
+                            type="tel" 
+                            value={userPhone}
+                            onChange={(e) => setUserPhone(e.target.value)}
+                            onBlur={async () => {
+                              if (!auth.currentUser) return;
+                              await setDoc(doc(db, 'users', auth.currentUser.uid), { phone: userPhone }, { merge: true });
+                            }}
+                            placeholder="(00) 00000-0000"
+                            className="w-full pl-11 pr-5 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm"
+                          />
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-2 ml-1">O número deve incluir o DDD. Ex: (11) 99999-9999</p>
                       </div>
                     </div>
                   </div>
