@@ -192,6 +192,8 @@ ${title}
 
 ━━━━━━━━━━━━━━━
 
+🔗 Acesse seu dashboard: ${window.location.origin}
+
 ProcVisual • Seu controle financeiro inteligente`.trim();
 
       // 5 days before (or less, but more than 0)
