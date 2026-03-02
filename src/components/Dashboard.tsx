@@ -83,6 +83,7 @@ interface Transaction {
   notified5DaysBefore?: boolean;
   notifiedOnDueDate?: boolean;
   paid?: boolean;
+  createdAt?: string;
 }
 
 interface DashboardProps {
@@ -174,7 +175,17 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       const percentUtilizado = goalValue > 0 ? Math.round((totalGastoMes / goalValue) * 100) : 0;
 
       for (const t of currentTransactions) {
-        if (t.type !== 'expense' || !t.id || !t.date) continue;
+        // Only notify for unpaid expenses
+        if (t.type !== 'expense' || !t.id || !t.date || t.paid) continue;
+
+        // Skip notifications if the expense was created today or later (to avoid immediate alerts for newly launched items)
+        if (t.createdAt) {
+          const createdDate = new Date(t.createdAt);
+          createdDate.setHours(0, 0, 0, 0);
+          if (createdDate.getTime() >= today.getTime()) {
+            continue;
+          }
+        }
 
         const parts = t.date.split('-');
         if (parts.length !== 3) continue;
@@ -335,7 +346,11 @@ Seu controle financeiro inteligente`.trim();
     }
 
     if (numInstallments <= 1) {
-      newTransactionsToSave.push({ ...data, userEmail });
+      newTransactionsToSave.push({ 
+        ...data, 
+        userEmail,
+        createdAt: new Date().toISOString()
+      });
     } else {
       const [year, month, day] = data.date.split('-').map(Number);
       const fullAmount = parseFloat(data.amount) || 0;
@@ -349,7 +364,8 @@ Seu controle financeiro inteligente`.trim();
           userEmail,
           amount: fullAmount.toString(),
           date: formattedDate,
-          description: `${data.description} (${i + 1}/${numInstallments})`
+          description: `${data.description} (${i + 1}/${numInstallments})`,
+          createdAt: new Date().toISOString()
         });
       }
     }
