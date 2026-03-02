@@ -259,6 +259,7 @@ export const IncomeView = ({
                   <th className="pb-4 px-4">Descrição</th>
                   <th className="pb-4 px-4">Categoria</th>
                   <th className="pb-4 px-4 text-right">Valor</th>
+                  <th className="pb-4 px-4 text-center">Recebido</th>
                   <th className="pb-4 px-4 text-right">Ações</th>
                 </tr>
               </thead>
@@ -282,19 +283,21 @@ export const IncomeView = ({
                       <td className="py-4 px-4 text-right font-bold text-emerald-600">
                         + R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </td>
+                      <td className="py-4 px-4 text-center">
+                        <button 
+                          onClick={() => onTogglePaid?.(t)}
+                          title={t.paid ? "Marcar como pendente" : "Marcar como recebido"}
+                          className={`p-2 rounded-lg transition-all ${
+                            t.paid 
+                              ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' 
+                              : 'text-slate-300 hover:text-emerald-600 hover:bg-emerald-50'
+                          }`}
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                      </td>
                       <td className="py-4 px-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button 
-                            onClick={() => onTogglePaid?.(t)}
-                            title={t.paid ? "Marcar como pendente" : "Marcar como recebido"}
-                            className={`p-2 rounded-lg transition-all ${
-                              t.paid 
-                                ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' 
-                                : 'text-slate-300 hover:text-emerald-600 hover:bg-emerald-50'
-                            }`}
-                          >
-                            <CheckCircle2 className="w-4 h-4" />
-                          </button>
                           <button 
                             onClick={() => onDelete?.(t)}
                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
