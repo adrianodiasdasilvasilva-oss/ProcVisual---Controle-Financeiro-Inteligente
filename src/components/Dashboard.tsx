@@ -105,6 +105,8 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [isCustomYear, setIsCustomYear] = React.useState(false);
   const [isMonthDropdownOpen, setIsMonthDropdownOpen] = React.useState(false);
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = React.useState(false);
 
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
@@ -534,12 +536,21 @@ Seu controle financeiro inteligente`.trim();
     );
   };
 
+  const allCategories = React.useMemo(() => {
+    const cats = new Set<string>();
+    transactions.forEach(t => {
+      if (t.category) cats.add(t.category);
+    });
+    return Array.from(cats).sort();
+  }, [transactions]);
+
   const filteredTransactions = React.useMemo(() => {
     return transactions.filter(t => {
       if (!t.date) return false;
       const date = parseDate(t.date);
       const monthMatch = selectedMonths.length === 0 || selectedMonths.includes(date.getMonth());
       const yearMatch = selectedYear === -1 || date.getFullYear() === selectedYear;
+      const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(t.category);
       
       const searchLower = searchQuery.toLowerCase();
       const searchMatch = !searchQuery || 
@@ -551,13 +562,13 @@ Seu controle financeiro inteligente`.trim();
         (statusFilter === 'paid' && t.paid) || 
         (statusFilter === 'pending' && !t.paid);
 
-      return monthMatch && yearMatch && searchMatch && statusMatch;
+      return monthMatch && yearMatch && categoryMatch && searchMatch && statusMatch;
     }).sort((a, b) => {
       const dateA = parseDate(a.date).getTime();
       const dateB = parseDate(b.date).getTime();
       return dateB - dateA;
     });
-  }, [transactions, selectedMonths, selectedYear, searchQuery, statusFilter]);
+  }, [transactions, selectedMonths, selectedYear, selectedCategories, searchQuery, statusFilter]);
 
   // Calculate Stats
   const stats = React.useMemo(() => {
@@ -622,10 +633,23 @@ Seu controle financeiro inteligente`.trim();
     };
   }, [transactions, selectedYear, months]);
 
-  // Calculate Category Data for Pie Chart
+  // Calculate Category Data for Pie Charts
   const categoryData = React.useMemo(() => {
     const groups: Record<string, number> = {};
     filteredTransactions.filter(t => t.type === 'expense').forEach(t => {
+      groups[t.category] = (groups[t.category] || 0) + parseFloat(t.amount);
+    });
+
+    return Object.entries(groups).map(([name, value], index) => ({
+      name,
+      value,
+      color: COLORS[index % COLORS.length]
+    }));
+  }, [filteredTransactions]);
+
+  const incomeCategoryData = React.useMemo(() => {
+    const groups: Record<string, number> = {};
+    filteredTransactions.filter(t => t.type === 'income').forEach(t => {
       groups[t.category] = (groups[t.category] || 0) + parseFloat(t.amount);
     });
 
@@ -984,6 +1008,67 @@ Seu controle financeiro inteligente`.trim();
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
+                  
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                      className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all"
+                    >
+                      <PieChartIcon className="w-4 h-4 text-emerald-500" />
+                      {selectedCategories.length === 0 ? 'Todas categorias' : 
+                       selectedCategories.length === 1 ? selectedCategories[0] :
+                       `${selectedCategories.length} categorias`}
+                    </button>
+                    
+                    {isCategoryDropdownOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="p-2 border-b border-slate-50 mb-1 flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-400 uppercase">Filtrar Categorias</span>
+                            <button 
+                              onClick={() => {
+                                if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
+                                else setSelectedCategories([...allCategories]);
+                              }}
+                              className="text-[10px] font-bold text-emerald-600 hover:underline"
+                            >
+                              {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
+                            {allCategories.length > 0 ? (
+                              allCategories.map((cat, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    setSelectedCategories(prev => 
+                                      prev.includes(cat) 
+                                        ? prev.filter(c => c !== cat) 
+                                        : [...prev, cat].sort()
+                                    );
+                                  }}
+                                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
+                                    selectedCategories.includes(cat) 
+                                      ? 'bg-emerald-50 text-emerald-700 font-bold' 
+                                      : 'text-slate-600 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <span className="truncate">{cat}</span>
+                                  {selectedCategories.includes(cat) && <CheckCircle2 className="w-4 h-4 shrink-0" />}
+                                </button>
+                              ))
+                            ) : (
+                              <div className="p-4 text-center text-xs text-slate-400 italic">
+                                Nenhuma categoria encontrada
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   {isWelcomeVisible && (
                     <motion.div 
                       initial={{ opacity: 0, x: -20 }}
@@ -1146,6 +1231,7 @@ Seu controle financeiro inteligente`.trim();
                       </>
                     )}
                   </div>
+
                   <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
                     {isCustomYear ? (
                       <div className="flex items-center">
@@ -1356,9 +1442,50 @@ Seu controle financeiro inteligente`.trim();
               </div>
 
               {/* Charts Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Pie Chart */}
-                <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Income Pie Chart */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">Receitas por categoria</h3>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={incomeCategoryData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {incomeCategoryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4 space-y-2 max-h-40 overflow-y-auto pr-2">
+                    {incomeCategoryData.map((cat, i) => (
+                      <div key={i} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                          <span className="text-slate-600">{cat.name}</span>
+                        </div>
+                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    ))}
+                    {incomeCategoryData.length === 0 && (
+                      <p className="text-center text-slate-400 text-sm italic py-4">Nenhuma receita no período</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Expense Pie Chart */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Gastos por categoria</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1376,25 +1503,30 @@ Seu controle financeiro inteligente`.trim();
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip 
+                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4 space-y-2 max-h-40 overflow-y-auto pr-2">
                     {categoryData.map((cat, i) => (
                       <div key={i} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
                           <span className="text-slate-600">{cat.name}</span>
                         </div>
-                        <span className="font-bold text-slate-900">R$ {cat.value}</span>
+                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                       </div>
                     ))}
+                    {categoryData.length === 0 && (
+                      <p className="text-center text-slate-400 text-sm italic py-4">Nenhum gasto no período</p>
+                    )}
                   </div>
                 </div>
 
                 {/* Line Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Evolução do saldo {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
@@ -1421,7 +1553,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Bar Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
@@ -1444,7 +1576,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Alerts Section */}
-                <div className="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Alertas e Insights</h3>
                   <div className="space-y-4">
                     {alerts.map((alert, i) => (
@@ -1462,7 +1594,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Recent Transactions Section */}
-                <div className="lg:col-span-3 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
                       <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
