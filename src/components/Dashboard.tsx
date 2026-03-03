@@ -99,9 +99,10 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [activeTab, setActiveTab] = React.useState('Dashboard');
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [selectedMonth, setSelectedMonth] = React.useState<number>(new Date().getMonth());
+  const [selectedMonths, setSelectedMonths] = React.useState<number[]>([new Date().getMonth()]);
   const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [isCustomYear, setIsCustomYear] = React.useState(false);
+  const [isMonthDropdownOpen, setIsMonthDropdownOpen] = React.useState(false);
 
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
@@ -535,7 +536,7 @@ Seu controle financeiro inteligente`.trim();
     return transactions.filter(t => {
       if (!t.date) return false;
       const date = parseDate(t.date);
-      const monthMatch = selectedMonth === -1 || date.getMonth() === selectedMonth;
+      const monthMatch = selectedMonths.length === 0 || selectedMonths.includes(date.getMonth());
       const yearMatch = selectedYear === -1 || date.getFullYear() === selectedYear;
       
       const searchLower = searchQuery.toLowerCase();
@@ -554,7 +555,7 @@ Seu controle financeiro inteligente`.trim();
       const dateB = parseDate(b.date).getTime();
       return dateB - dateA;
     });
-  }, [transactions, selectedMonth, selectedYear, searchQuery, statusFilter]);
+  }, [transactions, selectedMonths, selectedYear, searchQuery, statusFilter]);
 
   // Calculate Stats
   const stats = React.useMemo(() => {
@@ -635,7 +636,8 @@ Seu controle financeiro inteligente`.trim();
 
   // Calculate Chart Data (Daily or Monthly depending on filter)
   const chartData = React.useMemo(() => {
-    if (selectedMonth !== -1) {
+    if (selectedMonths.length === 1) {
+      const selectedMonth = selectedMonths[0];
       // Daily evolution for selected month
       const year = selectedYear === -1 ? new Date().getFullYear() : selectedYear;
       const daysInMonth = new Date(year, selectedMonth + 1, 0).getDate();
@@ -686,7 +688,7 @@ Seu controle financeiro inteligente`.trim();
         return { ...d, saldo: cumulativeSaldo };
       });
     }
-  }, [filteredTransactions, selectedMonth, selectedYear]);
+  }, [filteredTransactions, selectedMonths, selectedYear]);
 
   // Calculate Annual Goal Stats
   const annualGoalStats = React.useMemo(() => {
@@ -1087,18 +1089,59 @@ Seu controle financeiro inteligente`.trim();
                   )}
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-                    <Calendar className="w-4 h-4 text-slate-400 ml-2" />
-                    <select 
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                      className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 pr-4 py-1 cursor-pointer"
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                      className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-all"
                     >
-                      <option value="-1">Todos os meses</option>
-                      {months.map((month, index) => (
-                        <option key={index} value={index}>{month}</option>
-                      ))}
-                    </select>
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      {selectedMonths.length === 0 ? 'Todos os meses' : 
+                       selectedMonths.length === 12 ? 'Todos os meses' :
+                       selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                       `${selectedMonths.length} meses`}
+                    </button>
+                    
+                    {isMonthDropdownOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="p-2 border-b border-slate-50 mb-1 flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-400 uppercase">Selecionar Meses</span>
+                            <button 
+                              onClick={() => {
+                                if (selectedMonths.length === 12) setSelectedMonths([]);
+                                else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                              }}
+                              className="text-[10px] font-bold text-emerald-600 hover:underline"
+                            >
+                              {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
+                            {months.map((month, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  setSelectedMonths(prev => 
+                                    prev.includes(index) 
+                                      ? prev.filter(m => m !== index) 
+                                      : [...prev, index].sort((a, b) => a - b)
+                                  );
+                                }}
+                                className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
+                                  selectedMonths.includes(index) 
+                                    ? 'bg-emerald-50 text-emerald-700 font-bold' 
+                                    : 'text-slate-600 hover:bg-slate-50'
+                                }`}
+                              >
+                                {month}
+                                {selectedMonths.includes(index) && <CheckCircle2 className="w-4 h-4" />}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
                     {isCustomYear ? (
@@ -1350,7 +1393,7 @@ Seu controle financeiro inteligente`.trim();
                 {/* Line Chart */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
-                    Evolução do saldo {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
+                    Evolução do saldo {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1377,7 +1420,7 @@ Seu controle financeiro inteligente`.trim();
                 {/* Bar Chart */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
-                    Receita vs despesas {selectedMonth !== -1 ? `em ${months[selectedMonth]}` : 'Anual'}
+                    Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1528,7 +1571,7 @@ Seu controle financeiro inteligente`.trim();
           ) : activeTab === 'Receitas' ? (
             <IncomeView 
               transactions={transactions} 
-              selectedMonth={selectedMonth} 
+              selectedMonths={selectedMonths} 
               selectedYear={selectedYear} 
               statusFilter={statusFilter}
               onDelete={handleDeleteTransaction}
@@ -1537,7 +1580,7 @@ Seu controle financeiro inteligente`.trim();
           ) : activeTab === 'Despesas' ? (
             <ExpenseView 
               transactions={transactions} 
-              selectedMonth={selectedMonth} 
+              selectedMonths={selectedMonths} 
               selectedYear={selectedYear} 
               statusFilter={statusFilter}
               onDelete={handleDeleteTransaction}

@@ -39,7 +39,7 @@ interface Transaction {
 
 interface ExpenseViewProps {
   transactions: Transaction[];
-  selectedMonth: number;
+  selectedMonths: number[];
   selectedYear: number;
   statusFilter?: 'all' | 'paid' | 'pending';
   onDelete?: (transaction: Transaction) => void;
@@ -55,7 +55,7 @@ const parseDate = (dateStr: string) => {
 
 export const ExpenseView = ({ 
   transactions, 
-  selectedMonth, 
+  selectedMonths, 
   selectedYear, 
   statusFilter = 'all',
   onDelete, 
@@ -69,7 +69,7 @@ export const ExpenseView = ({
   const stats = React.useMemo(() => {
     const currentPeriod = expenseTransactions.filter(t => {
       const d = parseDate(t.date);
-      const periodMatch = (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
+      const periodMatch = (selectedMonths.length === 0 || selectedMonths.includes(d.getMonth())) && 
                          (selectedYear === -1 || d.getFullYear() === selectedYear);
       const statusMatch = statusFilter === 'all' || 
                          (statusFilter === 'paid' && t.paid) || 
@@ -77,13 +77,16 @@ export const ExpenseView = ({
       return periodMatch && statusMatch;
     });
 
+    const isSingleMonth = selectedMonths.length === 1;
+    const selectedMonth = isSingleMonth ? selectedMonths[0] : -1;
+    
     const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
     const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
     
-    const previousPeriod = expenseTransactions.filter(t => {
+    const previousPeriod = isSingleMonth ? expenseTransactions.filter(t => {
       const d = parseDate(t.date);
       return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
-    });
+    }) : [];
 
     const currentTotal = currentPeriod.reduce((acc, t) => acc + parseFloat(t.amount), 0);
     const prevTotal = previousPeriod.reduce((acc, t) => acc + parseFloat(t.amount), 0);
@@ -95,7 +98,7 @@ export const ExpenseView = ({
       .filter(t => {
         const d = parseDate(t.date);
         return t.type === 'income' && 
-               (selectedMonth === -1 || d.getMonth() === selectedMonth) && 
+               (selectedMonths.length === 0 || selectedMonths.includes(d.getMonth())) && 
                (selectedYear === -1 || d.getFullYear() === selectedYear);
       })
       .reduce((acc, t) => acc + parseFloat(t.amount), 0);
@@ -112,7 +115,7 @@ export const ExpenseView = ({
       count: currentPeriod.length,
       currentPeriod
     };
-  }, [expenseTransactions, transactions, selectedMonth, selectedYear]);
+  }, [expenseTransactions, transactions, selectedMonths, selectedYear]);
 
   const categoryData = React.useMemo(() => {
     const groups: Record<string, number> = {};
