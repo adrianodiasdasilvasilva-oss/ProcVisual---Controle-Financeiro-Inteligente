@@ -132,6 +132,9 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         setUserPhone(data.phone || '');
         setNotificationsEnabled(data.notificationsEnabled !== false);
         setMonthlyGoal(data.monthlyGoal || null);
+        if (data.welcomeDismissed) {
+          setIsWelcomeVisible(false);
+        }
       }
     });
 
@@ -444,6 +447,17 @@ Seu controle financeiro inteligente`.trim();
       setIsUploading(false);
     }
   };
+  const handlePermanentDismissWelcome = async () => {
+    if (!auth.currentUser) return;
+    try {
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await updateDoc(userDocRef, { welcomeDismissed: true });
+      setIsWelcomeVisible(false);
+    } catch (error) {
+      console.error('Error dismissing welcome permanently:', error);
+    }
+  };
+
   const handleDeleteGoal = async () => {
     if (!auth.currentUser) return;
     if (!window.confirm('Deseja remover esta meta definitivamente?')) return;
@@ -578,6 +592,32 @@ Seu controle financeiro inteligente`.trim();
       pendingExpense
     };
   }, [filteredTransactions]);
+
+  // Calculate pending values by month for the status cards
+  const pendingStatsByMonth = React.useMemo(() => {
+    const incomeByMonth = Array(12).fill(0).map((_, i) => ({ name: months[i].substring(0, 3), pending: 0 }));
+    const expenseByMonth = Array(12).fill(0).map((_, i) => ({ name: months[i].substring(0, 3), pending: 0 }));
+
+    transactions.forEach(t => {
+      if (!t.date || t.paid) return;
+      const date = parseDate(t.date);
+      if (date.getFullYear() !== selectedYear && selectedYear !== -1) return;
+      
+      const monthIdx = date.getMonth();
+      const val = parseFloat(t.amount) || 0;
+      
+      if (t.type === 'income') {
+        incomeByMonth[monthIdx].pending += val;
+      } else {
+        expenseByMonth[monthIdx].pending += val;
+      }
+    });
+
+    return {
+      income: incomeByMonth.filter(m => m.pending > 0),
+      expense: expenseByMonth.filter(m => m.pending > 0)
+    };
+  }, [transactions, selectedYear, months]);
 
   // Calculate Category Data for Pie Chart
   const categoryData = React.useMemo(() => {
@@ -951,12 +991,22 @@ Seu controle financeiro inteligente`.trim();
                           ? 'Bem-vindo de volta ao seu controle financeiro.' 
                           : 'Vamos começar a organizar suas finanças?'}
                       </p>
-                      <button 
-                        onClick={() => setIsWelcomeVisible(false)}
-                        className="p-1 text-emerald-300 hover:text-emerald-600 transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => setIsWelcomeVisible(false)}
+                          className="p-1 text-emerald-300 hover:text-emerald-600 transition-colors"
+                          title="Fechar por agora"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <button 
+                          onClick={handlePermanentDismissWelcome}
+                          className="p-1 text-emerald-300 hover:text-red-500 transition-colors"
+                          title="Remover definitivamente"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                       {/* Tooltip arrow */}
                       <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-50 border-l border-b border-emerald-100 rotate-45 hidden md:block"></div>
                     </motion.div>
@@ -1037,7 +1087,7 @@ Seu controle financeiro inteligente`.trim();
                   )}
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
                     <Calendar className="w-4 h-4 text-slate-400 ml-2" />
                     <select 
                       value={selectedMonth}
@@ -1050,7 +1100,7 @@ Seu controle financeiro inteligente`.trim();
                       ))}
                     </select>
                   </div>
-                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
                     {isCustomYear ? (
                       <div className="flex items-center">
                         <input 
@@ -1142,6 +1192,7 @@ Seu controle financeiro inteligente`.trim();
                   trendUp={true} 
                   icon={<TrendingUp className="text-emerald-600" />} 
                   bgColor="bg-emerald-50"
+                  valueColor="text-emerald-600"
                 />
                 <StatCard 
                   title="Despesas do mês" 
@@ -1150,6 +1201,7 @@ Seu controle financeiro inteligente`.trim();
                   trendUp={false} 
                   icon={<TrendingDown className="text-red-600" />} 
                   bgColor="bg-red-50"
+                  valueColor="text-red-600"
                 />
                 <StatCard 
                   title="Economia" 
@@ -1158,7 +1210,7 @@ Seu controle financeiro inteligente`.trim();
                   trendUp={stats.balance >= 0} 
                   icon={<Wallet className="text-blue-600" />} 
                   bgColor="bg-blue-50"
-                  valueColor={stats.balance >= 0 ? 'text-slate-900' : 'text-red-600'}
+                  valueColor={stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}
                 />
                 <StatCard 
                   title="Percentual gasto" 
@@ -1172,7 +1224,7 @@ Seu controle financeiro inteligente`.trim();
 
               {/* Status Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Receitas</h3>
                   <div className="flex items-center justify-between">
                     <div>
@@ -1181,7 +1233,7 @@ Seu controle financeiro inteligente`.trim();
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pendente</p>
-                      <p className="text-xl font-black text-amber-500">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xl font-black text-red-600">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                   <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
@@ -1190,26 +1242,70 @@ Seu controle financeiro inteligente`.trim();
                       style={{ width: `${stats.income > 0 ? (stats.paidIncome / stats.income) * 100 : 0}%` }}
                     />
                   </div>
+
+                  {pendingStatsByMonth.income.length > 0 && (
+                    <>
+                      <div className="my-6 border-t border-slate-100 border-dashed"></div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Pendências por Mês</p>
+                        <div className="h-32">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={pendingStatsByMonth.income}>
+                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={5} />
+                              <Tooltip 
+                                cursor={{ fill: '#f8fafc' }}
+                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px' }}
+                                formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
+                              />
+                              <Bar dataKey="pending" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Despesas</h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pago</p>
-                      <p className="text-xl font-black text-red-600">R$ {stats.paidExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xl font-black text-emerald-600">R$ {stats.paidExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pendente</p>
-                      <p className="text-xl font-black text-amber-500">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xl font-black text-red-600">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                   <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
                     <div 
-                      className="h-full bg-red-500 transition-all duration-500" 
+                      className="h-full bg-emerald-500 transition-all duration-500" 
                       style={{ width: `${stats.expense > 0 ? (stats.paidExpense / stats.expense) * 100 : 0}%` }}
                     />
                   </div>
+
+                  {pendingStatsByMonth.expense.length > 0 && (
+                    <>
+                      <div className="my-6 border-t border-slate-100 border-dashed"></div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Pendências por Mês</p>
+                        <div className="h-32">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={pendingStatsByMonth.expense}>
+                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={5} />
+                              <Tooltip 
+                                cursor={{ fill: '#f8fafc' }}
+                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px' }}
+                                formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
+                              />
+                              <Bar dataKey="pending" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -1295,7 +1391,7 @@ Seu controle financeiro inteligente`.trim();
                         />
                         <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px' }} />
                         <Bar dataKey="receita" name="Receita" fill="#10b981" radius={[4, 4, 0, 0]} barSize={10} />
-                        <Bar dataKey="despesa" name="Despesa" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={10} />
+                        <Bar dataKey="despesa" name="Despesa" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={10} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
