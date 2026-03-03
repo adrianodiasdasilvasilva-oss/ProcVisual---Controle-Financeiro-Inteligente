@@ -18,7 +18,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
   const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = React.useState('');
   const [installments, setInstallments] = React.useState('1');
-  const [paid, setPaid] = React.useState(true);
+  const [paid, setPaid] = React.useState(false);
 
   // Reset form when opened
   React.useEffect(() => {
@@ -31,7 +31,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
       setType('expense');
       setDate(new Date().toISOString().split('T')[0]);
       setInstallments('1');
-      setPaid(true);
+      setPaid(false);
     }
   }, [isOpen]);
 
