@@ -1457,27 +1457,38 @@ Seu controle financeiro inteligente`.trim();
                           outerRadius={80}
                           paddingAngle={5}
                           dataKey="value"
+                          label={({ percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''}
+                          labelLine={false}
                         >
                           {incomeCategoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                          formatter={(value: number) => {
+                            const percentage = stats.income > 0 ? (value / stats.income) * 100 : 0;
+                            return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentage.toFixed(1)}%)`, 'Receita'];
+                          }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="mt-4 space-y-2 max-h-40 overflow-y-auto pr-2">
-                    {incomeCategoryData.map((cat, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                          <span className="text-slate-600">{cat.name}</span>
+                    {incomeCategoryData.map((cat, i) => {
+                      const percentage = stats.income > 0 ? (cat.value / stats.income) * 100 : 0;
+                      return (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                            <span className="text-slate-600">{cat.name}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-slate-900 block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-[10px] text-slate-400 font-bold">{percentage.toFixed(1)}%</span>
+                          </div>
                         </div>
-                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {incomeCategoryData.length === 0 && (
                       <p className="text-center text-slate-400 text-sm italic py-4">Nenhuma receita no período</p>
                     )}
@@ -1498,27 +1509,38 @@ Seu controle financeiro inteligente`.trim();
                           outerRadius={80}
                           paddingAngle={5}
                           dataKey="value"
+                          label={({ percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''}
+                          labelLine={false}
                         >
                           {categoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                          formatter={(value: number) => {
+                            const percentage = stats.expense > 0 ? (value / stats.expense) * 100 : 0;
+                            return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentage.toFixed(1)}%)`, 'Gasto'];
+                          }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="mt-4 space-y-2 max-h-40 overflow-y-auto pr-2">
-                    {categoryData.map((cat, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                          <span className="text-slate-600">{cat.name}</span>
+                    {categoryData.map((cat, i) => {
+                      const percentage = stats.expense > 0 ? (cat.value / stats.expense) * 100 : 0;
+                      return (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                            <span className="text-slate-600">{cat.name}</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-slate-900 block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-[10px] text-slate-400 font-bold">{percentage.toFixed(1)}%</span>
+                          </div>
                         </div>
-                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {categoryData.length === 0 && (
                       <p className="text-center text-slate-400 text-sm italic py-4">Nenhum gasto no período</p>
                     )}
