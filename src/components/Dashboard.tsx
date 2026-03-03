@@ -49,7 +49,8 @@ import {
   writeBatch,
   setDoc,
   updateDoc,
-  getDoc
+  getDoc,
+  deleteField
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { TransactionForm } from './TransactionForm';
@@ -443,6 +444,20 @@ Seu controle financeiro inteligente`.trim();
       setIsUploading(false);
     }
   };
+  const handleDeleteGoal = async () => {
+    if (!auth.currentUser) return;
+    if (!window.confirm('Deseja remover esta meta definitivamente?')) return;
+
+    try {
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await updateDoc(userDocRef, { monthlyGoal: deleteField() });
+      setMonthlyGoal(null);
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+      alert('Erro ao excluir meta.');
+    }
+  };
+
   const handleDeleteTransaction = async (transactionToDelete: any) => {
     if (!window.confirm('Tem certeza que deseja excluir este lançamento?')) return;
 
@@ -1012,10 +1027,11 @@ Seu controle financeiro inteligente`.trim();
                       </div>
 
                       <button 
-                        onClick={() => setMonthlyGoal(null)}
+                        onClick={handleDeleteGoal}
                         className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-100 rounded-full shadow-md flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                        title="Remover meta definitivamente"
                       >
-                        <X className="w-3 h-3" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </motion.div>
                   )}
