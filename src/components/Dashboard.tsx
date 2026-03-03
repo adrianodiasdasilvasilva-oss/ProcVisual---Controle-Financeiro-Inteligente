@@ -20,7 +20,9 @@ import {
   Trash2,
   Camera,
   Upload,
-  CheckCircle2
+  CheckCircle2,
+  LifeBuoy,
+  Mail
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -779,6 +781,7 @@ Seu controle financeiro inteligente`.trim();
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
     { icon: <PieChartIcon className="w-5 h-5" />, label: 'Análises' },
     { icon: <Settings className="w-5 h-5" />, label: 'Configurações' },
+    { icon: <LifeBuoy className="w-5 h-5" />, label: 'Suporte' },
   ];
 
   return (
@@ -1732,6 +1735,51 @@ Seu controle financeiro inteligente`.trim();
                           )}
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activeTab === 'Suporte' ? (
+            <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-white p-8 rounded-3xl border border-slate-200 card-shadow">
+                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <LifeBuoy className="w-6 h-6 text-emerald-600" />
+                  Suporte ProcVisual
+                </h2>
+                
+                <div className="space-y-6">
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                      <LifeBuoy className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">Como podemos ajudar?</h3>
+                    <p className="text-slate-600 mb-6">Entre em contato conosco através dos canais abaixo para tirar dúvidas ou solicitar suporte técnico.</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                      <a 
+                        href="https://wa.me/5519991312218" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all group"
+                      >
+                        <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                          <PhoneIcon className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-400 uppercase mb-1">WhatsApp</span>
+                        <span className="text-lg font-bold text-slate-900">(19) 9 9131-2218</span>
+                      </a>
+                      
+                      <a 
+                        href="mailto:procvisual.dashboard@gmail.com?subject=Suporte%20Dashboard%20ProcVisual" 
+                        className="flex flex-col items-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all group"
+                      >
+                        <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                          <Mail className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-400 uppercase mb-1">E-mail</span>
+                        <span className="text-lg font-bold text-slate-900 break-all">procvisual.dashboard@gmail.com</span>
+                      </a>
                     </div>
                   </div>
                 </div>
