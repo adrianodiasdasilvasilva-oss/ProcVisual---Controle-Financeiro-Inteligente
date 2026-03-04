@@ -28,6 +28,8 @@ import {
   PieChart, 
   Pie, 
   Cell, 
+  AreaChart,
+  Area,
   ResponsiveContainer, 
   LineChart, 
   Line, 
@@ -121,6 +123,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [isUploading, setIsUploading] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
+  const [showAllTransactions, setShowAllTransactions] = React.useState(false);
   const processingNotificationsRef = React.useRef<Set<string>>(new Set());
   const isProcessingNotificationsRef = React.useRef(false);
 
@@ -1325,6 +1328,9 @@ Seu controle financeiro inteligente`.trim();
                   icon={<TrendingUp className="text-emerald-600" />} 
                   bgColor="bg-emerald-50"
                   valueColor="text-emerald-600"
+                  chartData={chartData}
+                  dataKey="receita"
+                  strokeColor="#10b981"
                 />
                 <StatCard 
                   title="Despesas do mês" 
@@ -1334,6 +1340,9 @@ Seu controle financeiro inteligente`.trim();
                   icon={<TrendingDown className="text-red-600" />} 
                   bgColor="bg-red-50"
                   valueColor="text-red-600"
+                  chartData={chartData}
+                  dataKey="despesa"
+                  strokeColor="#ef4444"
                 />
                 <StatCard 
                   title="Economia" 
@@ -1343,6 +1352,9 @@ Seu controle financeiro inteligente`.trim();
                   icon={<Wallet className="text-blue-600" />} 
                   bgColor="bg-blue-50"
                   valueColor={stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}
+                  chartData={chartData}
+                  dataKey="saldo"
+                  strokeColor="#3b82f6"
                 />
                 <StatCard 
                   title="Percentual gasto" 
@@ -1351,6 +1363,9 @@ Seu controle financeiro inteligente`.trim();
                   trendUp={true} 
                   icon={<PieChartIcon className="text-amber-600" />} 
                   bgColor="bg-amber-50"
+                  chartData={chartData}
+                  dataKey="despesa"
+                  strokeColor="#f59e0b"
                 />
               </div>
 
@@ -1389,7 +1404,7 @@ Seu controle financeiro inteligente`.trim();
                                 contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px' }}
                                 formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
                               />
-                              <Bar dataKey="pending" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                              <Bar dataKey="pending" fill="#10b981" radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -1397,7 +1412,6 @@ Seu controle financeiro inteligente`.trim();
                     </>
                   )}
                 </div>
-
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Despesas</h3>
                   <div className="flex items-center justify-between">
@@ -1632,7 +1646,12 @@ Seu controle financeiro inteligente`.trim();
                         </motion.button>
                       )}
                     </div>
-                    <button className="text-sm font-bold text-emerald-600 hover:underline">Ver todos</button>
+                    <button 
+                      onClick={() => setShowAllTransactions(!showAllTransactions)}
+                      className="text-sm font-bold text-emerald-600 hover:underline"
+                    >
+                      {showAllTransactions ? 'Ver menos' : 'Ver todos'}
+                    </button>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -1643,11 +1662,13 @@ Seu controle financeiro inteligente`.trim();
                               type="checkbox" 
                               className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                               checked={(() => {
-                                const ids = filteredTransactions.slice(0, 5).map(t => t.id).filter((id): id is string => !!id);
+                                const limit = showAllTransactions ? filteredTransactions.length : 5;
+                                const ids = filteredTransactions.slice(0, limit).map(t => t.id).filter((id): id is string => !!id);
                                 return ids.length > 0 && ids.every(id => selectedTransactions.includes(id));
                               })()}
                               onChange={() => {
-                                const ids = filteredTransactions.slice(0, 5).map(t => t.id).filter((id): id is string => !!id);
+                                const limit = showAllTransactions ? filteredTransactions.length : 5;
+                                const ids = filteredTransactions.slice(0, limit).map(t => t.id).filter((id): id is string => !!id);
                                 toggleSelectAll(ids);
                               }}
                             />
@@ -1662,7 +1683,7 @@ Seu controle financeiro inteligente`.trim();
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {filteredTransactions.length > 0 ? (
-                          filteredTransactions.slice(0, 5).map((t, i) => (
+                          (showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, 5)).map((t, i) => (
                             <tr key={i} className={`group hover:bg-slate-50/50 transition-colors ${t.id && selectedTransactions.includes(t.id) ? 'bg-slate-50' : ''}`}>
                               <td className="py-4 px-4">
                                 <input 
@@ -1982,22 +2003,48 @@ Seu controle financeiro inteligente`.trim();
   );
 };
 
-const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor }: any) => (
+const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow"
+    className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow relative overflow-hidden"
   >
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-3 rounded-2xl ${bgColor}`}>
-        {icon}
+    <div className="relative z-10">
+      <div className="flex justify-between items-start mb-4">
+        <div className={`p-3 rounded-2xl ${bgColor}`}>
+          {icon}
+        </div>
+        <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
+          {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+          {trend}
+        </div>
       </div>
-      <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-        {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-        {trend}
-      </div>
+      <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
+      <h4 className={`text-2xl font-bold ${valueColor || 'text-slate-900'}`}>{value}</h4>
     </div>
-    <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-    <h4 className={`text-2xl font-bold ${valueColor || 'text-slate-900'}`}>{value}</h4>
+    
+    {chartData && (
+      <div className="absolute bottom-0 left-0 right-0 h-16 opacity-30 pointer-events-none">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient id={`gradient-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={strokeColor} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={strokeColor} stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <Area 
+              type="monotone" 
+              dataKey={dataKey} 
+              stroke={strokeColor} 
+              strokeWidth={2} 
+              fillOpacity={1} 
+              fill={`url(#gradient-${dataKey})`}
+              dot={false}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    )}
   </motion.div>
 );
 
