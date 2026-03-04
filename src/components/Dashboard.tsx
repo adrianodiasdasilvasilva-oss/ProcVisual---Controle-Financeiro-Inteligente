@@ -599,6 +599,39 @@ Seu controle financeiro inteligente`.trim();
     const balance = income - expense;
     const percentSpent = income > 0 ? Math.round((expense / income) * 100) : 0;
 
+    // Trend calculation (compared to previous month if single month selected)
+    let incomeTrend = 0;
+    let expenseTrend = 0;
+    let balanceTrend = 0;
+    let percentSpentTrend = 0;
+
+    if (selectedMonths.length === 1 && selectedYear !== -1) {
+      const currentMonth = selectedMonths[0];
+      const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const prevYear = currentMonth === 0 ? selectedYear - 1 : selectedYear;
+
+      let prevIncome = 0;
+      let prevExpense = 0;
+
+      transactions.forEach(t => {
+        if (!t.date) return;
+        const d = parseDate(t.date);
+        if (d.getMonth() === prevMonth && d.getFullYear() === prevYear) {
+          const val = parseFloat(t.amount) || 0;
+          if (t.type === 'income') prevIncome += val;
+          else prevExpense += val;
+        }
+      });
+
+      const prevBalance = prevIncome - prevExpense;
+      const prevPercentSpent = prevIncome > 0 ? Math.round((prevExpense / prevIncome) * 100) : 0;
+
+      incomeTrend = prevIncome > 0 ? ((income - prevIncome) / prevIncome) * 100 : 0;
+      expenseTrend = prevExpense > 0 ? ((expense - prevExpense) / prevExpense) * 100 : 0;
+      balanceTrend = prevBalance !== 0 ? ((balance - prevBalance) / Math.abs(prevBalance)) * 100 : 0;
+      percentSpentTrend = prevPercentSpent > 0 ? ((percentSpent - prevPercentSpent) / prevPercentSpent) * 100 : 0;
+    }
+
     return { 
       income, 
       expense, 
@@ -607,9 +640,13 @@ Seu controle financeiro inteligente`.trim();
       paidIncome,
       pendingIncome,
       paidExpense,
-      pendingExpense
+      pendingExpense,
+      incomeTrend,
+      expenseTrend,
+      balanceTrend,
+      percentSpentTrend
     };
-  }, [filteredTransactions]);
+  }, [filteredTransactions, transactions, selectedMonths, selectedYear]);
 
   // Calculate pending values by month for the status cards
   const pendingStatsByMonth = React.useMemo(() => {
@@ -1337,8 +1374,8 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Receita do mês" 
                   value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  trend="+0%" 
-                  trendUp={true} 
+                  trend={`${stats.incomeTrend >= 0 ? '+' : ''}${stats.incomeTrend.toFixed(1)}%`} 
+                  trendUp={stats.incomeTrend >= 0} 
                   icon={<TrendingUp className="text-emerald-600" />} 
                   bgColor="bg-emerald-50"
                   valueColor="text-emerald-600"
@@ -1349,8 +1386,8 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Despesas do mês" 
                   value={`R$ ${stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  trend="+0%" 
-                  trendUp={false} 
+                  trend={`${stats.expenseTrend >= 0 ? '+' : ''}${stats.expenseTrend.toFixed(1)}%`} 
+                  trendUp={stats.expenseTrend <= 0} 
                   icon={<TrendingDown className="text-red-600" />} 
                   bgColor="bg-red-50"
                   valueColor="text-red-600"
@@ -1361,8 +1398,8 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Economia" 
                   value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  trend="+0%" 
-                  trendUp={stats.balance >= 0} 
+                  trend={`${stats.balanceTrend >= 0 ? '+' : ''}${stats.balanceTrend.toFixed(1)}%`} 
+                  trendUp={stats.balanceTrend >= 0} 
                   icon={<Wallet className="text-blue-600" />} 
                   bgColor="bg-blue-50"
                   valueColor={stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}
@@ -1373,8 +1410,8 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Percentual gasto" 
                   value={`${stats.percentSpent}%`} 
-                  trend="0%" 
-                  trendUp={true} 
+                  trend={`${stats.percentSpentTrend >= 0 ? '+' : ''}${stats.percentSpentTrend.toFixed(1)}%`} 
+                  trendUp={stats.percentSpentTrend <= 0} 
                   icon={<PieChartIcon className="text-amber-600" />} 
                   bgColor="bg-amber-50"
                   chartData={chartData}
