@@ -143,8 +143,8 @@ export const ExpenseView = ({
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Análise de Despesas</h2>
-        <p className="text-slate-500 dark:text-slate-400">Controle seus gastos e identifique economias.</p>
+        <h2 className="text-2xl font-bold text-slate-900">Análise de Despesas</h2>
+        <p className="text-slate-500">Controle seus gastos e identifique economias.</p>
       </div>
 
       {/* KPI Cards */}

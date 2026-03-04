@@ -23,8 +23,6 @@ import {
   CheckCircle2,
   LifeBuoy,
   Mail,
-  Sun,
-  Moon
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -113,24 +111,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = React.useState(false);
 
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
-  const [isDarkMode, setIsDarkMode] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' || 
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    return false;
-  });
-
-  // Apply theme
-  React.useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -832,9 +812,9 @@ Seu controle financeiro inteligente`.trim();
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
@@ -845,7 +825,7 @@ Seu controle financeiro inteligente`.trim();
                 referrerPolicy="no-referrer"
               />
             </div>
-            {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">ProcVisual</span>}
+            {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-slate-900">ProcVisual</span>}
           </div>
 
           <div className="px-4 mb-6">
@@ -866,10 +846,10 @@ Seu controle financeiro inteligente`.trim();
                 className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all group ${
                   activeTab === item.label 
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' 
-                    : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
-                <div className={`${activeTab === item.label ? 'text-white' : 'text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'}`}>
+                <div className={`${activeTab === item.label ? 'text-white' : 'text-slate-400 group-hover:text-slate-900'}`}>
                   {item.icon}
                 </div>
                 {isSidebarOpen && <span className="font-medium">{item.label}</span>}
@@ -877,10 +857,10 @@ Seu controle financeiro inteligente`.trim();
             ))}
           </nav>
 
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="p-4 border-t border-slate-100">
             <button 
               onClick={onLogout}
-              className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all"
+              className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all"
             >
               <LogOut className="w-5 h-5" />
               {isSidebarOpen && <span className="font-medium">Sair</span>}
@@ -892,17 +872,17 @@ Seu controle financeiro inteligente`.trim();
       {/* Main Content */}
       <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {/* Topbar */}
-        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
           <div className="px-8 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg"
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div className="flex flex-col py-1">
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">{userName}</h1>
+                <h1 className="text-2xl font-bold text-slate-900 leading-tight">{userName}</h1>
               </div>
             </div>
 
@@ -914,40 +894,33 @@ Seu controle financeiro inteligente`.trim();
                 <TrendingUp className="w-5 h-5" />
                 Novo Lançamento
               </button>
-              <div className="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-4 py-2 gap-2 focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100 dark:focus-within:border-emerald-900/50">
+              <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
                 <Search className="w-4 h-4 text-slate-400" />
                 <input 
                   type="text" 
                   placeholder="Buscar lançamentos..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-sm w-40 dark:text-white"
+                  className="bg-transparent border-none outline-none text-sm w-40"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
-                    className="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors"
+                    className="p-0.5 hover:bg-slate-200 rounded-full transition-colors"
                   >
                     <X className="w-3 h-3 text-slate-400" />
                   </button>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => setIsDarkMode(!isDarkMode)}
-                  className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
-                  title={isDarkMode ? "Mudar para modo claro" : "Mudar para modo escuro"}
-                >
-                  {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
                 <div className="relative">
                   <button 
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className={`relative p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-100 dark:bg-slate-800 text-emerald-600' : ''}`}
+                    className={`relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-100 text-emerald-600' : ''}`}
                   >
                     <Bell className="w-5 h-5" />
                     {alerts.length > 0 && (
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     )}
                   </button>
 
@@ -957,10 +930,10 @@ Seu controle financeiro inteligente`.trim();
                       className="fixed inset-0 z-40" 
                       onClick={() => setIsNotificationsOpen(false)}
                     ></div>
-                    <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-4 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-                        <h3 className="font-bold text-slate-900 dark:text-white">Notificações</h3>
-                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-full">
+                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                        <h3 className="font-bold text-slate-900">Notificações</h3>
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                           {alerts.length} novas
                         </span>
                       </div>
@@ -969,35 +942,35 @@ Seu controle financeiro inteligente`.trim();
                           alerts.map((alert, i) => (
                             <div 
                               key={i} 
-                              className="p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex gap-3 cursor-pointer group"
+                              className="p-3 rounded-xl hover:bg-slate-50 transition-colors flex gap-3 cursor-pointer group"
                             >
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                                alert.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600' : 
-                                alert.type === 'warning' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600'
+                                alert.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
+                                alert.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                               }`}>
                                 {alert.type === 'success' ? <Target className="w-5 h-5" /> : 
                                  alert.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
                               </div>
                               <div>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">{alert.message}</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight mt-0.5">{alert.description}</p>
+                                <p className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{alert.message}</p>
+                                <p className="text-xs text-slate-500 leading-tight mt-0.5">{alert.description}</p>
                               </div>
                             </div>
                           ))
                         ) : (
                           <div className="py-8 text-center">
-                            <Bell className="w-8 h-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
-                            <p className="text-sm text-slate-400 dark:text-slate-500">Nenhuma notificação por aqui.</p>
+                            <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                            <p className="text-sm text-slate-400">Nenhuma notificação por aqui.</p>
                           </div>
                         )}
                       </div>
-                      <div className="p-3 bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-50 dark:border-slate-800 text-center">
+                      <div className="p-3 bg-slate-50/50 border-t border-slate-50 text-center">
                         <button 
                           onClick={() => {
                             const allAlertMessages = alerts.map(a => a.message);
                             setDismissedAlerts(prev => [...new Set([...prev, ...allAlertMessages])]);
                           }}
-                          className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-emerald-600 transition-colors"
+                          className="text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
                         >
                           Marcar todas como lidas
                         </button>
@@ -1007,14 +980,14 @@ Seu controle financeiro inteligente`.trim();
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">Saldo atual</p>
+                  <p className="text-sm font-bold text-slate-900">Saldo atual</p>
                   <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
+                <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden border border-slate-200">
                   {profileImage ? (
                     <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -1039,7 +1012,7 @@ Seu controle financeiro inteligente`.trim();
               {/* Month & Year Filter */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Visão Geral</h2>
+                  <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
                   
                   <div className="relative">
                     <button 
@@ -1055,8 +1028,8 @@ Seu controle financeiro inteligente`.trim();
                     {isCategoryDropdownOpen && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
-                        <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="p-2 border-b border-slate-50 dark:border-slate-800 mb-1 flex items-center justify-between">
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="p-2 border-b border-slate-50 mb-1 flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-400 uppercase">Filtrar Categorias</span>
                             <button 
                               onClick={() => {
@@ -1082,8 +1055,8 @@ Seu controle financeiro inteligente`.trim();
                                   }}
                                   className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
                                     selectedCategories.includes(cat) 
-                                      ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-bold' 
-                                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                      ? 'bg-emerald-50 text-emerald-700 font-bold' 
+                                      : 'text-slate-600 hover:bg-slate-50'
                                   }`}
                                 >
                                   <span className="truncate">{cat}</span>
@@ -1290,14 +1263,14 @@ Seu controle financeiro inteligente`.trim();
                         <select 
                           value={selectedYear}
                           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                          className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 dark:text-slate-300 px-4 py-1 cursor-pointer"
+                          className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 cursor-pointer"
                         >
-                          <option value="-1" className="dark:bg-slate-900">Todos os anos</option>
+                          <option value="-1">Todos os anos</option>
                           {years.map((year) => (
-                            <option key={year} value={year} className="dark:bg-slate-900">{year}</option>
+                            <option key={year} value={year}>{year}</option>
                           ))}
                           {selectedYear !== -1 && !years.includes(selectedYear) && (
-                            <option value={selectedYear} className="dark:bg-slate-900">{selectedYear}</option>
+                            <option value={selectedYear}>{selectedYear}</option>
                           )}
                         </select>
                         <button 
@@ -1312,13 +1285,13 @@ Seu controle financeiro inteligente`.trim();
                   </div>
 
                   {/* Status Filter */}
-                  <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-sm">
+                  <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
                     <button
                       onClick={() => setStatusFilter('all')}
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         statusFilter === 'all' 
                           ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'text-slate-500 hover:bg-slate-50'
                       }`}
                     >
                       Todos
@@ -1328,7 +1301,7 @@ Seu controle financeiro inteligente`.trim();
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         statusFilter === 'paid' 
                           ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'text-slate-500 hover:bg-slate-50'
                       }`}
                     >
                       Pagos/Recebidos
@@ -1338,7 +1311,7 @@ Seu controle financeiro inteligente`.trim();
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         statusFilter === 'pending' 
                           ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'text-slate-500 hover:bg-slate-50'
                       }`}
                     >
                       Pendentes
@@ -1596,34 +1569,6 @@ Seu controle financeiro inteligente`.trim();
                   </div>
                 </div>
 
-                {/* Line Chart */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">
-                    Evolução do saldo {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
-                  </h3>
-                  <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
-                          itemStyle={{ color: '#000' }}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="saldo" 
-                          stroke="#10b981" 
-                          strokeWidth={4} 
-                          dot={false}
-                          activeDot={{ r: 8 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
                 {/* Bar Chart */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
@@ -1660,7 +1605,7 @@ Seu controle financeiro inteligente`.trim();
                       />
                     ))}
                   </div>
-                  <button className="w-full mt-6 py-3 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <button className="w-full mt-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
                     Ver todos os alertas
                   </button>
                 </div>
@@ -1675,7 +1620,7 @@ Seu controle financeiro inteligente`.trim();
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           onClick={handleBulkDelete}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
+                          className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 transition-all"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           Excluir ({selectedTransactions.length})

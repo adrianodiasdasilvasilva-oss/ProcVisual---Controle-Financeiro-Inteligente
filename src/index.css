@@ -14,18 +14,10 @@
   body {
     @apply font-sans bg-[#f8f9fa] text-slate-900 antialiased transition-colors duration-300;
   }
-  
-  .dark body {
-    @apply bg-[#0f172a] text-slate-100;
-  }
 }
 
 .glass {
   @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
-}
-
-.dark .glass {
-  @apply bg-slate-900/80 border-slate-800/50;
 }
 
 .card-shadow {
