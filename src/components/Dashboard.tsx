@@ -815,7 +815,7 @@ Seu controle financeiro inteligente`.trim();
   return (
     <div className="min-h-screen bg-slate-50 flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
@@ -826,7 +826,7 @@ Seu controle financeiro inteligente`.trim();
                 referrerPolicy="no-referrer"
               />
             </div>
-            {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-slate-900">ProcVisual</span>}
+            {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-white">ProcVisual</span>}
           </div>
 
           <div className="px-4 mb-6">
@@ -847,24 +847,24 @@ Seu controle financeiro inteligente`.trim();
                 className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all group ${
                   activeTab === item.label 
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' 
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                 }`}
               >
-                <div className={`${activeTab === item.label ? 'text-white' : 'text-slate-400 group-hover:text-slate-900'}`}>
+                <div className={`${activeTab === item.label ? 'text-white' : 'text-slate-400 group-hover:text-white'} font-bold`}>
                   {item.icon}
                 </div>
-                {isSidebarOpen && <span className="font-medium">{item.label}</span>}
+                {isSidebarOpen && <span className="font-bold text-white">{item.label}</span>}
               </button>
             ))}
           </nav>
 
-          <div className="p-4 border-t border-slate-100">
+          <div className="p-4 border-t border-slate-800">
             <button 
               onClick={onLogout}
-              className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all"
+              className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-red-900/20 hover:text-red-400 transition-all"
             >
-              <LogOut className="w-5 h-5" />
-              {isSidebarOpen && <span className="font-medium">Sair</span>}
+              <LogOut className="w-5 h-5 font-bold" />
+              {isSidebarOpen && <span className="font-bold">Sair</span>}
             </button>
           </div>
         </div>
