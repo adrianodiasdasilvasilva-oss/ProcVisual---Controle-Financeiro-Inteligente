@@ -183,7 +183,7 @@ export const ExpenseView = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Evolution Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
+        <div className="lg:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Evolução de Gastos</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -216,7 +216,7 @@ export const ExpenseView = ({
         </div>
 
         {/* Category Distribution */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
+        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Onde está o dinheiro?</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -254,7 +254,7 @@ export const ExpenseView = ({
         </div>
 
         {/* Top Expenses Table */}
-        <div className="lg:col-span-3 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
+        <div className="lg:col-span-3 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-slate-900">Maiores Gastos do Período</h3>
             <button className="text-sm font-bold text-red-600 hover:underline flex items-center gap-1">
@@ -338,7 +338,7 @@ export const ExpenseView = ({
 const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300"
+    className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300"
   >
     <div className="flex justify-between items-start mb-4">
       <div className={`p-3 rounded-2xl ${bgColor}`}>

@@ -171,7 +171,7 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Monthly Comparison */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-slate-900">Comparação Mensal</h3>
             <div className="flex items-center gap-4 text-xs font-medium">
@@ -198,7 +198,7 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
         </div>
 
         {/* Future Projection */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Projeção Futura</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -224,7 +224,7 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
       </div>
 
       {/* Simulator Section */}
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+      <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 bg-blue-50 rounded-lg">
             <Target className="w-6 h-6 text-blue-600" />

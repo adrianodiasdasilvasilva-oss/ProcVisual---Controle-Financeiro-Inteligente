@@ -44,7 +44,7 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
   };
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col items-center h-full min-h-[320px]">
+    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col items-center h-full min-h-[320px]">
       <div className="w-full flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-bold text-slate-900">Saúde Financeira</h3>

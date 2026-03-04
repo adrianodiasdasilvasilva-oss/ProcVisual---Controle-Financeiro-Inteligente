@@ -813,7 +813,7 @@ Seu controle financeiro inteligente`.trim();
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex transition-colors duration-300">
+    <div className="min-h-screen bg-white flex transition-colors duration-300">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
@@ -1385,7 +1385,7 @@ Seu controle financeiro inteligente`.trim();
 
               {/* Status Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Receitas</h3>
                   <div className="flex items-center justify-between">
                     <div>
@@ -1427,7 +1427,7 @@ Seu controle financeiro inteligente`.trim();
                     </>
                   )}
                 </div>
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
                   <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Despesas</h3>
                   <div className="flex items-center justify-between">
                     <div>
@@ -1474,7 +1474,7 @@ Seu controle financeiro inteligente`.trim();
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Income Pie Chart */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Receitas por categoria</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1528,7 +1528,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Expense Pie Chart */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Gastos por categoria</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1582,7 +1582,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Bar Chart */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
@@ -1605,7 +1605,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Alerts Section */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Alertas e Insights</h3>
                   <div className="space-y-4">
                     {alerts.map((alert, i) => (
@@ -1623,7 +1623,7 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Recent Transactions Section */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                <div className="lg:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
                       <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
@@ -1774,7 +1774,7 @@ Seu controle financeiro inteligente`.trim();
             />
           ) : activeTab === 'Configurações' ? (
             <div className="max-w-2xl mx-auto space-y-8">
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 card-shadow">
+              <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 card-shadow">
                 <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <Settings className="w-6 h-6 text-emerald-600" />
                   Configurações da Conta
@@ -1910,7 +1910,7 @@ Seu controle financeiro inteligente`.trim();
             </div>
           ) : activeTab === 'Suporte' ? (
             <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="bg-white p-8 rounded-3xl border border-slate-200 card-shadow">
+              <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 card-shadow">
                 <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <LifeBuoy className="w-6 h-6 text-emerald-600" />
                   Suporte ProcVisual
@@ -1929,7 +1929,7 @@ Seu controle financeiro inteligente`.trim();
                         href="https://wa.me/5519991312218" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex flex-col items-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all group"
+                        className="flex flex-col items-center p-6 bg-slate-50 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all group"
                       >
                         <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                           <PhoneIcon className="w-6 h-6 text-emerald-600" />
@@ -1940,7 +1940,7 @@ Seu controle financeiro inteligente`.trim();
                       
                       <a 
                         href="mailto:procvisual.dashboard@gmail.com?subject=Suporte%20Dashboard%20ProcVisual" 
-                        className="flex flex-col items-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all group"
+                        className="flex flex-col items-center p-6 bg-slate-50 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-lg transition-all group"
                       >
                         <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                           <Mail className="w-6 h-6 text-emerald-600" />
@@ -1999,7 +1999,7 @@ Seu controle financeiro inteligente`.trim();
 const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow relative overflow-hidden transition-colors duration-300"
+    className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow relative overflow-hidden transition-colors duration-300"
   >
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-4">
