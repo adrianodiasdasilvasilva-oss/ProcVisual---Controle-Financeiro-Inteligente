@@ -62,45 +62,41 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
         {/* Gauge Background */}
         <svg viewBox="0 0 200 100" className="w-full h-full">
           <path
-            d="M 20 90 A 80 80 0 0 1 180 90"
+            d="M 25 90 A 75 75 0 0 1 175 90"
             fill="none"
             stroke="#f1f5f9"
             strokeWidth="12"
-            strokeLinecap="round"
           />
-          {/* Red Zone */}
+          {/* Red Zone (180° to 120°) */}
           <path
-            d="M 20 90 A 80 80 0 0 1 60 35"
+            d="M 25 90 A 75 75 0 0 1 62.5 25.1"
             fill="none"
             stroke="#fee2e2"
             strokeWidth="12"
-            strokeLinecap="round"
           />
-          {/* Yellow Zone */}
+          {/* Yellow Zone (120° to 90°) */}
           <path
-            d="M 60 35 A 80 80 0 0 1 100 10"
+            d="M 62.5 25.1 A 75 75 0 0 1 100 15"
             fill="none"
             stroke="#fef3c7"
             strokeWidth="12"
-            strokeLinecap="round"
           />
-          {/* Green Zone */}
+          {/* Green Zone (90° to 0°) */}
           <path
-            d="M 100 10 A 80 80 0 0 1 180 90"
+            d="M 100 15 A 75 75 0 0 1 175 90"
             fill="none"
             stroke="#d1fae5"
             strokeWidth="12"
-            strokeLinecap="round"
           />
           
           {/* Ticks */}
           {[0, 45, 90, 135, 180].map((deg) => (
             <line
               key={deg}
-              x1={100 + 85 * Math.cos((deg + 180) * Math.PI / 180)}
-              y1={90 + 85 * Math.sin((deg + 180) * Math.PI / 180)}
-              x2={100 + 75 * Math.cos((deg + 180) * Math.PI / 180)}
-              y2={90 + 75 * Math.sin((deg + 180) * Math.PI / 180)}
+              x1={100 + 82 * Math.cos((deg + 180) * Math.PI / 180)}
+              y1={90 + 82 * Math.sin((deg + 180) * Math.PI / 180)}
+              x2={100 + 72 * Math.cos((deg + 180) * Math.PI / 180)}
+              y2={90 + 72 * Math.sin((deg + 180) * Math.PI / 180)}
               stroke="#cbd5e1"
               strokeWidth="1"
             />
@@ -109,7 +105,7 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
 
         {/* Needle */}
         <div 
-          className="absolute bottom-0 left-1/2 w-1 h-[85%] origin-bottom transition-transform duration-1000 ease-out"
+          className="absolute bottom-0 left-1/2 w-1 h-[70%] origin-bottom transition-transform duration-1000 ease-out"
           style={{ transform: `translateX(-50%) rotate(${rotation - 90}deg)` }}
         >
           <div className={`w-full h-full rounded-full shadow-lg ${getStatusBg(healthPercent)}`}></div>
