@@ -935,7 +935,7 @@ Seu controle financeiro inteligente`.trim();
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => setIsDarkMode(!isDarkMode)}
-                  className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all"
+                  className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all"
                   title={isDarkMode ? "Mudar para modo claro" : "Mudar para modo escuro"}
                 >
                   {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -1007,14 +1007,14 @@ Seu controle financeiro inteligente`.trim();
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
+            <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-800">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900">Saldo atual</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">Saldo atual</p>
                   <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden border border-slate-200">
+                <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
                   {profileImage ? (
                     <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -1039,7 +1039,7 @@ Seu controle financeiro inteligente`.trim();
               {/* Month & Year Filter */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Visão Geral</h2>
                   
                   <div className="relative">
                     <button 
@@ -1400,8 +1400,8 @@ Seu controle financeiro inteligente`.trim();
 
               {/* Status Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow flex flex-col transition-colors duration-300">
-                  <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Status de Receitas</h3>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Receitas</h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-slate-400 font-bold uppercase mb-1">Recebido</p>
@@ -1412,7 +1412,7 @@ Seu controle financeiro inteligente`.trim();
                       <p className="text-xl font-black text-red-600">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                   </div>
-                  <div className="mt-4 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                  <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
                     <div 
                       className="h-full bg-emerald-500 transition-all duration-500" 
                       style={{ width: `${stats.income > 0 ? (stats.paidIncome / stats.income) * 100 : 0}%` }}
@@ -1421,17 +1421,17 @@ Seu controle financeiro inteligente`.trim();
 
                   {pendingStatsByMonth.income.length > 0 && (
                     <>
-                      <div className="my-6 border-t border-slate-100 dark:border-slate-800 border-dashed"></div>
+                      <div className="my-6 border-t border-slate-100 border-dashed"></div>
                       <div className="flex-1">
-                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Pendências por Mês</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Pendências por Mês</p>
                         <div className="h-32">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={pendingStatsByMonth.income}>
                               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={5} />
                               <Tooltip 
-                                cursor={{ fill: isDarkMode ? '#1e293b' : '#f8fafc' }}
-                                contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px', color: isDarkMode ? '#fff' : '#000' }}
-                                itemStyle={{ color: isDarkMode ? '#fff' : '#000' }}
+                                cursor={{ fill: '#f8fafc' }}
+                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px', color: '#000' }}
+                                itemStyle={{ color: '#000' }}
                                 formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
                               />
                               <Bar dataKey="pending" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -1442,8 +1442,8 @@ Seu controle financeiro inteligente`.trim();
                     </>
                   )}
                 </div>
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow flex flex-col transition-colors duration-300">
-                  <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Status de Despesas</h3>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
+                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Despesas</h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pago</p>
@@ -1454,7 +1454,7 @@ Seu controle financeiro inteligente`.trim();
                       <p className="text-xl font-black text-red-600">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                   </div>
-                  <div className="mt-4 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                  <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
                     <div 
                       className="h-full bg-emerald-500 transition-all duration-500" 
                       style={{ width: `${stats.expense > 0 ? (stats.paidExpense / stats.expense) * 100 : 0}%` }}
@@ -1463,17 +1463,17 @@ Seu controle financeiro inteligente`.trim();
 
                   {pendingStatsByMonth.expense.length > 0 && (
                     <>
-                      <div className="my-6 border-t border-slate-100 dark:border-slate-800 border-dashed"></div>
+                      <div className="my-6 border-t border-slate-100 border-dashed"></div>
                       <div className="flex-1">
-                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Pendências por Mês</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Pendências por Mês</p>
                         <div className="h-32">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={pendingStatsByMonth.expense}>
                               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={5} />
                               <Tooltip 
-                                cursor={{ fill: isDarkMode ? '#1e293b' : '#f8fafc' }}
-                                contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px', color: isDarkMode ? '#fff' : '#000' }}
-                                itemStyle={{ color: isDarkMode ? '#fff' : '#000' }}
+                                cursor={{ fill: '#f8fafc' }}
+                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px', color: '#000' }}
+                                itemStyle={{ color: '#000' }}
                                 formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
                               />
                               <Bar dataKey="pending" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -1489,8 +1489,8 @@ Seu controle financeiro inteligente`.trim();
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Income Pie Chart */}
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Receitas por categoria</h3>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">Receitas por categoria</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -1514,8 +1514,8 @@ Seu controle financeiro inteligente`.trim();
                             const percentage = stats.income > 0 ? (value / stats.income) * 100 : 0;
                             return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentage.toFixed(1)}%)`, 'Receita'];
                           }}
-                          contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: isDarkMode ? '#fff' : '#000' }}
-                          itemStyle={{ color: isDarkMode ? '#fff' : '#000' }}
+                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
+                          itemStyle={{ color: '#000' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
@@ -1527,24 +1527,24 @@ Seu controle financeiro inteligente`.trim();
                         <div key={i} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                            <span className="text-slate-600 dark:text-slate-400">{cat.name}</span>
+                            <span className="text-slate-600">{cat.name}</span>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-slate-900 dark:text-white block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">{percentage.toFixed(1)}%</span>
+                            <span className="font-bold text-slate-900 block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-[10px] text-slate-400 font-bold">{percentage.toFixed(1)}%</span>
                           </div>
                         </div>
                       );
                     })}
                     {incomeCategoryData.length === 0 && (
-                      <p className="text-center text-slate-400 dark:text-slate-500 text-sm italic py-4">Nenhuma receita no período</p>
+                      <p className="text-center text-slate-400 text-sm italic py-4">Nenhuma receita no período</p>
                     )}
                   </div>
                 </div>
 
                 {/* Expense Pie Chart */}
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Gastos por categoria</h3>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">Gastos por categoria</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -1568,8 +1568,8 @@ Seu controle financeiro inteligente`.trim();
                             const percentage = stats.expense > 0 ? (value / stats.expense) * 100 : 0;
                             return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentage.toFixed(1)}%)`, 'Gasto'];
                           }}
-                          contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: isDarkMode ? '#fff' : '#000' }}
-                          itemStyle={{ color: isDarkMode ? '#fff' : '#000' }}
+                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
+                          itemStyle={{ color: '#000' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
@@ -1581,35 +1581,35 @@ Seu controle financeiro inteligente`.trim();
                         <div key={i} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                            <span className="text-slate-600 dark:text-slate-400">{cat.name}</span>
+                            <span className="text-slate-600">{cat.name}</span>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-slate-900 dark:text-white block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">{percentage.toFixed(1)}%</span>
+                            <span className="font-bold text-slate-900 block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-[10px] text-slate-400 font-bold">{percentage.toFixed(1)}%</span>
                           </div>
                         </div>
                       );
                     })}
                     {categoryData.length === 0 && (
-                      <p className="text-center text-slate-400 dark:text-slate-500 text-sm italic py-4">Nenhum gasto no período</p>
+                      <p className="text-center text-slate-400 text-sm italic py-4">Nenhum gasto no período</p>
                     )}
                   </div>
                 </div>
 
                 {/* Line Chart */}
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">
                     Evolução do saldo {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
                   <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDarkMode ? '#1e293b' : '#f1f5f9'} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                         <Tooltip 
-                          contentStyle={{ backgroundColor: isDarkMode ? '#0f172a' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: isDarkMode ? '#fff' : '#000' }}
-                          itemStyle={{ color: isDarkMode ? '#fff' : '#000' }}
+                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
+                          itemStyle={{ color: '#000' }}
                         />
                         <Line 
                           type="monotone" 
@@ -1648,8 +1648,8 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Alerts Section */}
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Alertas e Insights</h3>
+                <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-slate-900 mb-6">Alertas e Insights</h3>
                   <div className="space-y-4">
                     {alerts.map((alert, i) => (
                       <AlertItem 
@@ -1666,10 +1666,10 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Recent Transactions Section */}
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
+                <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">Lançamentos Recentes</h3>
+                      <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
                       {selectedTransactions.length > 0 && (
                         <motion.button
                           initial={{ opacity: 0, scale: 0.9 }}
@@ -1692,11 +1692,11 @@ Seu controle financeiro inteligente`.trim();
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                        <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                           <th className="pb-4 px-4 w-10">
                             <input 
                               type="checkbox" 
-                              className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-emerald-500"
+                              className="w-4 h-4 rounded border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500"
                               checked={(() => {
                                 const limit = showAllTransactions ? filteredTransactions.length : 5;
                                 const ids = filteredTransactions.slice(0, limit).map(t => t.id).filter((id): id is string => !!id);
@@ -1717,26 +1717,26 @@ Seu controle financeiro inteligente`.trim();
                           <th className="pb-4 px-4 text-right">Ações</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                      <tbody className="divide-y divide-slate-50">
                         {filteredTransactions.length > 0 ? (
                           (showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, 5)).map((t, i) => (
-                            <tr key={i} className={`group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors ${t.id && selectedTransactions.includes(t.id) ? 'bg-slate-50 dark:bg-slate-800' : ''}`}>
+                            <tr key={i} className={`group hover:bg-slate-50 transition-colors ${t.id && selectedTransactions.includes(t.id) ? 'bg-slate-50' : ''}`}>
                               <td className="py-4 px-4">
                                 <input 
                                   type="checkbox" 
-                                  className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-emerald-600 focus:ring-emerald-500"
+                                  className="w-4 h-4 rounded border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500"
                                   checked={!!t.id && selectedTransactions.includes(t.id)}
                                   onChange={() => t.id && toggleSelectTransaction(t.id)}
                                 />
                               </td>
-                              <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400">
+                              <td className="py-4 px-4 text-sm text-slate-500">
                                 {parseDate(t.date).toLocaleDateString('pt-BR')}
                               </td>
                               <td className="py-4 px-4">
-                                <span className="text-sm font-bold text-slate-900 dark:text-white">{t.description}</span>
+                                <span className="text-sm font-bold text-slate-900">{t.description}</span>
                               </td>
                               <td className="py-4 px-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                                   {t.category}
                                 </span>
                               </td>
@@ -2042,7 +2042,7 @@ Seu controle financeiro inteligente`.trim();
 const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow relative overflow-hidden transition-colors duration-300"
+    className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow relative overflow-hidden transition-colors duration-300"
   >
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-4">
@@ -2054,8 +2054,8 @@ const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor, cha
           {trend}
         </div>
       </div>
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{title}</p>
-      <h4 className={`text-2xl font-bold ${valueColor || 'text-slate-900 dark:text-white'}`}>{value}</h4>
+      <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
+      <h4 className={`text-2xl font-bold ${valueColor || 'text-slate-900'}`}>{value}</h4>
     </div>
     
     {chartData && (

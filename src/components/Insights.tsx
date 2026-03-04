@@ -165,23 +165,24 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Monthly Comparison */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Comparação Mensal</h3>
+            <h3 className="text-lg font-bold text-slate-900">Comparação Mensal</h3>
             <div className="flex items-center gap-4 text-xs font-medium">
               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Gastos</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div> Média</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-slate-200"></div> Média</div>
             </div>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyComparison}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                 <Tooltip 
                   cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
+                  itemStyle={{ color: '#000' }}
                 />
                 <Bar dataKey="gastos" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={30} />
                 <Bar dataKey="media" fill="#e2e8f0" radius={[4, 4, 0, 0]} barSize={30} />
@@ -191,8 +192,8 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
         </div>
 
         {/* Future Projection */}
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Projeção Futura</h3>
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+          <h3 className="text-lg font-bold text-slate-900 mb-6">Projeção Futura</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={projectionData}>
@@ -202,11 +203,12 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
+                  itemStyle={{ color: '#000' }}
                 />
                 <Area type="monotone" dataKey="valor" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValor)" />
               </AreaChart>
@@ -216,56 +218,56 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
       </div>
 
       {/* Simulator Section */}
-      <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 card-shadow transition-colors duration-300">
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
         <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Target className="w-6 h-6 text-blue-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">Simulador de Metas</h3>
+          <h3 className="text-xl font-bold text-slate-900">Simulador de Metas</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Se eu economizar por mês</label>
+              <label className="block text-sm font-bold text-slate-700 mb-3">Se eu economizar por mês</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
                 <input 
                   type="number" 
                   value={monthlySaving}
                   onChange={(e) => setMonthlySaving(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold dark:text-white"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Rendimento anual esperado (%)</label>
+              <label className="block text-sm font-bold text-slate-700 mb-3">Rendimento anual esperado (%)</label>
               <input 
                 type="number" 
                 value={interestRate}
                 onChange={(e) => setInterestRate(e.target.value)}
-                className="w-full px-4 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold dark:text-white"
+                className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold"
               />
             </div>
           </div>
 
-          <div className="lg:col-span-2 flex flex-col md:flex-row items-center justify-around p-8 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-700 gap-8">
+          <div className="lg:col-span-2 flex flex-col md:flex-row items-center justify-around p-8 bg-slate-50 rounded-3xl border border-slate-100 gap-8">
             <div className="text-center">
-              <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">Em 1 ano você terá</p>
-              <h4 className="text-5xl font-black text-emerald-600 dark:text-emerald-400">R$ {oneYearTotal.toLocaleString('pt-BR')}</h4>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 flex items-center justify-center gap-1">
+              <p className="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">Em 1 ano você terá</p>
+              <h4 className="text-5xl font-black text-emerald-600">R$ {oneYearTotal.toLocaleString('pt-BR')}</h4>
+              <p className="text-xs text-slate-400 mt-2 flex items-center justify-center gap-1">
                 <Info className="w-3 h-3" /> Cálculo baseado em juros compostos mensais
               </p>
             </div>
-            <div className="h-20 w-px bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
+            <div className="h-20 w-px bg-slate-200 hidden md:block"></div>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Rendimento total</p>
-                  <p className="font-bold text-slate-900 dark:text-white">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
+                  <p className="text-xs text-slate-500">Rendimento total</p>
+                  <p className="font-bold text-slate-900">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -301,9 +303,9 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
 
 const HealthCard = ({ title, status, message, icon }: any) => {
   const styles = {
-    good: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-100 dark:border-emerald-900/30' },
-    warning: { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-400', border: 'border-amber-100 dark:border-amber-900/30' },
-    info: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-700 dark:text-blue-400', border: 'border-blue-100 dark:border-blue-900/30' },
+    good: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
+    warning: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
+    info: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
   }[status as 'good' | 'warning' | 'info'];
 
   return (
@@ -311,8 +313,8 @@ const HealthCard = ({ title, status, message, icon }: any) => {
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${styles.bg} border ${styles.border}`}>
         <div className={styles.text}>{icon}</div>
       </div>
-      <h4 className="font-bold text-slate-900 dark:text-white mb-1">{title}</h4>
-      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{message}</p>
+      <h4 className="font-bold text-slate-900 mb-1">{title}</h4>
+      <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
     </div>
   );
 };
