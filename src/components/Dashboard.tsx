@@ -62,6 +62,7 @@ import { Insights } from './Insights';
 import { IncomeView } from './IncomeView';
 import { ExpenseView } from './ExpenseView';
 import { ImageCropper } from './ImageCropper';
+import { FinancialHealthGauge } from './FinancialHealthGauge';
 import { AnimatePresence } from 'motion/react';
 import { sendWhatsAppMessage } from '../services/whapiService';
 import { MessageSquare, Phone as PhoneIcon } from 'lucide-react';
@@ -1460,7 +1461,10 @@ Seu controle financeiro inteligente`.trim();
               </div>
 
               {/* Charts Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Financial Health Gauge */}
+                <FinancialHealthGauge income={stats.income} expense={stats.expense} />
+
                 {/* Income Pie Chart */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
                   <h3 className="text-lg font-bold text-slate-900 mb-6">Receitas por categoria</h3>
