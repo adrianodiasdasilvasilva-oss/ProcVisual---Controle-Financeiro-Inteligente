@@ -136,8 +136,8 @@ export const IncomeView = ({
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Análise de Receitas</h2>
-          <p className="text-slate-500">Acompanhe seu faturamento e crescimento.</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Análise de Receitas</h2>
+          <p className="text-slate-500 dark:text-slate-400">Acompanhe seu faturamento e crescimento.</p>
         </div>
       </div>
 
@@ -177,8 +177,8 @@ export const IncomeView = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Evolution Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Evolução de Faturamento</h3>
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Evolução de Faturamento</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={evolutionData}>
@@ -188,11 +188,12 @@ export const IncomeView = ({
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  itemStyle={{ color: '#10b981' }}
                   formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Receita']}
                 />
                 <Area 
@@ -209,8 +210,8 @@ export const IncomeView = ({
         </div>
 
         {/* Category Distribution */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Fontes de Receita</h3>
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Fontes de Receita</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -236,9 +237,9 @@ export const IncomeView = ({
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
-                  <span className="text-sm text-slate-600">{cat.name}</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{cat.name}</span>
                 </div>
-                <span className="text-sm font-bold text-slate-900">
+                <span className="text-sm font-bold text-slate-900 dark:text-white">
                   {((cat.value / stats.total) * 100).toFixed(0)}%
                 </span>
               </div>
@@ -247,9 +248,9 @@ export const IncomeView = ({
         </div>
 
         {/* Top Transactions Table */}
-        <div className="lg:col-span-3 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900">Maiores Entradas do Período</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Maiores Entradas do Período</h3>
             <button className="text-sm font-bold text-emerald-600 hover:underline flex items-center gap-1">
               Ver histórico completo <ChevronRight className="w-4 h-4" />
             </button>
@@ -257,7 +258,7 @@ export const IncomeView = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                <tr className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
                   <th className="pb-4 px-4">Data</th>
                   <th className="pb-4 px-4">Descrição</th>
                   <th className="pb-4 px-4">Categoria</th>
@@ -266,20 +267,20 @@ export const IncomeView = ({
                   <th className="pb-4 px-4 text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                 {stats.currentPeriod
                   .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
                   .slice(0, 5)
                   .map((t, i) => (
-                    <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
-                      <td className="py-4 px-4 text-sm text-slate-500">
+                    <tr key={i} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td className="py-4 px-4 text-sm text-slate-500 dark:text-slate-400">
                         {parseDate(t.date).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-sm font-bold text-slate-900">{t.description}</span>
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{t.description}</span>
                       </td>
                       <td className="py-4 px-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400">
                           {t.category}
                         </span>
                       </td>
@@ -292,8 +293,8 @@ export const IncomeView = ({
                           title={t.paid ? "Marcar como pendente" : "Marcar como recebido"}
                           className={`p-2 rounded-lg transition-all ${
                             t.paid 
-                              ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' 
-                              : 'text-slate-300 hover:text-emerald-600 hover:bg-emerald-50'
+                              ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' 
+                              : 'text-slate-300 dark:text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
                           }`}
                         >
                           <CheckCircle2 className="w-4 h-4" />
@@ -303,7 +304,7 @@ export const IncomeView = ({
                         <div className="flex items-center justify-end gap-1">
                           <button 
                             onClick={() => onDelete?.(t)}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
                             title="Excluir lançamento"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -314,7 +315,7 @@ export const IncomeView = ({
                   ))}
                 {stats.currentPeriod.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-slate-400 italic">
+                    <td colSpan={6} className="py-8 text-center text-slate-400 italic">
                       Nenhuma receita registrada neste período.
                     </td>
                   </tr>
@@ -331,7 +332,7 @@ export const IncomeView = ({
 const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm"
+    className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300"
   >
     <div className="flex justify-between items-start mb-4">
       <div className={`p-3 rounded-2xl ${bgColor}`}>
@@ -344,8 +345,8 @@ const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: a
         </div>
       )}
     </div>
-    <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-    <h4 className="text-2xl font-bold text-slate-900">{value}</h4>
-    <p className="text-xs text-slate-400 mt-1">{description}</p>
+    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{title}</p>
+    <h4 className="text-2xl font-bold text-slate-900 dark:text-white">{value}</h4>
+    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{description}</p>
   </motion.div>
 );
