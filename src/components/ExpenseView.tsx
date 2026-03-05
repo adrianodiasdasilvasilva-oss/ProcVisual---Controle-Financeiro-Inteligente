@@ -143,8 +143,8 @@ export const ExpenseView = ({
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-2xl font-bold text-white">Análise de Despesas</h2>
-        <p className="text-slate-400">Controle seus gastos e identifique economias.</p>
+        <h2 className="text-2xl font-bold text-[#111827]">Análise de Despesas</h2>
+        <p className="text-[#6B7280]">Controle seus gastos e identifique economias.</p>
       </div>
 
       {/* KPI Cards */}
@@ -183,8 +183,8 @@ export const ExpenseView = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Evolution Chart */}
-        <div className="lg:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Evolução de Gastos</h3>
+        <div className="lg:col-span-2 bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+          <h3 className="text-lg font-bold text-[#111827] mb-6">Evolução de Gastos</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={evolutionData}>
@@ -216,8 +216,8 @@ export const ExpenseView = ({
         </div>
 
         {/* Category Distribution */}
-        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Onde está o dinheiro?</h3>
+        <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+          <h3 className="text-lg font-bold text-[#111827] mb-6">Onde está o dinheiro?</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -243,9 +243,9 @@ export const ExpenseView = ({
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
-                  <span className="text-sm text-slate-600">{cat.name}</span>
+                  <span className="text-sm text-[#6B7280]">{cat.name}</span>
                 </div>
-                <span className="text-sm font-bold text-slate-900">
+                <span className="text-sm font-bold text-[#111827]">
                   {((cat.value / stats.total) * 100).toFixed(0)}%
                 </span>
               </div>
@@ -254,9 +254,9 @@ export const ExpenseView = ({
         </div>
 
         {/* Top Expenses Table */}
-        <div className="lg:col-span-3 bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300">
+        <div className="lg:col-span-3 bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900">Maiores Gastos do Período</h3>
+            <h3 className="text-lg font-bold text-[#111827]">Maiores Gastos do Período</h3>
             <button className="text-sm font-bold text-red-600 hover:underline flex items-center gap-1">
               Analisar todos os gastos <ChevronRight className="w-4 h-4" />
             </button>
@@ -264,7 +264,7 @@ export const ExpenseView = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
                   <th className="pb-4 px-4">Data</th>
                   <th className="pb-4 px-4">Descrição</th>
                   <th className="pb-4 px-4">Categoria</th>
@@ -279,11 +279,11 @@ export const ExpenseView = ({
                   .slice(0, 5)
                   .map((t, i) => (
                     <tr key={i} className="group hover:bg-slate-50 transition-colors">
-                      <td className="py-4 px-4 text-sm text-slate-500">
+                      <td className="py-4 px-4 text-sm text-[#6B7280]">
                         {parseDate(t.date).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="py-4 px-4">
-                        <span className="text-sm font-bold text-slate-900">{t.description}</span>
+                        <span className="text-sm font-bold text-[#111827]">{t.description}</span>
                       </td>
                       <td className="py-4 px-4">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">
@@ -310,7 +310,7 @@ export const ExpenseView = ({
                         <div className="flex items-center justify-end gap-1">
                           <button 
                             onClick={() => onDelete?.(t)}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            className="p-2 text-[#6B7280] hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                             title="Excluir lançamento"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -321,7 +321,7 @@ export const ExpenseView = ({
                   ))}
                 {stats.currentPeriod.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 italic">
+                    <td colSpan={6} className="py-8 text-center text-[#6B7280] italic">
                       Nenhuma despesa registrada neste período.
                     </td>
                   </tr>
@@ -338,7 +338,7 @@ export const ExpenseView = ({
 const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm transition-colors duration-300"
+    className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300"
   >
     <div className="flex justify-between items-start mb-4">
       <div className={`p-3 rounded-2xl ${bgColor}`}>
@@ -351,8 +351,8 @@ const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: a
         </div>
       )}
     </div>
-    <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-    <h4 className="text-2xl font-bold text-slate-900">{value}</h4>
-    <p className="text-xs text-slate-400 mt-1">{description}</p>
+    <p className="text-sm font-medium text-[#6B7280] mb-1">{title}</p>
+    <h4 className="text-2xl font-bold text-[#111827]">{value}</h4>
+    <p className="text-xs text-[#6B7280] mt-1">{description}</p>
   </motion.div>
 );

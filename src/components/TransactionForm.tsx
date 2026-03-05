@@ -71,13 +71,13 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-md bg-slate-50 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-md bg-white rounded-[16px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-[#E5E7EB]"
           >
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-              <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Insira a Receita ou Despesa</h2>
+            <div className="p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-white shrink-0">
+              <h2 className="text-sm font-bold text-[#6B7280] uppercase tracking-wider">Insira a Receita ou Despesa</h2>
               <button 
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-white rounded-full transition-all"
+                className="p-2 text-[#6B7280] hover:text-[#111827] hover:bg-slate-50 rounded-full transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -114,9 +114,9 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
 
               {/* Amount */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Valor</label>
+                <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Valor</label>
                 <div className="relative">
-                  <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-lg">R$</span>
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-[#6B7280] text-lg">R$</span>
                   <input
                     type="number"
                     step="0.01"
@@ -124,7 +124,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                     placeholder="0,00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-3xl font-black text-slate-900 placeholder:text-slate-200"
+                    className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-3xl font-black text-[#111827] placeholder:text-slate-200"
                   />
                 </div>
               </div>
@@ -132,7 +132,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
               <div className="grid grid-cols-1 gap-4">
                 {/* Category */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
+                  <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
                   <div className="space-y-3">
                     <div className="relative">
                       <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
@@ -148,7 +148,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                             setCategory(e.target.value);
                           }
                         }}
-                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none text-slate-900 font-bold text-sm"
+                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none text-[#111827] font-bold text-sm"
                       >
                         <option value="">Selecionar...</option>
                         {allCategories.map((cat) => (
@@ -170,7 +170,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                           placeholder="Digite o nome da categoria..."
                           value={customCategory}
                           onChange={(e) => setCustomCategory(e.target.value)}
-                          className="w-full px-5 py-3 bg-emerald-50/50 border border-emerald-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm placeholder:text-emerald-300"
+                          className="w-full px-5 py-3 bg-emerald-50/50 border border-emerald-100 rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm placeholder:text-emerald-300"
                           autoFocus
                         />
                       </motion.div>
@@ -181,7 +181,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                 {/* Date & Installments */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Data</label>
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Data</label>
                     <div className="relative">
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                       <input
@@ -189,12 +189,12 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                         required
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm"
+                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Qtd. Parcelas</label>
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Qtd. Parcelas</label>
                     <div className="relative">
                       <input
                         type="number"
@@ -202,7 +202,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                         required
                         value={installments}
                         onChange={(e) => setInstallments(e.target.value)}
-                        className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm"
+                        className="w-full px-5 py-3 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm"
                       />
                     </div>
                   </div>
@@ -211,7 +211,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Descrição</label>
+                <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Descrição</label>
                 <div className="relative">
                   <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                   <input
@@ -219,27 +219,27 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
                     placeholder="Ex: Aluguel, Supermercado..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full pl-11 pr-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm placeholder:text-slate-300"
+                    className="w-full pl-11 pr-5 py-3.5 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm placeholder:text-slate-300"
                   />
                 </div>
               </div>
 
               {/* Paid Status Toggle */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-[16px] border border-[#E5E7EB]">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${paid ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-400'}`}>
+                  <div className={`p-2 rounded-xl ${paid ? 'bg-emerald-100 text-[#22C55E]' : 'bg-slate-200 text-[#6B7280]'}`}>
                     <DollarSign className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">{type === 'income' ? 'Recebido?' : 'Pago?'}</p>
-                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Status do Lançamento</p>
+                    <p className="text-sm font-bold text-[#111827]">{type === 'income' ? 'Recebido?' : 'Pago?'}</p>
+                    <p className="text-[10px] text-[#6B7280] uppercase font-bold tracking-wider">Status do Lançamento</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPaid(!paid)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                    paid ? 'bg-emerald-600' : 'bg-slate-300'
+                    paid ? 'bg-[#22C55E]' : 'bg-slate-300'
                   }`}
                 >
                   <span
@@ -252,7 +252,7 @@ export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { 
 
               <button
                 type="submit"
-                className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold text-lg hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 hover:shadow-emerald-600/40 mt-2"
+                className="w-full py-4 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-[16px] font-bold text-lg hover:bg-[#15803D] transition-all shadow-xl shadow-emerald-600/20 hover:shadow-emerald-600/40 mt-2"
               >
                 SALVAR
               </button>

@@ -8,11 +8,31 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 2rem;
+
+  /* Custom Colors for Modern Hybrid Style */
+  --color-sidebar-bg: #0F172A;
+  --color-sidebar-text: #F9FAFB;
+  --color-sidebar-secondary: #9CA3AF;
+  --color-sidebar-active: #1F2937;
+  --color-sidebar-hover: #1E293B;
+  
+  --color-main-bg: #F8FAFC;
+  
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E5E7EB;
+  
+  --color-text-main: #111827;
+  --color-text-secondary: #6B7280;
+  
+  --color-income: #22C55E;
+  --color-expense: #EF4444;
+  --color-savings: #3B82F6;
+  --color-alert: #F59E0B;
 }
 
 @layer base {
   body {
-    @apply font-sans bg-slate-900 text-slate-900 antialiased transition-colors duration-300;
+    @apply font-sans bg-main-bg text-text-main antialiased transition-colors duration-300;
   }
 }
 
@@ -21,5 +41,10 @@
 }
 
 .card-shadow {
-  @apply shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)];
+  @apply shadow-[0_10px_30px_rgba(0,0,0,0.08)];
+}
+
+.primary-button-gradient {
+  background: linear-gradient(90deg, #22C55E, #16A34A);
+  @apply text-white hover:bg-[#15803D] transition-all;
 }

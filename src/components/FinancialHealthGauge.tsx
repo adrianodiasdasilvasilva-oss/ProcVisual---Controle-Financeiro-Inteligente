@@ -44,7 +44,7 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
   };
 
   return (
-    <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full transition-all duration-300">
+    <div className="bg-white p-8 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full transition-all duration-300">
       {/* Left Part: Gauge */}
       <div className="relative w-full max-w-[300px] aspect-[2/1] shrink-0">
         {/* Gauge Background */}
@@ -52,29 +52,32 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
           <path
             d="M 25 90 A 75 75 0 0 1 175 90"
             fill="none"
-            stroke="#1e293b"
+            stroke="#F1F5F9"
             strokeWidth="12"
           />
           {/* Red Zone (180° to 120°) */}
           <path
             d="M 25 90 A 75 75 0 0 1 62.5 25.1"
             fill="none"
-            stroke="#ef444433"
+            stroke="#EF4444"
             strokeWidth="12"
+            strokeOpacity="0.2"
           />
           {/* Yellow Zone (120° to 90°) */}
           <path
             d="M 62.5 25.1 A 75 75 0 0 1 100 15"
             fill="none"
-            stroke="#f59e0b33"
+            stroke="#F59E0B"
             strokeWidth="12"
+            strokeOpacity="0.2"
           />
           {/* Green Zone (90° to 0°) */}
           <path
             d="M 100 15 A 75 75 0 0 1 175 90"
             fill="none"
-            stroke="#10b98133"
+            stroke="#22C55E"
             strokeWidth="12"
+            strokeOpacity="0.2"
           />
           
           {/* Ticks */}
@@ -85,7 +88,7 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
               y1={90 + 82 * Math.sin((deg + 180) * Math.PI / 180)}
               x2={100 + 72 * Math.cos((deg + 180) * Math.PI / 180)}
               y2={90 + 72 * Math.sin((deg + 180) * Math.PI / 180)}
-              stroke="#475569"
+              stroke="#CBD5E1"
               strokeWidth="1"
             />
           ))}
@@ -97,7 +100,7 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
           style={{ transform: `translateX(-50%) rotate(${rotation - 90}deg)` }}
         >
           <div className={`w-full h-full rounded-full shadow-lg ${getStatusBg(healthPercent)}`}></div>
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-4 border-slate-800 shadow-md"></div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-white border-4 border-slate-200 shadow-md"></div>
         </div>
 
         {/* Center Text */}
@@ -110,7 +113,7 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
           >
             {surplus >= 0 ? '+' : '-'} R$ {Math.abs(surplus).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </motion.p>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest">
             {surplus >= 0 ? 'de sobra' : 'de déficit'}
           </p>
         </div>
@@ -120,34 +123,35 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
       <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
         <div className="mb-6">
           <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-            <h3 className="text-2xl font-bold text-white">Saúde Financeira</h3>
+            <h3 className="text-2xl font-bold text-[#111827]">Saúde Financeira</h3>
             <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
-              healthPercent > 20 ? 'bg-emerald-400/10 text-emerald-400' :
-              healthPercent >= 0 ? 'bg-amber-400/10 text-amber-400' : 'bg-red-400/10 text-red-400'
+              healthPercent > 20 ? 'bg-emerald-100 text-emerald-600' :
+              healthPercent >= 0 ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'
             }`}>
               {healthPercent > 0 ? 'Positivo' : healthPercent < 0 ? 'Déficit' : 'Equilibrado'}
             </div>
           </div>
-          <p className="text-slate-400 text-sm">Análise automática baseada no seu balanço entre ganhos e gastos do período.</p>
+          <p className="text-[#6B7280] text-sm">Análise automática baseada no seu balanço entre ganhos e gastos do período.</p>
         </div>
 
         <div className="grid grid-cols-3 gap-4 w-full max-w-md">
-          <div className="text-center p-3 rounded-2xl bg-slate-900/50 border border-slate-700">
-            <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Status</p>
+          <div className="text-center p-3 rounded-2xl bg-slate-50 border border-[#E5E7EB]">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase mb-1">Status</p>
             <p className={`text-sm font-black ${getStatusColor(healthPercent)}`}>
               {healthPercent < 0 ? 'Crítico' : healthPercent <= 10 ? 'Alerta' : 'Saudável'}
             </p>
           </div>
-          <div className="text-center p-3 rounded-2xl bg-slate-900/50 border border-slate-700">
-            <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Saúde</p>
-            <p className="text-sm font-black text-white">{healthPercent.toFixed(1)}%</p>
+          <div className="text-center p-3 rounded-2xl bg-slate-50 border border-[#E5E7EB]">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase mb-1">Saúde</p>
+            <p className="text-sm font-black text-[#111827]">{healthPercent.toFixed(1)}%</p>
           </div>
-          <div className="text-center p-3 rounded-2xl bg-slate-900/50 border border-slate-700">
-            <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Ideal</p>
-            <p className="text-sm font-black text-emerald-400">{'>'} 20%</p>
+          <div className="text-center p-3 rounded-2xl bg-slate-50 border border-[#E5E7EB]">
+            <p className="text-[10px] font-bold text-[#6B7280] uppercase mb-1">Ideal</p>
+            <p className="text-sm font-black text-[#22C55E]">{'>'} 20%</p>
           </div>
         </div>
       </div>
     </div>
+
   );
 };

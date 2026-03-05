@@ -102,8 +102,8 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Insights Financeiros</h2>
-          <p className="text-slate-400">Análise inteligente baseada no seu comportamento de consumo.</p>
+          <h2 className="text-3xl font-bold text-[#111827]">Insights Financeiros</h2>
+          <p className="text-[#6B7280]">Análise inteligente baseada no seu comportamento de consumo.</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-bold">
           <Sparkles className="w-4 h-4" />
@@ -171,9 +171,9 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Monthly Comparison */}
-        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+        <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-slate-900">Comparação Mensal</h3>
+            <h3 className="text-lg font-bold text-[#111827]">Comparação Mensal</h3>
             <div className="flex items-center gap-4 text-xs font-medium">
               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Gastos</div>
               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-slate-200"></div> Média</div>
@@ -198,8 +198,8 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
         </div>
 
         {/* Future Projection */}
-        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
-          <h3 className="text-lg font-bold text-slate-900 mb-6">Projeção Futura</h3>
+        <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+          <h3 className="text-lg font-bold text-[#111827] mb-6">Projeção Futura</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={projectionData}>
@@ -224,18 +224,18 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
       </div>
 
       {/* Simulator Section */}
-      <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+      <div className="bg-white p-8 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 bg-blue-50 rounded-lg">
             <Target className="w-6 h-6 text-blue-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900">Simulador de Metas</h3>
+          <h3 className="text-xl font-bold text-[#111827]">Simulador de Metas</h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-3">Se eu economizar por mês</label>
+              <label className="block text-sm font-bold text-[#6B7280] mb-3">Se eu economizar por mês</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
                 <input 
@@ -247,7 +247,7 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-3">Rendimento anual esperado (%)</label>
+              <label className="block text-sm font-bold text-[#6B7280] mb-3">Rendimento anual esperado (%)</label>
               <input 
                 type="number" 
                 value={interestRate}
@@ -257,11 +257,11 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
             </div>
           </div>
 
-          <div className="lg:col-span-2 flex flex-col md:flex-row items-center justify-around p-8 bg-slate-50 rounded-3xl border border-slate-100 gap-8">
+          <div className="lg:col-span-2 flex flex-col md:flex-row items-center justify-around p-8 bg-slate-50 rounded-[16px] border border-slate-100 gap-8">
             <div className="text-center">
-              <p className="text-sm font-bold text-slate-500 mb-2 uppercase tracking-wider">Em 1 ano você terá</p>
-              <h4 className="text-5xl font-black text-emerald-600">R$ {oneYearTotal.toLocaleString('pt-BR')}</h4>
-              <p className="text-xs text-slate-400 mt-2 flex items-center justify-center gap-1">
+              <p className="text-sm font-bold text-[#6B7280] mb-2 uppercase tracking-wider">Em 1 ano você terá</p>
+              <h4 className="text-5xl font-black text-[#22C55E]">R$ {oneYearTotal.toLocaleString('pt-BR')}</h4>
+              <p className="text-xs text-[#6B7280] mt-2 flex items-center justify-center gap-1">
                 <Info className="w-3 h-3" /> Cálculo baseado em juros compostos mensais
               </p>
             </div>
@@ -272,8 +272,8 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
                   <TrendingUp className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">Rendimento total</p>
-                  <p className="font-bold text-slate-900">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
+                  <p className="text-xs text-[#6B7280]">Rendimento total</p>
+                  <p className="font-bold text-[#111827]">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -315,12 +315,12 @@ const HealthCard = ({ title, status, message, icon }: any) => {
   }[status as 'good' | 'warning' | 'info'];
 
   return (
-    <div className={`p-6 rounded-3xl border ${styles.bg} ${styles.border} card-shadow transition-colors duration-300`}>
+    <div className={`p-6 rounded-[16px] border ${styles.bg} ${styles.border} card-shadow transition-colors duration-300`}>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${styles.bg} border ${styles.border}`}>
         <div className={styles.text}>{icon}</div>
       </div>
-      <h4 className="font-bold text-slate-900 mb-1">{title}</h4>
-      <p className="text-sm text-slate-600 leading-relaxed">{message}</p>
+      <h4 className="font-bold text-[#111827] mb-1">{title}</h4>
+      <p className="text-sm text-[#6B7280] leading-relaxed">{message}</p>
     </div>
   );
 };

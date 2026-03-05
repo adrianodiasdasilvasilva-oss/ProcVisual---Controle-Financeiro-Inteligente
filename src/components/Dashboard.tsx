@@ -850,9 +850,9 @@ Seu controle financeiro inteligente`.trim();
   ];
 
   return (
-    <div className="min-h-screen bg-slate-900 flex transition-colors duration-300">
+    <div className="min-h-screen bg-[#F8FAFC] flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#0F172A] border-r border-[#1E293B] transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
@@ -863,13 +863,13 @@ Seu controle financeiro inteligente`.trim();
                 referrerPolicy="no-referrer"
               />
             </div>
-            {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-white">ProcVisual</span>}
+            {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-[#F9FAFB]">ProcVisual</span>}
           </div>
 
           <div className="px-4 mb-6">
             <button 
               onClick={() => setIsTransactionFormOpen(true)}
-              className={`w-full flex items-center justify-center gap-2 bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] active:scale-95 ${!isSidebarOpen && 'px-0'}`}
+              className={`w-full flex items-center justify-center gap-2 primary-button-gradient py-4 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95 ${!isSidebarOpen && 'px-0'}`}
             >
               <TrendingUp className="w-5 h-5" />
               {isSidebarOpen && <span>Novo Lançamento</span>}
@@ -883,22 +883,22 @@ Seu controle financeiro inteligente`.trim();
                 onClick={() => setActiveTab(item.label)}
                 className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all group ${
                   activeTab === item.label 
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' 
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                    ? 'bg-[#1F2937] text-[#F9FAFB] shadow-lg shadow-black/20' 
+                    : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#F9FAFB]'
                 }`}
               >
-                <div className={`${activeTab === item.label ? 'text-white' : 'text-slate-400 group-hover:text-white'} font-bold`}>
+                <div className={`${activeTab === item.label ? 'text-[#F9FAFB]' : 'text-[#9CA3AF] group-hover:text-[#F9FAFB]'} font-bold`}>
                   {item.icon}
                 </div>
-                {isSidebarOpen && <span className="font-bold text-white">{item.label}</span>}
+                {isSidebarOpen && <span className="font-bold">{item.label}</span>}
               </button>
             ))}
           </nav>
 
-          <div className="p-4 border-t border-slate-800">
+          <div className="p-4 border-t border-[#1E293B]">
             <button 
               onClick={onLogout}
-              className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-400 hover:bg-red-900/20 hover:text-red-400 transition-all"
+              className="w-full flex items-center gap-3 p-3 rounded-xl text-[#9CA3AF] hover:bg-red-900/20 hover:text-red-400 transition-all"
             >
               <LogOut className="w-5 h-5 font-bold" />
               {isSidebarOpen && <span className="font-bold">Sair</span>}
@@ -908,45 +908,45 @@ Seu controle financeiro inteligente`.trim();
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 bg-slate-900 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <main className={`flex-1 bg-[#F8FAFC] transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {/* Topbar */}
-        <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+        <header className="bg-white border-b border-[#E5E7EB] sticky top-0 z-40">
           <div className="px-8 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-slate-400 hover:bg-slate-800 rounded-lg"
+                className="p-2 text-[#6B7280] hover:bg-slate-100 rounded-lg"
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div className="flex flex-col py-1">
-                <h1 className="text-2xl font-bold text-white leading-tight">{userName}</h1>
+                <h1 className="text-2xl font-bold text-[#111827] leading-tight">{userName}</h1>
               </div>
             </div>
 
             <div className="flex items-center gap-6">
               <button 
                 onClick={() => setIsTransactionFormOpen(true)}
-                className="hidden sm:flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:shadow-[0_0_40px_rgba(16,185,129,0.7)] active:scale-95"
+                className="hidden sm:flex items-center gap-2 primary-button-gradient px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
               >
                 <TrendingUp className="w-5 h-5" />
                 Novo Lançamento
               </button>
-              <div className="hidden md:flex items-center bg-slate-800 rounded-full px-4 py-2 gap-2 focus-within:bg-slate-700 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
-                <Search className="w-4 h-4 text-slate-400" />
+              <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
+                <Search className="w-4 h-4 text-[#6B7280]" />
                 <input 
                   type="text" 
                   placeholder="Buscar lançamentos..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-sm w-40 text-white placeholder:text-slate-500"
+                  className="bg-transparent border-none outline-none text-sm w-40 text-[#111827] placeholder:text-[#9CA3AF]"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
                     className="p-0.5 hover:bg-slate-200 rounded-full transition-colors"
                   >
-                    <X className="w-3 h-3 text-slate-400" />
+                    <X className="w-3 h-3 text-[#6B7280]" />
                   </button>
                 )}
               </div>
@@ -954,11 +954,11 @@ Seu controle financeiro inteligente`.trim();
                 <div className="relative">
                   <button 
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className={`relative p-2 text-slate-400 hover:bg-slate-800 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-800 text-emerald-600' : ''}`}
+                    className={`relative p-2 text-[#6B7280] hover:bg-slate-100 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-100 text-emerald-600' : ''}`}
                   >
                     <Bell className="w-5 h-5" />
                     {alerts.length > 0 && (
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900"></span>
+                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
                     )}
                   </button>
 
@@ -968,10 +968,10 @@ Seu controle financeiro inteligente`.trim();
                       className="fixed inset-0 z-40" 
                       onClick={() => setIsNotificationsOpen(false)}
                     ></div>
-                    <div className="absolute right-0 mt-3 w-80 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-4 border-b border-slate-700 bg-slate-800/50 flex items-center justify-between">
-                        <h3 className="font-bold text-white">Notificações</h3>
-                        <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-4 border-b border-[#E5E7EB] bg-slate-50 flex items-center justify-between">
+                        <h3 className="font-bold text-[#111827]">Notificações</h3>
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
                           {alerts.length} novas
                         </span>
                       </div>
@@ -980,35 +980,35 @@ Seu controle financeiro inteligente`.trim();
                           alerts.map((alert, i) => (
                             <div 
                               key={i} 
-                              className="p-3 rounded-xl hover:bg-slate-700 transition-colors flex gap-3 cursor-pointer group"
+                              className="p-3 rounded-xl hover:bg-slate-50 transition-colors flex gap-3 cursor-pointer group"
                             >
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                                alert.type === 'success' ? 'bg-emerald-400/10 text-emerald-400' : 
-                                alert.type === 'warning' ? 'bg-amber-400/10 text-amber-400' : 'bg-blue-400/10 text-blue-400'
+                                alert.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
+                                alert.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                               }`}>
                                 {alert.type === 'success' ? <Target className="w-5 h-5" /> : 
                                  alert.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
                               </div>
                               <div>
-                                <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{alert.message}</p>
-                                <p className="text-xs text-slate-400 leading-tight mt-0.5">{alert.description}</p>
+                                <p className="text-sm font-bold text-[#111827] group-hover:text-emerald-600 transition-colors">{alert.message}</p>
+                                <p className="text-xs text-[#6B7280] leading-tight mt-0.5">{alert.description}</p>
                               </div>
                             </div>
                           ))
                         ) : (
                           <div className="py-8 text-center">
-                            <Bell className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                            <p className="text-sm text-slate-500">Nenhuma notificação por aqui.</p>
+                            <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                            <p className="text-sm text-slate-400">Nenhuma notificação por aqui.</p>
                           </div>
                         )}
                       </div>
-                      <div className="p-3 bg-slate-800/50 border-t border-slate-700 text-center">
+                      <div className="p-3 bg-slate-50 border-t border-[#E5E7EB] text-center">
                         <button 
                           onClick={() => {
                             const allAlertMessages = alerts.map(a => a.message);
                             setDismissedAlerts(prev => [...new Set([...prev, ...allAlertMessages])]);
                           }}
-                          className="text-xs font-bold text-slate-400 hover:text-emerald-400 transition-colors"
+                          className="text-xs font-bold text-[#6B7280] hover:text-emerald-600 transition-colors"
                         >
                           Marcar todas como lidas
                         </button>
@@ -1016,16 +1016,16 @@ Seu controle financeiro inteligente`.trim();
                     </div>
                   </>
                 )}
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-800">
+              <div className="flex items-center gap-3 pl-6 border-l border-[#E5E7EB]">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-400">Saldo atual</p>
-                  <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <p className="text-sm font-bold text-[#6B7280]">Saldo atual</p>
+                  <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+                <div className="w-10 h-10 bg-slate-100 rounded-full overflow-hidden border border-[#E5E7EB]">
                   {profileImage ? (
                     <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -1051,12 +1051,12 @@ Seu controle financeiro inteligente`.trim();
               <div className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4 flex-wrap">
-                    <h2 className="text-2xl font-bold text-white">Visão Geral</h2>
+                    <h2 className="text-2xl font-bold text-[#111827]">Visão Geral</h2>
                     
                     <div className="relative">
                       <button 
                         onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                        className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
+                        className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm px-4 py-2 text-sm font-bold text-[#111827] hover:bg-slate-50 transition-all"
                       >
                         <PieChartIcon className="w-4 h-4 text-emerald-500" />
                         {selectedCategories.length === 0 ? 'Todas categorias' : 
@@ -1067,15 +1067,15 @@ Seu controle financeiro inteligente`.trim();
                       {isCategoryDropdownOpen && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
-                          <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
-                              <span className="text-xs font-bold text-slate-500 uppercase">Filtrar Categorias</span>
+                          <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
+                              <span className="text-xs font-bold text-[#6B7280] uppercase">Filtrar Categorias</span>
                               <button 
                                 onClick={() => {
                                   if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
                                   else setSelectedCategories([...allCategories]);
                                 }}
-                                className="text-[10px] font-bold text-emerald-400 hover:underline"
+                                className="text-[10px] font-bold text-emerald-600 hover:underline"
                               >
                                 {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
                               </button>
@@ -1094,8 +1094,8 @@ Seu controle financeiro inteligente`.trim();
                                     }}
                                     className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
                                       selectedCategories.includes(cat) 
-                                        ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
-                                        : 'text-slate-400 hover:bg-slate-700'
+                                        ? 'bg-emerald-50 text-emerald-600 font-bold' 
+                                        : 'text-[#6B7280] hover:bg-slate-50'
                                     }`}
                                   >
                                     <span className="truncate">{cat}</span>
@@ -1103,7 +1103,7 @@ Seu controle financeiro inteligente`.trim();
                                   </button>
                                 ))
                               ) : (
-                                <div className="p-4 text-center text-xs text-slate-500 italic">
+                                <div className="p-4 text-center text-xs text-[#6B7280] italic">
                                   Nenhuma categoria encontrada
                                 </div>
                               )}
@@ -1117,10 +1117,10 @@ Seu controle financeiro inteligente`.trim();
                       <motion.div 
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="hidden lg:flex items-center gap-3 bg-slate-800 border border-slate-700 px-4 py-2 rounded-2xl shadow-sm relative group"
+                        className="hidden lg:flex items-center gap-3 bg-white border border-[#E5E7EB] px-4 py-2 rounded-2xl shadow-sm relative group"
                       >
                         <span className="text-xl">👋</span>
-                        <p className="text-xs text-slate-300 font-medium leading-tight max-w-[180px]">
+                        <p className="text-xs text-[#6B7280] font-medium leading-tight max-w-[180px]">
                           {transactions.length > 0 
                             ? 'Bem-vindo de volta ao seu controle financeiro.' 
                             : 'Vamos começar a organizar suas finanças?'}
@@ -1128,21 +1128,21 @@ Seu controle financeiro inteligente`.trim();
                         <div className="flex items-center gap-1">
                           <button 
                             onClick={() => setIsWelcomeVisible(false)}
-                            className="p-1 text-slate-500 hover:text-emerald-400 transition-colors"
+                            className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
                             title="Fechar por agora"
                           >
                             <X className="w-3 h-3" />
                           </button>
                           <button 
                             onClick={handlePermanentDismissWelcome}
-                            className="p-1 text-slate-500 hover:text-red-400 transition-colors"
+                            className="p-1 text-[#6B7280] hover:text-red-600 transition-colors"
                             title="Remover definitivamente"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
                         {/* Tooltip arrow */}
-                        <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-slate-800 border-l border-b border-slate-700 rotate-45 hidden md:block"></div>
+                        <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white border-l border-b border-[#E5E7EB] rotate-45 hidden md:block"></div>
                       </motion.div>
                     )}
 
@@ -1151,9 +1151,9 @@ Seu controle financeiro inteligente`.trim();
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
-                          annualGoalStats.percent < 60 ? 'bg-red-900/20 border-red-900/30' : 
-                          annualGoalStats.percent < 90 ? 'bg-amber-900/20 border-amber-900/30' : 
-                          'bg-emerald-900/20 border-emerald-900/30'
+                          annualGoalStats.percent < 60 ? 'bg-red-50 border-red-100' : 
+                          annualGoalStats.percent < 90 ? 'bg-amber-50 border-amber-100' : 
+                          'bg-emerald-50 border-emerald-100'
                         }`}
                       >
                         <div className="relative flex items-center justify-center">
@@ -1165,7 +1165,7 @@ Seu controle financeiro inteligente`.trim();
                               stroke="currentColor"
                               strokeWidth="4"
                               fill="transparent"
-                              className="text-slate-200/30"
+                              className="text-slate-200"
                             />
                             <circle
                               cx="28"
@@ -1201,18 +1201,18 @@ Seu controle financeiro inteligente`.trim();
                             }`} />
                             <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta Anual</span>
                           </div>
-                          <p className="text-sm font-black text-white leading-none mt-1">
+                          <p className="text-sm font-black text-[#111827] leading-none mt-1">
                             R$ {annualGoalStats.target.toLocaleString('pt-BR')}
                           </p>
                           <div className="flex items-center gap-1 mt-1">
-                            <span className="text-[10px] font-medium opacity-60 text-slate-400">Acumulado:</span>
-                            <span className="text-[10px] font-bold text-slate-300">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
+                            <span className="text-[10px] font-medium opacity-60 text-[#6B7280]">Acumulado:</span>
+                            <span className="text-[10px] font-bold text-[#111827]">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
                           </div>
                         </div>
 
                         <button 
                           onClick={handleDeleteGoal}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full shadow-md flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-[#E5E7EB] rounded-full shadow-md flex items-center justify-center text-[#6B7280] hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                           title="Remover meta definitivamente"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -1227,9 +1227,9 @@ Seu controle financeiro inteligente`.trim();
                   <div className="relative">
                     <button 
                       onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
-                      className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
+                      className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm px-4 py-2 text-sm font-bold text-[#111827] hover:bg-slate-50 transition-all"
                     >
-                      <Calendar className="w-4 h-4 text-slate-400" />
+                      <Calendar className="w-4 h-4 text-[#6B7280]" />
                       {selectedMonths.length === 0 ? 'Todos os meses' : 
                        selectedMonths.length === 12 ? 'Todos os meses' :
                        selectedMonths.length === 1 ? months[selectedMonths[0]] :
@@ -1239,15 +1239,15 @@ Seu controle financeiro inteligente`.trim();
                     {isMonthDropdownOpen && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
-                        <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-500 uppercase">Selecionar Meses</span>
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
+                            <span className="text-xs font-bold text-[#6B7280] uppercase">Selecionar Meses</span>
                             <button 
                               onClick={() => {
                                 if (selectedMonths.length === 12) setSelectedMonths([]);
                                 else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
                               }}
-                              className="text-[10px] font-bold text-emerald-400 hover:underline"
+                              className="text-[10px] font-bold text-emerald-600 hover:underline"
                             >
                               {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
                             </button>
@@ -1265,8 +1265,8 @@ Seu controle financeiro inteligente`.trim();
                                 }}
                                 className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
                                   selectedMonths.includes(index) 
-                                    ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
-                                    : 'text-slate-400 hover:bg-slate-700'
+                                    ? 'bg-emerald-50 text-emerald-600 font-bold' 
+                                    : 'text-[#6B7280] hover:bg-slate-50'
                                 }`}
                               >
                                 {month}
@@ -1279,14 +1279,14 @@ Seu controle financeiro inteligente`.trim();
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm">
+                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm">
                     {isCustomYear ? (
                       <div className="flex items-center">
                         <input 
                           type="number"
                           value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
                           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                          className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 w-20"
+                          className="bg-transparent border-none outline-none text-sm font-bold text-[#111827] px-4 py-1 w-20"
                           autoFocus
                           onBlur={() => setIsCustomYear(false)}
                           onKeyDown={(e) => {
@@ -1295,7 +1295,7 @@ Seu controle financeiro inteligente`.trim();
                         />
                         <button 
                           onClick={() => setIsCustomYear(false)}
-                          className="pr-2 text-slate-400 hover:text-slate-200"
+                          className="pr-2 text-[#6B7280] hover:text-[#111827]"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1305,7 +1305,7 @@ Seu controle financeiro inteligente`.trim();
                         <select 
                           value={selectedYear}
                           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                          className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 cursor-pointer"
+                          className="bg-transparent border-none outline-none text-sm font-bold text-[#111827] px-4 py-1 cursor-pointer"
                         >
                           <option value="-1">Todos os anos</option>
                           {years.map((year) => (
@@ -1317,7 +1317,7 @@ Seu controle financeiro inteligente`.trim();
                         </select>
                         <button 
                           onClick={() => setIsCustomYear(true)}
-                          className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
+                          className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
                           title="Personalizar ano"
                         >
                           <Calendar className="w-4 h-4" />
@@ -1327,13 +1327,13 @@ Seu controle financeiro inteligente`.trim();
                   </div>
 
                   {/* Status Filter */}
-                  <div className="flex items-center bg-slate-800 border border-slate-700 rounded-2xl p-1 shadow-sm">
+                  <div className="flex items-center bg-white border border-[#E5E7EB] rounded-2xl p-1 shadow-sm">
                     <button
                       onClick={() => setStatusFilter('all')}
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         statusFilter === 'all' 
                           ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-slate-400 hover:bg-slate-700'
+                          : 'text-[#6B7280] hover:bg-slate-50'
                       }`}
                     >
                       Todos
@@ -1343,7 +1343,7 @@ Seu controle financeiro inteligente`.trim();
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         statusFilter === 'paid' 
                           ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-slate-400 hover:bg-slate-700'
+                          : 'text-[#6B7280] hover:bg-slate-50'
                       }`}
                     >
                       Pagos/Recebidos
@@ -1353,7 +1353,7 @@ Seu controle financeiro inteligente`.trim();
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                         statusFilter === 'pending' 
                           ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-slate-400 hover:bg-slate-700'
+                          : 'text-[#6B7280] hover:bg-slate-50'
                       }`}
                     >
                       Pendentes
@@ -1410,16 +1410,16 @@ Seu controle financeiro inteligente`.trim();
 
               {/* Status Overview */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
-                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Receitas</h3>
+                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col transition-colors duration-300">
+                  <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-wider mb-4">Status de Receitas</h3>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Recebido</p>
-                      <p className="text-xl font-black text-emerald-600">R$ {stats.paidIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Recebido</p>
+                      <p className="text-xl font-black text-[#22C55E]">R$ {stats.paidIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pendente</p>
-                      <p className="text-xl font-black text-red-600">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Pendente</p>
+                      <p className="text-xl font-black text-[#EF4444]">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                   <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
@@ -1433,7 +1433,7 @@ Seu controle financeiro inteligente`.trim();
                     <>
                       <div className="my-6 border-t border-slate-100 border-dashed"></div>
                       <div className="flex-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Pendências por Mês</p>
+                        <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-3">Pendências por Mês</p>
                         <div className="h-32">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={pendingStatsByMonth.income}>
@@ -1444,7 +1444,7 @@ Seu controle financeiro inteligente`.trim();
                                 itemStyle={{ color: '#000' }}
                                 formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
                               />
-                              <Bar dataKey="pending" fill="#10b981" radius={[4, 4, 0, 0]} />
+                              <Bar dataKey="pending" fill="#22C55E" radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -1452,16 +1452,16 @@ Seu controle financeiro inteligente`.trim();
                     </>
                   )}
                 </div>
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow flex flex-col transition-colors duration-300">
-                  <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Status de Despesas</h3>
+                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col transition-colors duration-300">
+                  <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-wider mb-4">Status de Despesas</h3>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pago</p>
-                      <p className="text-xl font-black text-emerald-600">R$ {stats.paidExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Pago</p>
+                      <p className="text-xl font-black text-[#22C55E]">R$ {stats.paidExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-slate-400 font-bold uppercase mb-1">Pendente</p>
-                      <p className="text-xl font-black text-red-600">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Pendente</p>
+                      <p className="text-xl font-black text-[#EF4444]">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                     </div>
                   </div>
                   <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
@@ -1475,7 +1475,7 @@ Seu controle financeiro inteligente`.trim();
                     <>
                       <div className="my-6 border-t border-slate-100 border-dashed"></div>
                       <div className="flex-1">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Pendências por Mês</p>
+                        <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-3">Pendências por Mês</p>
                         <div className="h-32">
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={pendingStatsByMonth.expense}>
@@ -1486,7 +1486,7 @@ Seu controle financeiro inteligente`.trim();
                                 itemStyle={{ color: '#000' }}
                                 formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
                               />
-                              <Bar dataKey="pending" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                              <Bar dataKey="pending" fill="#EF4444" radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </div>
@@ -1553,8 +1553,8 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Expense Pie Chart */}
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">Gastos por categoria</h3>
+                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-[#111827] mb-6">Gastos por categoria</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -1591,24 +1591,24 @@ Seu controle financeiro inteligente`.trim();
                         <div key={i} className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                            <span className="text-slate-600">{cat.name}</span>
+                            <span className="text-[#6B7280]">{cat.name}</span>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-slate-900 block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                            <span className="text-[10px] text-slate-400 font-bold">{percentage.toFixed(1)}%</span>
+                            <span className="font-bold text-[#111827] block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                            <span className="text-[10px] text-[#6B7280] font-bold">{percentage.toFixed(1)}%</span>
                           </div>
                         </div>
                       );
                     })}
                     {categoryData.length === 0 && (
-                      <p className="text-center text-slate-400 text-sm italic py-4">Nenhum gasto no período</p>
+                      <p className="text-center text-[#6B7280] text-sm italic py-4">Nenhum gasto no período</p>
                     )}
                   </div>
                 </div>
 
                 {/* Bar Chart */}
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">
+                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow">
+                  <h3 className="text-lg font-bold text-[#111827] mb-6">
                     Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
                   </h3>
                   <div className="h-80">
@@ -1622,16 +1622,16 @@ Seu controle financeiro inteligente`.trim();
                           contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                         />
                         <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px' }} />
-                        <Bar dataKey="receita" name="Receita" fill="#10b981" radius={[4, 4, 0, 0]} barSize={10} />
-                        <Bar dataKey="despesa" name="Despesa" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={10} />
+                        <Bar dataKey="receita" name="Receita" fill="#22C55E" radius={[4, 4, 0, 0]} barSize={10} />
+                        <Bar dataKey="despesa" name="Despesa" fill="#EF4444" radius={[4, 4, 0, 0]} barSize={10} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
 
                 {/* Alerts Section */}
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">Alertas e Insights</h3>
+                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+                  <h3 className="text-lg font-bold text-[#111827] mb-6">Alertas e Insights</h3>
                   <div className="space-y-4">
                     {alerts.map((alert, i) => (
                       <AlertItem 
@@ -1648,10 +1648,10 @@ Seu controle financeiro inteligente`.trim();
                 </div>
 
                 {/* Recent Transactions Section */}
-                <div className="lg:col-span-2 bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
+                <div className="lg:col-span-2 bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                      <h3 className="text-lg font-bold text-slate-900">Lançamentos Recentes</h3>
+                      <h3 className="text-lg font-bold text-[#111827]">Lançamentos Recentes</h3>
                       {selectedTransactions.length > 0 && (
                         <motion.button
                           initial={{ opacity: 0, scale: 0.9 }}
@@ -1666,7 +1666,7 @@ Seu controle financeiro inteligente`.trim();
                     </div>
                     <button 
                       onClick={() => setShowAllTransactions(!showAllTransactions)}
-                      className="text-sm font-bold text-emerald-600 hover:underline"
+                      className="text-sm font-bold text-[#22C55E] hover:underline"
                     >
                       {showAllTransactions ? 'Ver menos' : 'Ver todos'}
                     </button>
@@ -1674,11 +1674,11 @@ Seu controle financeiro inteligente`.trim();
                   <div className="overflow-x-auto">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
                           <th className="pb-4 px-4 w-10">
                             <input 
                               type="checkbox" 
-                              className="w-4 h-4 rounded border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500"
+                              className="w-4 h-4 rounded border-slate-300 bg-white text-[#22C55E] focus:ring-emerald-500"
                               checked={(() => {
                                 const limit = showAllTransactions ? filteredTransactions.length : 5;
                                 const ids = filteredTransactions.slice(0, limit).map(t => t.id).filter((id): id is string => !!id);
@@ -1706,23 +1706,23 @@ Seu controle financeiro inteligente`.trim();
                               <td className="py-4 px-4">
                                 <input 
                                   type="checkbox" 
-                                  className="w-4 h-4 rounded border-slate-300 bg-white text-emerald-600 focus:ring-emerald-500"
+                                  className="w-4 h-4 rounded border-slate-300 bg-white text-[#22C55E] focus:ring-emerald-500"
                                   checked={!!t.id && selectedTransactions.includes(t.id)}
                                   onChange={() => t.id && toggleSelectTransaction(t.id)}
                                 />
                               </td>
-                              <td className="py-4 px-4 text-sm text-slate-500">
+                              <td className="py-4 px-4 text-sm text-[#6B7280]">
                                 {parseDate(t.date).toLocaleDateString('pt-BR')}
                               </td>
                               <td className="py-4 px-4">
-                                <span className="text-sm font-bold text-slate-900">{t.description}</span>
+                                <span className="text-sm font-bold text-[#111827]">{t.description}</span>
                               </td>
                               <td className="py-4 px-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-[#6B7280]">
                                   {t.category}
                                 </span>
                               </td>
-                              <td className={`py-4 px-4 text-right font-bold ${t.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+                              <td className={`py-4 px-4 text-right font-bold ${t.type === 'income' ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
                                 {t.type === 'income' ? '+' : '-'} R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </td>
                               <td className="py-4 px-4 text-center">
@@ -1731,8 +1731,8 @@ Seu controle financeiro inteligente`.trim();
                                   title={t.paid ? "Marcar como pendente" : "Marcar como pago"}
                                   className={`p-2 rounded-lg transition-all ${
                                     t.paid 
-                                      ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' 
-                                      : 'text-slate-300 hover:text-emerald-600 hover:bg-emerald-50'
+                                      ? 'text-[#22C55E] bg-emerald-50 hover:bg-emerald-100' 
+                                      : 'text-slate-300 hover:text-[#22C55E] hover:bg-emerald-50'
                                   }`}
                                 >
                                   <CheckCircle2 className="w-4 h-4" />
@@ -1742,7 +1742,7 @@ Seu controle financeiro inteligente`.trim();
                                 <div className="flex items-center justify-end gap-1">
                                   <button 
                                     onClick={() => handleDeleteTransaction(t)}
-                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                    className="p-2 text-[#6B7280] hover:text-[#EF4444] hover:bg-red-50 rounded-lg transition-all"
                                     title="Excluir lançamento"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -1753,7 +1753,7 @@ Seu controle financeiro inteligente`.trim();
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={6} className="py-8 text-center text-slate-400 text-sm italic">
+                            <td colSpan={6} className="py-8 text-center text-[#6B7280] text-sm italic">
                               Nenhum lançamento encontrado para este período.
                             </td>
                           </tr>
@@ -1799,22 +1799,22 @@ Seu controle financeiro inteligente`.trim();
             />
           ) : activeTab === 'Configurações' ? (
             <div className="max-w-2xl mx-auto space-y-8">
-              <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 card-shadow">
-                <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <Settings className="w-6 h-6 text-emerald-600" />
+              <div className="bg-white p-8 rounded-[16px] border border-[#E5E7EB] card-shadow">
+                <h2 className="text-2xl font-bold text-[#111827] mb-6 flex items-center gap-2">
+                  <Settings className="w-6 h-6 text-[#22C55E]" />
                   Configurações da Conta
                 </h2>
                 
                 <div className="space-y-6">
-                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h3 className="font-bold text-slate-900 mb-4">Perfil</h3>
+                  <div className="p-6 rounded-[16px] bg-slate-50 border border-slate-100">
+                    <h3 className="font-bold text-[#111827] mb-4">Perfil</h3>
                     <div className="flex flex-col sm:flex-row items-center gap-6">
                       <div className="relative group">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-emerald-100 flex items-center justify-center">
                           {profileImage ? (
                             <img src={profileImage} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                           ) : (
-                            <span className="text-3xl font-bold text-emerald-600">
+                            <span className="text-3xl font-bold text-[#22C55E]">
                               {userName.charAt(0).toUpperCase() || 'U'}
                             </span>
                           )}
@@ -1824,29 +1824,29 @@ Seu controle financeiro inteligente`.trim();
                             </div>
                           )}
                         </div>
-                        <label className="absolute bottom-0 right-0 p-2 bg-emerald-600 text-white rounded-full shadow-lg cursor-pointer hover:bg-emerald-700 transition-all group-hover:scale-110">
+                        <label className="absolute bottom-0 right-0 p-2 bg-[#22C55E] text-white rounded-full shadow-lg cursor-pointer hover:bg-[#15803D] transition-all group-hover:scale-110">
                           <Camera className="w-4 h-4" />
                           <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
                         </label>
                       </div>
                       <div className="flex-1 space-y-2 text-center sm:text-left">
-                        <p className="text-sm"><strong>Nome:</strong> {userName}</p>
-                        <p className="text-sm"><strong>Email:</strong> {userEmail}</p>
-                        <p className="text-xs text-slate-500 mt-2">Clique no ícone da câmera para alterar sua foto de perfil.</p>
+                        <p className="text-sm text-[#111827]"><strong>Nome:</strong> {userName}</p>
+                        <p className="text-sm text-[#111827]"><strong>Email:</strong> {userEmail}</p>
+                        <p className="text-xs text-[#6B7280] mt-2">Clique no ícone da câmera para alterar sua foto de perfil.</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                    <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-emerald-600" />
+                  <div className="p-6 rounded-[16px] bg-slate-50 border border-slate-100">
+                    <h3 className="font-bold text-[#111827] mb-4 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-[#22C55E]" />
                       Notificações WhatsApp
                     </h3>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200">
+                      <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#E5E7EB]">
                         <div>
-                          <p className="text-sm font-bold text-slate-900">Ativar Lembretes</p>
-                          <p className="text-xs text-slate-500">Receba avisos 5 dias antes e no dia do vencimento.</p>
+                          <p className="text-sm font-bold text-[#111827]">Ativar Lembretes</p>
+                          <p className="text-xs text-[#6B7280]">Receba avisos 5 dias antes e no dia do vencimento.</p>
                         </div>
                         <button 
                           onClick={async () => {
@@ -2024,7 +2024,7 @@ Seu controle financeiro inteligente`.trim();
 const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
-    className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow relative overflow-hidden transition-colors duration-300"
+    className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow relative overflow-hidden transition-colors duration-300"
   >
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-4">
@@ -2032,8 +2032,8 @@ const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey,
           {icon}
         </div>
       </div>
-      <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-      <h4 className={`text-2xl font-bold ${valueColor || 'text-slate-900'}`}>{value}</h4>
+      <p className="text-sm font-medium text-[#6B7280] mb-1">{title}</p>
+      <h4 className={`text-2xl font-bold ${valueColor || 'text-[#111827]'}`}>{value}</h4>
     </div>
     
     {chartData && (
@@ -2070,11 +2070,11 @@ const AlertItem = ({ type, message, description }: any) => {
   }[type as 'warning' | 'info' | 'success'];
 
   return (
-    <div className={`p-4 rounded-2xl border ${styles.bg} ${styles.border} flex gap-4`}>
+    <div className={`p-4 rounded-[16px] border ${styles.bg} ${styles.border} flex gap-4`}>
       <div className="shrink-0 mt-1">{styles.icon}</div>
       <div>
-        <p className="text-sm font-bold text-slate-900">{message}</p>
-        <p className="text-xs text-slate-600 mt-1">{description}</p>
+        <p className="text-sm font-bold text-[#111827]">{message}</p>
+        <p className="text-xs text-[#6B7280] mt-1">{description}</p>
       </div>
     </div>
   );
