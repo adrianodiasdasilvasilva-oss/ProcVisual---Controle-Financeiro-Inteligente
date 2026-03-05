@@ -129,7 +129,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-white">
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-900">
       {/* Left Side - Image/Visual */}
       <div className="hidden md:flex md:w-1/2 bg-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -180,7 +180,7 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
                 referrerPolicy="no-referrer"
               />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">ProcVisual</span>
+            <span className="text-xl font-bold tracking-tight text-white">ProcVisual</span>
           </div>
 
           <motion.div
@@ -189,10 +189,10 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               {mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
             </h1>
-            <p className="text-slate-500 mb-8">
+            <p className="text-slate-400 mb-8">
               {mode === 'login' 
                 ? 'Acesse sua conta para gerenciar suas finanças.' 
                 : 'Comece sua jornada para a liberdade financeira hoje.'}
@@ -202,27 +202,27 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
               {mode === 'signup' && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Nome completo</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Nome completo</label>
                     <input 
                       type="text" 
                       placeholder="Seu nome"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Celular</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Celular</label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                       <input 
                         type="tel" 
                         placeholder="(00) 00000-0000"
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -230,36 +230,36 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
               )}
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Email</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Email</label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                   <input 
                     type="email" 
                     placeholder="seu@email.com"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Senha</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Senha</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                   <input 
                     type={showPassword ? "text" : "password"} 
                     placeholder="••••••••"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                    className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -299,11 +299,11 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-slate-500">
+              <p className="text-slate-400">
                 {mode === 'login' ? 'Não tem conta?' : 'Já tem uma conta?'}
                 <button 
                   onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                  className="ml-2 font-bold text-emerald-600 hover:text-emerald-700"
+                  className="ml-2 font-bold text-emerald-500 hover:text-emerald-400"
                 >
                   {mode === 'login' ? 'Criar conta' : 'Fazer login'}
                 </button>

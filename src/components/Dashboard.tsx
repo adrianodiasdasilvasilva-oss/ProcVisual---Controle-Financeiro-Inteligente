@@ -850,7 +850,7 @@ Seu controle financeiro inteligente`.trim();
   ];
 
   return (
-    <div className="min-h-screen bg-white flex transition-colors duration-300">
+    <div className="min-h-screen bg-slate-900 flex transition-colors duration-300">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
@@ -908,19 +908,19 @@ Seu controle financeiro inteligente`.trim();
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <main className={`flex-1 bg-slate-900 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {/* Topbar */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
           <div className="px-8 h-20 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg"
+                className="p-2 text-slate-400 hover:bg-slate-800 rounded-lg"
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div className="flex flex-col py-1">
-                <h1 className="text-2xl font-bold text-slate-900 leading-tight">{userName}</h1>
+                <h1 className="text-2xl font-bold text-white leading-tight">{userName}</h1>
               </div>
             </div>
 
@@ -932,14 +932,14 @@ Seu controle financeiro inteligente`.trim();
                 <TrendingUp className="w-5 h-5" />
                 Novo Lançamento
               </button>
-              <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
+              <div className="hidden md:flex items-center bg-slate-800 rounded-full px-4 py-2 gap-2 focus-within:bg-slate-700 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
                 <Search className="w-4 h-4 text-slate-400" />
                 <input 
                   type="text" 
                   placeholder="Buscar lançamentos..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-sm w-40"
+                  className="bg-transparent border-none outline-none text-sm w-40 text-white placeholder:text-slate-500"
                 />
                 {searchQuery && (
                   <button 
@@ -954,11 +954,11 @@ Seu controle financeiro inteligente`.trim();
                 <div className="relative">
                   <button 
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className={`relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-100 text-emerald-600' : ''}`}
+                    className={`relative p-2 text-slate-400 hover:bg-slate-800 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-800 text-emerald-600' : ''}`}
                   >
                     <Bell className="w-5 h-5" />
                     {alerts.length > 0 && (
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900"></span>
                     )}
                   </button>
 
@@ -968,10 +968,10 @@ Seu controle financeiro inteligente`.trim();
                       className="fixed inset-0 z-40" 
                       onClick={() => setIsNotificationsOpen(false)}
                     ></div>
-                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-                        <h3 className="font-bold text-slate-900">Notificações</h3>
-                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    <div className="absolute right-0 mt-3 w-80 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="p-4 border-b border-slate-700 bg-slate-800/50 flex items-center justify-between">
+                        <h3 className="font-bold text-white">Notificações</h3>
+                        <span className="text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
                           {alerts.length} novas
                         </span>
                       </div>
@@ -980,35 +980,35 @@ Seu controle financeiro inteligente`.trim();
                           alerts.map((alert, i) => (
                             <div 
                               key={i} 
-                              className="p-3 rounded-xl hover:bg-slate-50 transition-colors flex gap-3 cursor-pointer group"
+                              className="p-3 rounded-xl hover:bg-slate-700 transition-colors flex gap-3 cursor-pointer group"
                             >
                               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                                alert.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
-                                alert.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                                alert.type === 'success' ? 'bg-emerald-400/10 text-emerald-400' : 
+                                alert.type === 'warning' ? 'bg-amber-400/10 text-amber-400' : 'bg-blue-400/10 text-blue-400'
                               }`}>
                                 {alert.type === 'success' ? <Target className="w-5 h-5" /> : 
                                  alert.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
                               </div>
                               <div>
-                                <p className="text-sm font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{alert.message}</p>
-                                <p className="text-xs text-slate-500 leading-tight mt-0.5">{alert.description}</p>
+                                <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{alert.message}</p>
+                                <p className="text-xs text-slate-400 leading-tight mt-0.5">{alert.description}</p>
                               </div>
                             </div>
                           ))
                         ) : (
                           <div className="py-8 text-center">
-                            <Bell className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                            <p className="text-sm text-slate-400">Nenhuma notificação por aqui.</p>
+                            <Bell className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                            <p className="text-sm text-slate-500">Nenhuma notificação por aqui.</p>
                           </div>
                         )}
                       </div>
-                      <div className="p-3 bg-slate-50/50 border-t border-slate-50 text-center">
+                      <div className="p-3 bg-slate-800/50 border-t border-slate-700 text-center">
                         <button 
                           onClick={() => {
                             const allAlertMessages = alerts.map(a => a.message);
                             setDismissedAlerts(prev => [...new Set([...prev, ...allAlertMessages])]);
                           }}
-                          className="text-xs font-bold text-slate-500 hover:text-emerald-600 transition-colors"
+                          className="text-xs font-bold text-slate-400 hover:text-emerald-400 transition-colors"
                         >
                           Marcar todas como lidas
                         </button>
@@ -1018,14 +1018,14 @@ Seu controle financeiro inteligente`.trim();
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
+            <div className="flex items-center gap-3 pl-6 border-l border-slate-800">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900">Saldo atual</p>
+                  <p className="text-sm font-bold text-slate-400">Saldo atual</p>
                   <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-slate-200 rounded-full overflow-hidden border border-slate-200">
+                <div className="w-10 h-10 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
                   {profileImage ? (
                     <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -1052,12 +1052,12 @@ Seu controle financeiro inteligente`.trim();
                 <div className="flex-1 space-y-6">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4 flex-wrap">
-                      <h2 className="text-2xl font-bold text-slate-900">Visão Geral</h2>
+                      <h2 className="text-2xl font-bold text-white">Visão Geral</h2>
                       
                       <div className="relative">
                         <button 
                           onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                          className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all"
+                          className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
                         >
                           <PieChartIcon className="w-4 h-4 text-emerald-500" />
                           {selectedCategories.length === 0 ? 'Todas categorias' : 
@@ -1068,15 +1068,15 @@ Seu controle financeiro inteligente`.trim();
                         {isCategoryDropdownOpen && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
-                            <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                              <div className="p-2 border-b border-slate-50 mb-1 flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-400 uppercase">Filtrar Categorias</span>
+                            <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                              <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-500 uppercase">Filtrar Categorias</span>
                                 <button 
                                   onClick={() => {
                                     if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
                                     else setSelectedCategories([...allCategories]);
                                   }}
-                                  className="text-[10px] font-bold text-emerald-600 hover:underline"
+                                  className="text-[10px] font-bold text-emerald-400 hover:underline"
                                 >
                                   {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
                                 </button>
@@ -1095,8 +1095,8 @@ Seu controle financeiro inteligente`.trim();
                                       }}
                                       className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
                                         selectedCategories.includes(cat) 
-                                          ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                                          : 'text-slate-600 hover:bg-slate-50'
+                                          ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
+                                          : 'text-slate-400 hover:bg-slate-700'
                                       }`}
                                     >
                                       <span className="truncate">{cat}</span>
@@ -1104,7 +1104,7 @@ Seu controle financeiro inteligente`.trim();
                                     </button>
                                   ))
                                 ) : (
-                                  <div className="p-4 text-center text-xs text-slate-400 italic">
+                                  <div className="p-4 text-center text-xs text-slate-500 italic">
                                     Nenhuma categoria encontrada
                                   </div>
                                 )}
@@ -1118,10 +1118,10 @@ Seu controle financeiro inteligente`.trim();
                         <motion.div 
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="hidden lg:flex items-center gap-3 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-2xl shadow-sm relative group"
+                          className="hidden lg:flex items-center gap-3 bg-slate-800 border border-slate-700 px-4 py-2 rounded-2xl shadow-sm relative group"
                         >
                           <span className="text-xl">👋</span>
-                          <p className="text-xs text-slate-600 font-medium leading-tight max-w-[180px]">
+                          <p className="text-xs text-slate-300 font-medium leading-tight max-w-[180px]">
                             {transactions.length > 0 
                               ? 'Bem-vindo de volta ao seu controle financeiro.' 
                               : 'Vamos começar a organizar suas finanças?'}
@@ -1129,21 +1129,21 @@ Seu controle financeiro inteligente`.trim();
                           <div className="flex items-center gap-1">
                             <button 
                               onClick={() => setIsWelcomeVisible(false)}
-                              className="p-1 text-emerald-300 hover:text-emerald-600 transition-colors"
+                              className="p-1 text-slate-500 hover:text-emerald-400 transition-colors"
                               title="Fechar por agora"
                             >
                               <X className="w-3 h-3" />
                             </button>
                             <button 
                               onClick={handlePermanentDismissWelcome}
-                              className="p-1 text-emerald-300 hover:text-red-500 transition-colors"
+                              className="p-1 text-slate-500 hover:text-red-400 transition-colors"
                               title="Remover definitivamente"
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
                           {/* Tooltip arrow */}
-                          <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-50 border-l border-b border-emerald-100 rotate-45 hidden md:block"></div>
+                          <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-slate-800 border-l border-b border-slate-700 rotate-45 hidden md:block"></div>
                         </motion.div>
                       )}
 
@@ -1152,9 +1152,9 @@ Seu controle financeiro inteligente`.trim();
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
-                            annualGoalStats.percent < 60 ? 'bg-red-50 border-red-100' : 
-                            annualGoalStats.percent < 90 ? 'bg-amber-50 border-amber-100' : 
-                            'bg-emerald-50 border-emerald-100'
+                            annualGoalStats.percent < 60 ? 'bg-red-900/20 border-red-900/30' : 
+                            annualGoalStats.percent < 90 ? 'bg-amber-900/20 border-amber-900/30' : 
+                            'bg-emerald-900/20 border-emerald-900/30'
                           }`}
                         >
                           <div className="relative flex items-center justify-center">
@@ -1202,18 +1202,18 @@ Seu controle financeiro inteligente`.trim();
                               }`} />
                               <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta Anual</span>
                             </div>
-                            <p className="text-sm font-black text-slate-900 leading-none mt-1">
+                            <p className="text-sm font-black text-white leading-none mt-1">
                               R$ {annualGoalStats.target.toLocaleString('pt-BR')}
                             </p>
                             <div className="flex items-center gap-1 mt-1">
-                              <span className="text-[10px] font-medium opacity-60">Acumulado:</span>
-                              <span className="text-[10px] font-bold text-slate-700">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
+                              <span className="text-[10px] font-medium opacity-60 text-slate-400">Acumulado:</span>
+                              <span className="text-[10px] font-bold text-slate-300">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
                             </div>
                           </div>
 
                           <button 
                             onClick={handleDeleteGoal}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-100 rounded-full shadow-md flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full shadow-md flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                             title="Remover meta definitivamente"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -1228,7 +1228,7 @@ Seu controle financeiro inteligente`.trim();
                     <div className="relative">
                       <button 
                         onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
-                        className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-all"
+                        className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
                       >
                         <Calendar className="w-4 h-4 text-slate-400" />
                         {selectedMonths.length === 0 ? 'Todos os meses' : 
@@ -1240,15 +1240,15 @@ Seu controle financeiro inteligente`.trim();
                       {isMonthDropdownOpen && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
-                          <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="p-2 border-b border-slate-50 mb-1 flex items-center justify-between">
-                              <span className="text-xs font-bold text-slate-400 uppercase">Selecionar Meses</span>
+                          <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-500 uppercase">Selecionar Meses</span>
                               <button 
                                 onClick={() => {
                                   if (selectedMonths.length === 12) setSelectedMonths([]);
                                   else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
                                 }}
-                                className="text-[10px] font-bold text-emerald-600 hover:underline"
+                                className="text-[10px] font-bold text-emerald-400 hover:underline"
                               >
                                 {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
                               </button>
@@ -1266,8 +1266,8 @@ Seu controle financeiro inteligente`.trim();
                                   }}
                                   className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
                                     selectedMonths.includes(index) 
-                                      ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                                      : 'text-slate-600 hover:bg-slate-50'
+                                      ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
+                                      : 'text-slate-400 hover:bg-slate-700'
                                   }`}
                                 >
                                   {month}
@@ -1280,14 +1280,14 @@ Seu controle financeiro inteligente`.trim();
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm">
                       {isCustomYear ? (
                         <div className="flex items-center">
                           <input 
                             type="number"
                             value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
                             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 w-20"
+                            className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 w-20"
                             autoFocus
                             onBlur={() => setIsCustomYear(false)}
                             onKeyDown={(e) => {
@@ -1296,7 +1296,7 @@ Seu controle financeiro inteligente`.trim();
                           />
                           <button 
                             onClick={() => setIsCustomYear(false)}
-                            className="pr-2 text-slate-400 hover:text-slate-600"
+                            className="pr-2 text-slate-400 hover:text-slate-200"
                           >
                             <X className="w-3 h-3" />
                           </button>
@@ -1306,7 +1306,7 @@ Seu controle financeiro inteligente`.trim();
                           <select 
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="bg-transparent border-none outline-none text-sm font-bold text-slate-700 px-4 py-1 cursor-pointer"
+                            className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 cursor-pointer"
                           >
                             <option value="-1">Todos os anos</option>
                             {years.map((year) => (
@@ -1328,13 +1328,13 @@ Seu controle financeiro inteligente`.trim();
                     </div>
 
                     {/* Status Filter */}
-                    <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+                    <div className="flex items-center bg-slate-800 border border-slate-700 rounded-2xl p-1 shadow-sm">
                       <button
                         onClick={() => setStatusFilter('all')}
                         className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           statusFilter === 'all' 
                             ? 'bg-emerald-600 text-white shadow-md' 
-                            : 'text-slate-500 hover:bg-slate-50'
+                            : 'text-slate-400 hover:bg-slate-700'
                         }`}
                       >
                         Todos
@@ -1344,7 +1344,7 @@ Seu controle financeiro inteligente`.trim();
                         className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           statusFilter === 'paid' 
                             ? 'bg-emerald-600 text-white shadow-md' 
-                            : 'text-slate-500 hover:bg-slate-50'
+                            : 'text-slate-400 hover:bg-slate-700'
                         }`}
                       >
                         Pagos/Recebidos
@@ -1354,7 +1354,7 @@ Seu controle financeiro inteligente`.trim();
                         className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           statusFilter === 'pending' 
                             ? 'bg-emerald-600 text-white shadow-md' 
-                            : 'text-slate-500 hover:bg-slate-50'
+                            : 'text-slate-400 hover:bg-slate-700'
                         }`}
                       >
                         Pendentes

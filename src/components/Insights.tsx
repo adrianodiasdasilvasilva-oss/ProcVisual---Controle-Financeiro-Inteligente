@@ -102,8 +102,8 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900">Insights Financeiros</h2>
-          <p className="text-slate-500">Análise inteligente baseada no seu comportamento de consumo.</p>
+          <h2 className="text-3xl font-bold text-white">Insights Financeiros</h2>
+          <p className="text-slate-400">Análise inteligente baseada no seu comportamento de consumo.</p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm font-bold">
           <Sparkles className="w-4 h-4" />

@@ -318,7 +318,7 @@ export default function App() {
 
   if (isLoading || (user && isCheckingAccess)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
       </div>
     );

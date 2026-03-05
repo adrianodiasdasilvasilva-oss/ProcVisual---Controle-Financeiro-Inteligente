@@ -136,8 +136,8 @@ export const IncomeView = ({
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Análise de Receitas</h2>
-          <p className="text-slate-500">Acompanhe seu faturamento e crescimento.</p>
+          <h2 className="text-2xl font-bold text-white">Análise de Receitas</h2>
+          <p className="text-slate-400">Acompanhe seu faturamento e crescimento.</p>
         </div>
       </div>
 
