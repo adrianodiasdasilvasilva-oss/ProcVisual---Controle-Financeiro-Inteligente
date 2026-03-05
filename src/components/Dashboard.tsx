@@ -1047,327 +1047,323 @@ Seu controle financeiro inteligente`.trim();
             </div>
           ) : activeTab === 'Dashboard' ? (
             <div className="space-y-8">
-              {/* Header & Health Gauge Section */}
-              <div className="flex flex-col lg:flex-row gap-8 items-start">
-                <div className="flex-1 space-y-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <h2 className="text-2xl font-bold text-white">Visão Geral</h2>
-                      
-                      <div className="relative">
-                        <button 
-                          onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                          className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
-                        >
-                          <PieChartIcon className="w-4 h-4 text-emerald-500" />
-                          {selectedCategories.length === 0 ? 'Todas categorias' : 
-                           selectedCategories.length === 1 ? selectedCategories[0] :
-                           `${selectedCategories.length} categorias`}
-                        </button>
-                        
-                        {isCategoryDropdownOpen && (
-                          <>
-                            <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
-                            <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                              <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-500 uppercase">Filtrar Categorias</span>
-                                <button 
-                                  onClick={() => {
-                                    if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
-                                    else setSelectedCategories([...allCategories]);
-                                  }}
-                                  className="text-[10px] font-bold text-emerald-400 hover:underline"
-                                >
-                                  {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
-                                </button>
-                              </div>
-                              <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
-                                {allCategories.length > 0 ? (
-                                  allCategories.map((cat, index) => (
-                                    <button
-                                      key={index}
-                                      onClick={() => {
-                                        setSelectedCategories(prev => 
-                                          prev.includes(cat) 
-                                            ? prev.filter(c => c !== cat) 
-                                            : [...prev, cat].sort()
-                                        );
-                                      }}
-                                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
-                                        selectedCategories.includes(cat) 
-                                          ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
-                                          : 'text-slate-400 hover:bg-slate-700'
-                                      }`}
-                                    >
-                                      <span className="truncate">{cat}</span>
-                                      {selectedCategories.includes(cat) && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-                                    </button>
-                                  ))
-                                ) : (
-                                  <div className="p-4 text-center text-xs text-slate-500 italic">
-                                    Nenhuma categoria encontrada
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {isWelcomeVisible && (
-                        <motion.div 
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="hidden lg:flex items-center gap-3 bg-slate-800 border border-slate-700 px-4 py-2 rounded-2xl shadow-sm relative group"
-                        >
-                          <span className="text-xl">👋</span>
-                          <p className="text-xs text-slate-300 font-medium leading-tight max-w-[180px]">
-                            {transactions.length > 0 
-                              ? 'Bem-vindo de volta ao seu controle financeiro.' 
-                              : 'Vamos começar a organizar suas finanças?'}
-                          </p>
-                          <div className="flex items-center gap-1">
-                            <button 
-                              onClick={() => setIsWelcomeVisible(false)}
-                              className="p-1 text-slate-500 hover:text-emerald-400 transition-colors"
-                              title="Fechar por agora"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                            <button 
-                              onClick={handlePermanentDismissWelcome}
-                              className="p-1 text-slate-500 hover:text-red-400 transition-colors"
-                              title="Remover definitivamente"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                          {/* Tooltip arrow */}
-                          <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-slate-800 border-l border-b border-slate-700 rotate-45 hidden md:block"></div>
-                        </motion.div>
-                      )}
-
-                      {monthlyGoal && annualGoalStats && (
-                        <motion.div 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
-                            annualGoalStats.percent < 60 ? 'bg-red-900/20 border-red-900/30' : 
-                            annualGoalStats.percent < 90 ? 'bg-amber-900/20 border-amber-900/30' : 
-                            'bg-emerald-900/20 border-emerald-900/30'
-                          }`}
-                        >
-                          <div className="relative flex items-center justify-center">
-                            <svg className="w-14 h-14 transform -rotate-90">
-                              <circle
-                                cx="28"
-                                cy="28"
-                                r="24"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                fill="transparent"
-                                className="text-slate-200/30"
-                              />
-                              <circle
-                                cx="28"
-                                cy="28"
-                                r="24"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                fill="transparent"
-                                strokeDasharray={150.8}
-                                strokeDashoffset={150.8 - (Math.min(annualGoalStats.realized / annualGoalStats.target, 1) * 150.8)}
-                                className={`transition-all duration-1000 ease-out ${
-                                  annualGoalStats.percent < 60 ? 'text-red-500' : 
-                                  annualGoalStats.percent < 90 ? 'text-amber-500' : 
-                                  'text-emerald-500'
-                                }`}
-                              />
-                            </svg>
-                            <span className={`absolute text-[10px] font-black ${
-                              annualGoalStats.percent < 60 ? 'text-red-700' : 
-                              annualGoalStats.percent < 90 ? 'text-amber-700' : 
-                              'text-emerald-700'
-                            }`}>
-                              {annualGoalStats.percent}%
-                            </span>
-                          </div>
-                          
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-1.5">
-                              <Target className={`w-3 h-3 ${
-                                annualGoalStats.percent < 60 ? 'text-red-600' : 
-                                annualGoalStats.percent < 90 ? 'text-amber-600' : 
-                                'text-emerald-600'
-                              }`} />
-                              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta Anual</span>
-                            </div>
-                            <p className="text-sm font-black text-white leading-none mt-1">
-                              R$ {annualGoalStats.target.toLocaleString('pt-BR')}
-                            </p>
-                            <div className="flex items-center gap-1 mt-1">
-                              <span className="text-[10px] font-medium opacity-60 text-slate-400">Acumulado:</span>
-                              <span className="text-[10px] font-bold text-slate-300">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
-                            </div>
-                          </div>
-
-                          <button 
-                            onClick={handleDeleteGoal}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full shadow-md flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                            title="Remover meta definitivamente"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Filters Row */}
-                  <div className="flex flex-wrap items-center gap-4">
+              {/* Header & Filters Section */}
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <h2 className="text-2xl font-bold text-white">Visão Geral</h2>
+                    
                     <div className="relative">
                       <button 
-                        onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
                         className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
                       >
-                        <Calendar className="w-4 h-4 text-slate-400" />
-                        {selectedMonths.length === 0 ? 'Todos os meses' : 
-                         selectedMonths.length === 12 ? 'Todos os meses' :
-                         selectedMonths.length === 1 ? months[selectedMonths[0]] :
-                         `${selectedMonths.length} meses`}
+                        <PieChartIcon className="w-4 h-4 text-emerald-500" />
+                        {selectedCategories.length === 0 ? 'Todas categorias' : 
+                         selectedCategories.length === 1 ? selectedCategories[0] :
+                         `${selectedCategories.length} categorias`}
                       </button>
                       
-                      {isMonthDropdownOpen && (
+                      {isCategoryDropdownOpen && (
                         <>
-                          <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
                           <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
-                              <span className="text-xs font-bold text-slate-500 uppercase">Selecionar Meses</span>
+                              <span className="text-xs font-bold text-slate-500 uppercase">Filtrar Categorias</span>
                               <button 
                                 onClick={() => {
-                                  if (selectedMonths.length === 12) setSelectedMonths([]);
-                                  else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                                  if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
+                                  else setSelectedCategories([...allCategories]);
                                 }}
                                 className="text-[10px] font-bold text-emerald-400 hover:underline"
                               >
-                                {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                                {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
                               </button>
                             </div>
                             <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
-                              {months.map((month, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => {
-                                    setSelectedMonths(prev => 
-                                      prev.includes(index) 
-                                        ? prev.filter(m => m !== index) 
-                                        : [...prev, index].sort((a, b) => a - b)
-                                    );
-                                  }}
-                                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
-                                    selectedMonths.includes(index) 
-                                      ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
-                                      : 'text-slate-400 hover:bg-slate-700'
-                                  }`}
-                                >
-                                  {month}
-                                  {selectedMonths.includes(index) && <CheckCircle2 className="w-4 h-4" />}
-                                </button>
-                              ))}
+                              {allCategories.length > 0 ? (
+                                allCategories.map((cat, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => {
+                                      setSelectedCategories(prev => 
+                                        prev.includes(cat) 
+                                          ? prev.filter(c => c !== cat) 
+                                          : [...prev, cat].sort()
+                                      );
+                                    }}
+                                    className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
+                                      selectedCategories.includes(cat) 
+                                        ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
+                                        : 'text-slate-400 hover:bg-slate-700'
+                                    }`}
+                                  >
+                                    <span className="truncate">{cat}</span>
+                                    {selectedCategories.includes(cat) && <CheckCircle2 className="w-4 h-4 shrink-0" />}
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="p-4 text-center text-xs text-slate-500 italic">
+                                  Nenhuma categoria encontrada
+                                </div>
+                              )}
                             </div>
                           </div>
                         </>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm">
-                      {isCustomYear ? (
-                        <div className="flex items-center">
-                          <input 
-                            type="number"
-                            value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
-                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 w-20"
-                            autoFocus
-                            onBlur={() => setIsCustomYear(false)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') setIsCustomYear(false);
-                            }}
-                          />
+                    {isWelcomeVisible && (
+                      <motion.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="hidden lg:flex items-center gap-3 bg-slate-800 border border-slate-700 px-4 py-2 rounded-2xl shadow-sm relative group"
+                      >
+                        <span className="text-xl">👋</span>
+                        <p className="text-xs text-slate-300 font-medium leading-tight max-w-[180px]">
+                          {transactions.length > 0 
+                            ? 'Bem-vindo de volta ao seu controle financeiro.' 
+                            : 'Vamos começar a organizar suas finanças?'}
+                        </p>
+                        <div className="flex items-center gap-1">
                           <button 
-                            onClick={() => setIsCustomYear(false)}
-                            className="pr-2 text-slate-400 hover:text-slate-200"
+                            onClick={() => setIsWelcomeVisible(false)}
+                            className="p-1 text-slate-500 hover:text-emerald-400 transition-colors"
+                            title="Fechar por agora"
                           >
                             <X className="w-3 h-3" />
                           </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center">
-                          <select 
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 cursor-pointer"
-                          >
-                            <option value="-1">Todos os anos</option>
-                            {years.map((year) => (
-                              <option key={year} value={year}>{year}</option>
-                            ))}
-                            {selectedYear !== -1 && !years.includes(selectedYear) && (
-                              <option value={selectedYear}>{selectedYear}</option>
-                            )}
-                          </select>
                           <button 
-                            onClick={() => setIsCustomYear(true)}
-                            className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
-                            title="Personalizar ano"
+                            onClick={handlePermanentDismissWelcome}
+                            className="p-1 text-slate-500 hover:text-red-400 transition-colors"
+                            title="Remover definitivamente"
                           >
-                            <Calendar className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
-                      )}
-                    </div>
+                        {/* Tooltip arrow */}
+                        <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-slate-800 border-l border-b border-slate-700 rotate-45 hidden md:block"></div>
+                      </motion.div>
+                    )}
 
-                    {/* Status Filter */}
-                    <div className="flex items-center bg-slate-800 border border-slate-700 rounded-2xl p-1 shadow-sm">
-                      <button
-                        onClick={() => setStatusFilter('all')}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          statusFilter === 'all' 
-                            ? 'bg-emerald-600 text-white shadow-md' 
-                            : 'text-slate-400 hover:bg-slate-700'
+                    {monthlyGoal && annualGoalStats && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
+                          annualGoalStats.percent < 60 ? 'bg-red-900/20 border-red-900/30' : 
+                          annualGoalStats.percent < 90 ? 'bg-amber-900/20 border-amber-900/30' : 
+                          'bg-emerald-900/20 border-emerald-900/30'
                         }`}
                       >
-                        Todos
-                      </button>
-                      <button
-                        onClick={() => setStatusFilter('paid')}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          statusFilter === 'paid' 
-                            ? 'bg-emerald-600 text-white shadow-md' 
-                            : 'text-slate-400 hover:bg-slate-700'
-                        }`}
-                      >
-                        Pagos/Recebidos
-                      </button>
-                      <button
-                        onClick={() => setStatusFilter('pending')}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                          statusFilter === 'pending' 
-                            ? 'bg-emerald-600 text-white shadow-md' 
-                            : 'text-slate-400 hover:bg-slate-700'
-                        }`}
-                      >
-                        Pendentes
-                      </button>
-                    </div>
+                        <div className="relative flex items-center justify-center">
+                          <svg className="w-14 h-14 transform -rotate-90">
+                            <circle
+                              cx="28"
+                              cy="28"
+                              r="24"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="transparent"
+                              className="text-slate-200/30"
+                            />
+                            <circle
+                              cx="28"
+                              cy="28"
+                              r="24"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="transparent"
+                              strokeDasharray={150.8}
+                              strokeDashoffset={150.8 - (Math.min(annualGoalStats.realized / annualGoalStats.target, 1) * 150.8)}
+                              className={`transition-all duration-1000 ease-out ${
+                                annualGoalStats.percent < 60 ? 'text-red-500' : 
+                                annualGoalStats.percent < 90 ? 'text-amber-500' : 
+                                'text-emerald-500'
+                              }`}
+                            />
+                          </svg>
+                          <span className={`absolute text-[10px] font-black ${
+                            annualGoalStats.percent < 60 ? 'text-red-700' : 
+                            annualGoalStats.percent < 90 ? 'text-amber-700' : 
+                            'text-emerald-700'
+                          }`}>
+                            {annualGoalStats.percent}%
+                          </span>
+                        </div>
+                        
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5">
+                            <Target className={`w-3 h-3 ${
+                              annualGoalStats.percent < 60 ? 'text-red-600' : 
+                              annualGoalStats.percent < 90 ? 'text-amber-600' : 
+                              'text-emerald-600'
+                            }`} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta Anual</span>
+                          </div>
+                          <p className="text-sm font-black text-white leading-none mt-1">
+                            R$ {annualGoalStats.target.toLocaleString('pt-BR')}
+                          </p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-[10px] font-medium opacity-60 text-slate-400">Acumulado:</span>
+                            <span className="text-[10px] font-bold text-slate-300">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={handleDeleteGoal}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full shadow-md flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                          title="Remover meta definitivamente"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </motion.div>
+                    )}
                   </div>
                 </div>
 
-                {/* Financial Health Gauge next to header */}
-                <div className="w-full lg:w-80 shrink-0">
-                  <FinancialHealthGauge income={stats.income} expense={stats.expense} />
+                {/* Filters Row */}
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                      className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm px-4 py-2 text-sm font-bold text-white hover:bg-slate-700 transition-all"
+                    >
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      {selectedMonths.length === 0 ? 'Todos os meses' : 
+                       selectedMonths.length === 12 ? 'Todos os meses' :
+                       selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                       `${selectedMonths.length} meses`}
+                    </button>
+                    
+                    {isMonthDropdownOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
+                        <div className="absolute left-0 mt-2 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="p-2 border-b border-slate-700 mb-1 flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-500 uppercase">Selecionar Meses</span>
+                            <button 
+                              onClick={() => {
+                                if (selectedMonths.length === 12) setSelectedMonths([]);
+                                else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                              }}
+                              className="text-[10px] font-bold text-emerald-400 hover:underline"
+                            >
+                              {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
+                            {months.map((month, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  setSelectedMonths(prev => 
+                                    prev.includes(index) 
+                                      ? prev.filter(m => m !== index) 
+                                      : [...prev, index].sort((a, b) => a - b)
+                                  );
+                                }}
+                                className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
+                                  selectedMonths.includes(index) 
+                                    ? 'bg-emerald-400/10 text-emerald-400 font-bold' 
+                                    : 'text-slate-400 hover:bg-slate-700'
+                                }`}
+                              >
+                                {month}
+                                {selectedMonths.includes(index) && <CheckCircle2 className="w-4 h-4" />}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 bg-slate-800 p-1.5 rounded-2xl border border-slate-700 shadow-sm">
+                    {isCustomYear ? (
+                      <div className="flex items-center">
+                        <input 
+                          type="number"
+                          value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
+                          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                          className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 w-20"
+                          autoFocus
+                          onBlur={() => setIsCustomYear(false)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') setIsCustomYear(false);
+                          }}
+                        />
+                        <button 
+                          onClick={() => setIsCustomYear(false)}
+                          className="pr-2 text-slate-400 hover:text-slate-200"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <select 
+                          value={selectedYear}
+                          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                          className="bg-transparent border-none outline-none text-sm font-bold text-white px-4 py-1 cursor-pointer"
+                        >
+                          <option value="-1">Todos os anos</option>
+                          {years.map((year) => (
+                            <option key={year} value={year}>{year}</option>
+                          ))}
+                          {selectedYear !== -1 && !years.includes(selectedYear) && (
+                            <option value={selectedYear}>{selectedYear}</option>
+                          )}
+                        </select>
+                        <button 
+                          onClick={() => setIsCustomYear(true)}
+                          className="p-1 text-slate-400 hover:text-emerald-600 transition-colors"
+                          title="Personalizar ano"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="flex items-center bg-slate-800 border border-slate-700 rounded-2xl p-1 shadow-sm">
+                    <button
+                      onClick={() => setStatusFilter('all')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        statusFilter === 'all' 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'text-slate-400 hover:bg-slate-700'
+                      }`}
+                    >
+                      Todos
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('paid')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        statusFilter === 'paid' 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'text-slate-400 hover:bg-slate-700'
+                      }`}
+                    >
+                      Pagos/Recebidos
+                    </button>
+                    <button
+                      onClick={() => setStatusFilter('pending')}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        statusFilter === 'pending' 
+                          ? 'bg-emerald-600 text-white shadow-md' 
+                          : 'text-slate-400 hover:bg-slate-700'
+                      }`}
+                    >
+                      Pendentes
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              {/* Financial Health Gauge - Now Rectangular and Centralized */}
+              <FinancialHealthGauge income={stats.income} expense={stats.expense} />
 
               {/* Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
