@@ -1374,8 +1374,6 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Receita do mês" 
                   value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  trend={`${stats.incomeTrend >= 0 ? '+' : ''}${stats.incomeTrend.toFixed(1)}%`} 
-                  trendUp={stats.incomeTrend >= 0} 
                   icon={<TrendingUp className="text-emerald-600" />} 
                   bgColor="bg-emerald-50"
                   valueColor="text-emerald-600"
@@ -1386,8 +1384,6 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Despesas do mês" 
                   value={`R$ ${stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  trend={`${stats.expenseTrend >= 0 ? '+' : ''}${stats.expenseTrend.toFixed(1)}%`} 
-                  trendUp={stats.expenseTrend <= 0} 
                   icon={<TrendingDown className="text-red-600" />} 
                   bgColor="bg-red-50"
                   valueColor="text-red-600"
@@ -1398,8 +1394,6 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Economia" 
                   value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  trend={`${stats.balanceTrend >= 0 ? '+' : ''}${stats.balanceTrend.toFixed(1)}%`} 
-                  trendUp={stats.balanceTrend >= 0} 
                   icon={<Wallet className="text-blue-600" />} 
                   bgColor="bg-blue-50"
                   valueColor={stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}
@@ -1410,8 +1404,6 @@ Seu controle financeiro inteligente`.trim();
                 <StatCard 
                   title="Percentual gasto" 
                   value={`${stats.percentSpent}%`} 
-                  trend={`${stats.percentSpentTrend >= 0 ? '+' : ''}${stats.percentSpentTrend.toFixed(1)}%`} 
-                  trendUp={stats.percentSpentTrend <= 0} 
                   icon={<PieChartIcon className="text-amber-600" />} 
                   bgColor="bg-amber-50"
                   chartData={chartData}
@@ -2033,7 +2025,7 @@ Seu controle financeiro inteligente`.trim();
   );
 };
 
-const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
+const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
   <motion.div 
     whileHover={{ y: -5 }}
     className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow relative overflow-hidden transition-colors duration-300"
@@ -2042,10 +2034,6 @@ const StatCard = ({ title, value, trend, trendUp, icon, bgColor, valueColor, cha
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-2xl ${bgColor}`}>
           {icon}
-        </div>
-        <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-          {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-          {trend}
         </div>
       </div>
       <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
