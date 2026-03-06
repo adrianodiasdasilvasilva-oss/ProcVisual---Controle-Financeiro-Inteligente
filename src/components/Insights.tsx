@@ -9,6 +9,8 @@ import {
   DollarSign,
   Info,
   AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
   PieChart as PieChartIcon
 } from 'lucide-react';
 import { 
@@ -33,10 +35,11 @@ interface InsightsProps {
   transactions: any[];
   stats: any;
   categoryData: any[];
+  alerts: any[];
   onNavigate?: (tab: string, value?: number) => void;
 }
 
-export const Insights = ({ transactions, stats, categoryData, onNavigate }: InsightsProps) => {
+export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate }: InsightsProps) => {
   const [monthlySaving, setMonthlySaving] = React.useState('500');
   const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
 
@@ -142,7 +145,7 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
       </motion.div>
 
       {/* Financial Health Analysis */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <HealthCard 
           title="Reserva de Emergência"
           status={stats.balance > 0 ? 'good' : 'warning'}
@@ -161,6 +164,38 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
           message={stats.percentSpent < 70 ? 'Ótimo! Você tem margem para investir.' : 'Sua margem para investimentos está apertada.'}
           icon={<TrendingUp className="w-5 h-5" />}
         />
+        
+        {/* Alerts & Insights Card moved here */}
+        <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col min-h-[200px]">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-amber-50 rounded-lg">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-bold text-[#111827]">Alertas & Insights</h3>
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-hide">
+            {alerts.length > 0 ? (
+              alerts.map((alert, i) => (
+                <div key={i} className={`p-3 rounded-xl border flex gap-3 ${
+                  alert.type === 'warning' ? 'bg-amber-50 border-amber-100' : 'bg-emerald-50 border-emerald-100'
+                }`}>
+                  <div className={`shrink-0 mt-0.5 ${alert.type === 'warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    {alert.type === 'warning' ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[#111827] leading-tight">{alert.message}</p>
+                    <p className="text-[10px] text-[#6B7280] leading-tight mt-1">{alert.description}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-center opacity-50">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
+                <p className="text-xs font-medium">Tudo sob controle!</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

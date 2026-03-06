@@ -12,50 +12,6 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
   const healthPercent = income > 0 ? (surplus / income) * 100 : (surplus >= 0 ? 100 : -100);
   const score = Math.max(0, healthPercent);
 
-  if (compact) {
-    return (
-      <div className="bg-white p-2 rounded-xl border border-[#E5E7EB] shadow-sm flex items-center gap-3 h-full">
-        <div className="relative w-10 h-10 shrink-0">
-          <svg viewBox="0 0 40 40" className="w-full h-full transform -rotate-90">
-            <circle cx="20" cy="20" r="18" stroke="#f1f5f9" strokeWidth="3" fill="none" />
-            <circle 
-              cx="20" cy="20" r="18" 
-              stroke={score > 20 ? '#22C55E' : score > 0 ? '#F59E0B' : '#EF4444'} 
-              strokeWidth="3" fill="none" 
-              strokeDasharray={113} 
-              strokeDashoffset={113 - (Math.min(score, 100) / 100 * 113)} 
-              strokeLinecap="round" 
-            />
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-[8px] font-black">{score.toFixed(0)}%</span>
-        </div>
-        <div>
-          <p className="text-[9px] font-bold text-[#6B7280] uppercase leading-none">Saúde</p>
-          <p className="text-[10px] font-black text-[#111827] mt-0.5">{score > 20 ? 'Excelente' : score > 0 ? 'Boa' : 'Atenção'}</p>
-        </div>
-      </div>
-    );
-  }
-  
-  // Map healthPercent to rotation
-  // -20% (or less) -> 0 degrees (Red start)
-  // 0% -> 45 degrees
-  // 10% -> 90 degrees
-  // 20% -> 135 degrees
-  // 40% (or more) -> 180 degrees (Green end)
-  
-  const getRotation = (percent: number) => {
-    if (percent <= -20) return 0;
-    if (percent >= 40) return 180;
-    
-    // Simple linear mapping for demo, can be more precise
-    // We have 180 degrees total.
-    // Let's map -20 to 40 (range of 60) to 0 to 180
-    return ((percent + 20) / 60) * 180;
-  };
-
-  const rotation = getRotation(healthPercent);
-  
   const getStatusColor = (percent: number) => {
     if (percent < 0) return 'text-red-600';
     if (percent <= 10) return 'text-amber-500';
@@ -70,6 +26,35 @@ export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ inco
     return 'bg-emerald-600';
   };
 
+  const getRotation = (percent: number) => {
+    if (percent <= -20) return 0;
+    if (percent >= 40) return 180;
+    return ((percent + 20) / 60) * 180;
+  };
+
+  if (compact) {
+    return (
+      <div className="bg-white p-2 rounded-xl border border-[#E5E7EB] shadow-sm flex flex-col justify-center h-full">
+        <div className="flex items-center justify-between mb-1 px-1">
+          <p className="text-[9px] font-bold text-[#6B7280] uppercase leading-none">Saúde Financeira</p>
+          <span className={`text-[9px] font-black ${getStatusColor(healthPercent)}`}>{score.toFixed(0)}%</span>
+        </div>
+        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(score, 100)}%` }}
+            className={`h-full ${getStatusBg(healthPercent)}`}
+          />
+        </div>
+        <p className={`text-[8px] font-bold text-center mt-1 ${getStatusColor(healthPercent)}`}>
+          {score > 20 ? 'Excelente' : score > 0 ? 'Boa' : 'Atenção'}
+        </p>
+      </div>
+    );
+  }
+  
+  const rotation = getRotation(healthPercent);
+  
   return (
     <div className="bg-white p-8 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full transition-all duration-300">
       {/* Left Part: Gauge */}

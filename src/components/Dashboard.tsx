@@ -868,22 +868,6 @@ Seu controle financeiro inteligente`.trim();
             {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-[#F9FAFB]">ProcVisual</span>}
           </div>
 
-          <div className="px-4 mb-6 space-y-3">
-            <button 
-              onClick={() => setIsTransactionFormOpen(true)}
-              className={`w-full flex items-center justify-center gap-2 primary-button-gradient py-4 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95 ${!isSidebarOpen && 'px-0'}`}
-            >
-              <TrendingUp className="w-5 h-5" />
-              {isSidebarOpen && <span>Novo Lançamento</span>}
-            </button>
-            <button 
-              onClick={() => setActiveTab('Atualizar Lançamentos')}
-              className={`w-full flex items-center justify-center gap-2 secondary-button-gradient py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/10 active:scale-95 ${!isSidebarOpen && 'px-0'} ${activeTab === 'Atualizar Lançamentos' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0F172A]' : ''}`}
-            >
-              <CreditCard className="w-5 h-5" />
-              {isSidebarOpen && <span>Atualizar Lançamentos</span>}
-            </button>
-          </div>
 
           <nav className="flex-1 px-4 space-y-2">
             {menuItems.map((item, index) => (
@@ -941,24 +925,13 @@ Seu controle financeiro inteligente`.trim();
                 <TrendingUp className="w-5 h-5" />
                 Novo Lançamento
               </button>
-              <div className="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2 gap-2 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all border border-transparent focus-within:border-emerald-100">
-                <Search className="w-4 h-4 text-[#6B7280]" />
-                <input 
-                  type="text" 
-                  placeholder="Buscar lançamentos..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-sm w-40 text-[#111827] placeholder:text-[#9CA3AF]"
-                />
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery('')}
-                    className="p-0.5 hover:bg-slate-200 rounded-full transition-colors"
-                  >
-                    <X className="w-3 h-3 text-[#6B7280]" />
-                  </button>
-                )}
-              </div>
+              <button 
+                onClick={() => setActiveTab('Atualizar Lançamentos')}
+                className={`hidden sm:flex items-center gap-2 secondary-button-gradient px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/10 active:scale-95 ${activeTab === 'Atualizar Lançamentos' ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
+              >
+                <CreditCard className="w-5 h-5" />
+                Atualizar Lançamentos
+              </button>
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <button 
@@ -1277,8 +1250,8 @@ Seu controle financeiro inteligente`.trim();
                 />
               </div>
 
-              {/* Middle Row: Charts & Alerts */}
-              <div className="grid grid-cols-3 gap-3 flex-1 min-h-0">
+              {/* Middle Row: Charts */}
+              <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
                 {/* Income Pie Chart */}
                 <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
                   <h3 className="text-[11px] font-bold text-[#111827] mb-1">Receitas por categoria</h3>
@@ -1356,26 +1329,6 @@ Seu controle financeiro inteligente`.trim();
                     ))}
                   </div>
                 </div>
-
-                {/* Alerts Section */}
-                <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
-                  <h3 className="text-[11px] font-bold text-[#111827] mb-1">Alertas & Insights</h3>
-                  <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 scrollbar-hide">
-                    {alerts.map((alert, i) => (
-                      <div key={i} className={`p-1.5 rounded-xl border flex gap-1.5 ${
-                        alert.type === 'warning' ? 'bg-amber-50 border-amber-100' : 'bg-emerald-50 border-emerald-100'
-                      }`}>
-                        <div className={`shrink-0 mt-0.5 ${alert.type === 'warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                          {alert.type === 'warning' ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-bold text-[#111827] leading-tight">{alert.message}</p>
-                          <p className="text-[8px] text-[#6B7280] leading-tight mt-0.5">{alert.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Bottom Row: Bar Chart */}
@@ -1430,6 +1383,7 @@ Seu controle financeiro inteligente`.trim();
               transactions={transactions} 
               stats={stats} 
               categoryData={categoryData} 
+              alerts={alerts}
               onNavigate={async (tab, value) => {
                 setActiveTab(tab);
                 if (tab === 'Dashboard' && value !== undefined) {
