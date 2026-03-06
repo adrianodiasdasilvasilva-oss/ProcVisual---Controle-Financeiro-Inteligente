@@ -1029,14 +1029,12 @@ Seu controle financeiro inteligente`.trim();
             </div>
           ) : activeTab === 'Dashboard' ? (
             <div className="h-full flex flex-col space-y-3 min-h-0">
-              {/* Title Section */}
-              <div className="text-center shrink-0">
-                <h2 className="text-xl font-bold text-[#111827]">Painel Financeiro</h2>
-              </div>
+              {/* Header Section: Title & Filters */}
+              <div className="flex flex-wrap items-center justify-start gap-8 shrink-0 px-2">
+                <h2 className="text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
 
-              {/* Filters Section */}
-              <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
-                <div className="relative">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="relative">
                   <button 
                     onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
                     className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-50 transition-all"
@@ -1211,6 +1209,7 @@ Seu controle financeiro inteligente`.trim();
                   <span className={`text-[10px] font-bold transition-colors ${statusFilter === 'paid' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Pagos</span>
                 </div>
               </div>
+            </div>
 
               {/* Stats Row */}
               <div className="grid grid-cols-5 gap-3 shrink-0">
@@ -1253,19 +1252,36 @@ Seu controle financeiro inteligente`.trim();
               {/* Middle Row: Charts */}
               <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
                 {/* Income Pie Chart */}
-                <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
-                  <h3 className="text-[11px] font-bold text-[#111827] mb-1">Receitas por categoria</h3>
-                  <div className="flex-1 min-h-0">
+                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
+                  <h3 className="text-[12px] font-black text-[#111827] mb-1 uppercase tracking-tight">Receitas por categoria</h3>
+                  <div className="flex-1 min-h-0 relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={incomeCategoryData}
                           cx="50%"
                           cy="50%"
-                          innerRadius="55%"
-                          outerRadius="75%"
-                          paddingAngle={4}
+                          innerRadius="35%"
+                          outerRadius="98%"
+                          paddingAngle={1}
                           dataKey="value"
+                          stroke="none"
+                          labelLine={false}
+                          label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                            const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
+                            const RADIAN = Math.PI / 180;
+                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                            return (
+                              <text 
+                                x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
+                                className="text-[11px] font-black"
+                                style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
+                              >
+                                {`${(percent * 100).toFixed(0)}%`}
+                              </text>
+                            );
+                          }}
                         >
                           {incomeCategoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -1273,38 +1289,53 @@ Seu controle financeiro inteligente`.trim();
                         </Pie>
                         <Tooltip 
                           formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                          contentStyle={{ fontSize: '9px', padding: '4px' }}
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-1 space-y-0.5 overflow-y-auto max-h-20 scrollbar-hide">
+                  {/* Compact Legend at bottom */}
+                  <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 overflow-y-auto max-h-16 scrollbar-hide border-t border-slate-50 pt-2">
                     {incomeCategoryData.map((cat, i) => (
-                      <div key={i} className="flex items-center justify-between text-[9px]">
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                          <span className="text-slate-600 truncate max-w-[70px]">{cat.name}</span>
-                        </div>
-                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR')}</span>
+                      <div key={i} className="flex items-center gap-1 text-[9px]">
+                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }}></div>
+                        <span className="text-slate-700 font-bold uppercase truncate max-w-[80px]">{cat.name}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Expense Pie Chart */}
-                <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
-                  <h3 className="text-[11px] font-bold text-[#111827] mb-1">Gastos por categoria</h3>
-                  <div className="flex-1 min-h-0">
+                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
+                  <h3 className="text-[12px] font-black text-[#111827] mb-1 uppercase tracking-tight">Gastos por categoria</h3>
+                  <div className="flex-1 min-h-0 relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={categoryData}
                           cx="50%"
                           cy="50%"
-                          innerRadius="55%"
-                          outerRadius="75%"
-                          paddingAngle={4}
+                          innerRadius="35%"
+                          outerRadius="98%"
+                          paddingAngle={1}
                           dataKey="value"
+                          stroke="none"
+                          labelLine={false}
+                          label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                            const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
+                            const RADIAN = Math.PI / 180;
+                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                            return (
+                              <text 
+                                x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
+                                className="text-[11px] font-black"
+                                style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
+                              >
+                                {`${(percent * 100).toFixed(0)}%`}
+                              </text>
+                            );
+                          }}
                         >
                           {categoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -1312,19 +1343,17 @@ Seu controle financeiro inteligente`.trim();
                         </Pie>
                         <Tooltip 
                           formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                          contentStyle={{ fontSize: '9px', padding: '4px' }}
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-1 space-y-0.5 overflow-y-auto max-h-20 scrollbar-hide">
+                  {/* Compact Legend at bottom */}
+                  <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 overflow-y-auto max-h-16 scrollbar-hide border-t border-slate-50 pt-2">
                     {categoryData.map((cat, i) => (
-                      <div key={i} className="flex items-center justify-between text-[9px]">
-                        <div className="flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                          <span className="text-slate-600 truncate max-w-[70px]">{cat.name}</span>
-                        </div>
-                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR')}</span>
+                      <div key={i} className="flex items-center gap-1 text-[9px]">
+                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }}></div>
+                        <span className="text-slate-700 font-bold uppercase truncate max-w-[80px]">{cat.name}</span>
                       </div>
                     ))}
                   </div>
