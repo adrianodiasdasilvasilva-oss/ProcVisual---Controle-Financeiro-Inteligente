@@ -48,3 +48,8 @@
   background: linear-gradient(90deg, #22C55E, #16A34A);
   @apply text-white hover:bg-[#15803D] transition-all;
 }
+
+.secondary-button-gradient {
+  background: linear-gradient(90deg, #3B82F6, #2563EB);
+  @apply text-white hover:bg-[#1D4ED8] transition-all;
+}

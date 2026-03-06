@@ -4,11 +4,38 @@ import { motion } from 'motion/react';
 interface FinancialHealthGaugeProps {
   income: number;
   expense: number;
+  compact?: boolean;
 }
 
-export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ income, expense }) => {
+export const FinancialHealthGauge: React.FC<FinancialHealthGaugeProps> = ({ income, expense, compact = false }) => {
   const surplus = income - expense;
   const healthPercent = income > 0 ? (surplus / income) * 100 : (surplus >= 0 ? 100 : -100);
+  const score = Math.max(0, healthPercent);
+
+  if (compact) {
+    return (
+      <div className="bg-white p-2 rounded-xl border border-[#E5E7EB] shadow-sm flex items-center gap-3 h-full">
+        <div className="relative w-10 h-10 shrink-0">
+          <svg viewBox="0 0 40 40" className="w-full h-full transform -rotate-90">
+            <circle cx="20" cy="20" r="18" stroke="#f1f5f9" strokeWidth="3" fill="none" />
+            <circle 
+              cx="20" cy="20" r="18" 
+              stroke={score > 20 ? '#22C55E' : score > 0 ? '#F59E0B' : '#EF4444'} 
+              strokeWidth="3" fill="none" 
+              strokeDasharray={113} 
+              strokeDashoffset={113 - (Math.min(score, 100) / 100 * 113)} 
+              strokeLinecap="round" 
+            />
+          </svg>
+          <span className="absolute inset-0 flex items-center justify-center text-[8px] font-black">{score.toFixed(0)}%</span>
+        </div>
+        <div>
+          <p className="text-[9px] font-bold text-[#6B7280] uppercase leading-none">Saúde</p>
+          <p className="text-[10px] font-black text-[#111827] mt-0.5">{score > 20 ? 'Excelente' : score > 0 ? 'Boa' : 'Atenção'}</p>
+        </div>
+      </div>
+    );
+  }
   
   // Map healthPercent to rotation
   // -20% (or less) -> 0 degrees (Red start)

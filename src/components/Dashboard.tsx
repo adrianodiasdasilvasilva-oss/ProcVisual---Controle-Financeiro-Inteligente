@@ -846,14 +846,13 @@ Seu controle financeiro inteligente`.trim();
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
-    { icon: <CreditCard className="w-5 h-5" />, label: 'Atualizar Lançamentos' },
     { icon: <PieChartIcon className="w-5 h-5" />, label: 'Análises' },
     { icon: <Settings className="w-5 h-5" />, label: 'Configurações' },
     { icon: <LifeBuoy className="w-5 h-5" />, label: 'Suporte' },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-[#F8FAFC] flex transition-colors duration-300">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-[#0F172A] border-r border-[#1E293B] transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
@@ -869,13 +868,20 @@ Seu controle financeiro inteligente`.trim();
             {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-[#F9FAFB]">ProcVisual</span>}
           </div>
 
-          <div className="px-4 mb-6">
+          <div className="px-4 mb-6 space-y-3">
             <button 
               onClick={() => setIsTransactionFormOpen(true)}
               className={`w-full flex items-center justify-center gap-2 primary-button-gradient py-4 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95 ${!isSidebarOpen && 'px-0'}`}
             >
               <TrendingUp className="w-5 h-5" />
               {isSidebarOpen && <span>Novo Lançamento</span>}
+            </button>
+            <button 
+              onClick={() => setActiveTab('Atualizar Lançamentos')}
+              className={`w-full flex items-center justify-center gap-2 secondary-button-gradient py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/10 active:scale-95 ${!isSidebarOpen && 'px-0'} ${activeTab === 'Atualizar Lançamentos' ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0F172A]' : ''}`}
+            >
+              <CreditCard className="w-5 h-5" />
+              {isSidebarOpen && <span>Atualizar Lançamentos</span>}
             </button>
           </div>
 
@@ -911,10 +917,10 @@ Seu controle financeiro inteligente`.trim();
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 bg-[#F8FAFC] transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <main className={`flex-1 h-screen flex flex-col bg-[#F8FAFC] transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {/* Topbar */}
-        <header className="bg-white border-b border-[#E5E7EB] sticky top-0 z-40">
-          <div className="px-8 h-20 flex items-center justify-between">
+        <header className="bg-white border-b border-[#E5E7EB] shrink-0">
+          <div className="px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -1042,596 +1048,352 @@ Seu controle financeiro inteligente`.trim();
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
+        <div className="flex-1 overflow-hidden p-4">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-[60vh]">
+            <div className="flex flex-col items-center justify-center h-full">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
               <p className="text-slate-500 font-medium">Carregando seus dados...</p>
             </div>
           ) : activeTab === 'Dashboard' ? (
-            <div className="space-y-8">
-              {/* Header & Filters Section */}
-              <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <h2 className="text-2xl font-bold text-[#111827]">Visão Geral</h2>
-                    
-                    <div className="relative">
-                      <button 
-                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                        className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm px-4 py-2 text-sm font-bold text-[#111827] hover:bg-slate-50 transition-all"
-                      >
-                        <PieChartIcon className="w-4 h-4 text-emerald-500" />
-                        {selectedCategories.length === 0 ? 'Todas categorias' : 
-                         selectedCategories.length === 1 ? selectedCategories[0] :
-                         `${selectedCategories.length} categorias`}
-                      </button>
-                      
-                      {isCategoryDropdownOpen && (
-                        <>
-                          <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
-                          <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
-                              <span className="text-xs font-bold text-[#6B7280] uppercase">Filtrar Categorias</span>
-                              <button 
-                                onClick={() => {
-                                  if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
-                                  else setSelectedCategories([...allCategories]);
-                                }}
-                                className="text-[10px] font-bold text-emerald-600 hover:underline"
-                              >
-                                {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
-                              </button>
-                            </div>
-                            <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
-                              {allCategories.length > 0 ? (
-                                allCategories.map((cat, index) => (
-                                  <button
-                                    key={index}
-                                    onClick={() => {
-                                      setSelectedCategories(prev => 
-                                        prev.includes(cat) 
-                                          ? prev.filter(c => c !== cat) 
-                                          : [...prev, cat].sort()
-                                      );
-                                    }}
-                                    className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all text-left ${
-                                      selectedCategories.includes(cat) 
-                                        ? 'bg-emerald-50 text-emerald-600 font-bold' 
-                                        : 'text-[#6B7280] hover:bg-slate-50'
-                                    }`}
-                                  >
-                                    <span className="truncate">{cat}</span>
-                                    {selectedCategories.includes(cat) && <CheckCircle2 className="w-4 h-4 shrink-0" />}
-                                  </button>
-                                ))
-                              ) : (
-                                <div className="p-4 text-center text-xs text-[#6B7280] italic">
-                                  Nenhuma categoria encontrada
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
+            <div className="h-full flex flex-col space-y-3 min-h-0">
+              {/* Title Section */}
+              <div className="text-center shrink-0">
+                <h2 className="text-xl font-bold text-[#111827]">Painel Financeiro</h2>
+              </div>
 
-                    {isWelcomeVisible && (
-                      <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="hidden lg:flex items-center gap-3 bg-white border border-[#E5E7EB] px-4 py-2 rounded-2xl shadow-sm relative group"
-                      >
-                        <span className="text-xl">👋</span>
-                        <p className="text-xs text-[#6B7280] font-medium leading-tight max-w-[180px]">
-                          {transactions.length > 0 
-                            ? 'Bem-vindo de volta ao seu controle financeiro.' 
-                            : 'Vamos começar a organizar suas finanças?'}
-                        </p>
-                        <div className="flex items-center gap-1">
+              {/* Filters Section */}
+              <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                    className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-50 transition-all"
+                  >
+                    <PieChartIcon className="w-3 h-3 text-emerald-500" />
+                    {selectedCategories.length === 0 ? 'Todas categorias' : 
+                     selectedCategories.length === 1 ? selectedCategories[0] :
+                     `${selectedCategories.length} categorias`}
+                  </button>
+                  
+                  {isCategoryDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
+                      <div className="absolute left-0 mt-1 w-56 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-[#6B7280] uppercase">Filtrar Categorias</span>
                           <button 
-                            onClick={() => setIsWelcomeVisible(false)}
-                            className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
-                            title="Fechar por agora"
+                            onClick={() => {
+                              if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
+                              else setSelectedCategories([...allCategories]);
+                            }}
+                            className="text-[9px] font-bold text-emerald-600 hover:underline"
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                          <button 
-                            onClick={handlePermanentDismissWelcome}
-                            className="p-1 text-[#6B7280] hover:text-red-600 transition-colors"
-                            title="Remover definitivamente"
-                          >
-                            <Trash2 className="w-3 h-3" />
+                            {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
                           </button>
                         </div>
-                        {/* Tooltip arrow */}
-                        <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white border-l border-b border-[#E5E7EB] rotate-45 hidden md:block"></div>
-                      </motion.div>
-                    )}
-
-                    {monthlyGoal && annualGoalStats && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className={`flex items-center gap-4 px-5 py-3 rounded-3xl border shadow-lg relative group ${
-                          annualGoalStats.percent < 60 ? 'bg-red-50 border-red-100' : 
-                          annualGoalStats.percent < 90 ? 'bg-amber-50 border-amber-100' : 
-                          'bg-emerald-50 border-emerald-100'
-                        }`}
-                      >
-                        <div className="relative flex items-center justify-center">
-                          <svg className="w-14 h-14 transform -rotate-90">
-                            <circle
-                              cx="28"
-                              cy="28"
-                              r="24"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                              fill="transparent"
-                              className="text-slate-200"
-                            />
-                            <circle
-                              cx="28"
-                              cy="28"
-                              r="24"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                              fill="transparent"
-                              strokeDasharray={150.8}
-                              strokeDashoffset={150.8 - (Math.min(annualGoalStats.realized / annualGoalStats.target, 1) * 150.8)}
-                              className={`transition-all duration-1000 ease-out ${
-                                annualGoalStats.percent < 60 ? 'text-red-500' : 
-                                annualGoalStats.percent < 90 ? 'text-amber-500' : 
-                                'text-emerald-500'
-                              }`}
-                            />
-                          </svg>
-                          <span className={`absolute text-[10px] font-black ${
-                            annualGoalStats.percent < 60 ? 'text-red-700' : 
-                            annualGoalStats.percent < 90 ? 'text-amber-700' : 
-                            'text-emerald-700'
-                          }`}>
-                            {annualGoalStats.percent}%
-                          </span>
-                        </div>
-                        
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-1.5">
-                            <Target className={`w-3 h-3 ${
-                              annualGoalStats.percent < 60 ? 'text-red-600' : 
-                              annualGoalStats.percent < 90 ? 'text-amber-600' : 
-                              'text-emerald-600'
-                            }`} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Meta Anual</span>
-                          </div>
-                          <p className="text-sm font-black text-[#111827] leading-none mt-1">
-                            R$ {annualGoalStats.target.toLocaleString('pt-BR')}
-                          </p>
-                          <div className="flex items-center gap-1 mt-1">
-                            <span className="text-[10px] font-medium opacity-60 text-[#6B7280]">Acumulado:</span>
-                            <span className="text-[10px] font-bold text-[#111827]">R$ {annualGoalStats.realized.toLocaleString('pt-BR')}</span>
-                          </div>
-                        </div>
-
-                        <button 
-                          onClick={handleDeleteGoal}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-[#E5E7EB] rounded-full shadow-md flex items-center justify-center text-[#6B7280] hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                          title="Remover meta definitivamente"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Filters Row */}
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="relative">
-                    <button 
-                      onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
-                      className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm px-4 py-2 text-sm font-bold text-[#111827] hover:bg-slate-50 transition-all"
-                    >
-                      <Calendar className="w-4 h-4 text-[#6B7280]" />
-                      {selectedMonths.length === 0 ? 'Todos os meses' : 
-                       selectedMonths.length === 12 ? 'Todos os meses' :
-                       selectedMonths.length === 1 ? months[selectedMonths[0]] :
-                       `${selectedMonths.length} meses`}
-                    </button>
-                    
-                    {isMonthDropdownOpen && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
-                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
-                            <span className="text-xs font-bold text-[#6B7280] uppercase">Selecionar Meses</span>
-                            <button 
-                              onClick={() => {
-                                if (selectedMonths.length === 12) setSelectedMonths([]);
-                                else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
-                              }}
-                              className="text-[10px] font-bold text-emerald-600 hover:underline"
-                            >
-                              {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
-                            {months.map((month, index) => (
+                        <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto p-1">
+                          {allCategories.length > 0 ? (
+                            allCategories.map((cat, index) => (
                               <button
                                 key={index}
                                 onClick={() => {
-                                  setSelectedMonths(prev => 
-                                    prev.includes(index) 
-                                      ? prev.filter(m => m !== index) 
-                                      : [...prev, index].sort((a, b) => a - b)
+                                  setSelectedCategories(prev => 
+                                    prev.includes(cat) 
+                                      ? prev.filter(c => c !== cat) 
+                                      : [...prev, cat].sort()
                                   );
                                 }}
-                                className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
-                                  selectedMonths.includes(index) 
+                                className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-all text-left ${
+                                  selectedCategories.includes(cat) 
                                     ? 'bg-emerald-50 text-emerald-600 font-bold' 
                                     : 'text-[#6B7280] hover:bg-slate-50'
                                 }`}
                               >
-                                {month}
-                                {selectedMonths.includes(index) && <CheckCircle2 className="w-4 h-4" />}
+                                <span className="truncate">{cat}</span>
+                                {selectedCategories.includes(cat) && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
                               </button>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm">
-                    {isCustomYear ? (
-                      <div className="flex items-center">
-                        <input 
-                          type="number"
-                          value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
-                          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                          className="bg-transparent border-none outline-none text-sm font-bold text-[#111827] px-4 py-1 w-20"
-                          autoFocus
-                          onBlur={() => setIsCustomYear(false)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') setIsCustomYear(false);
-                          }}
-                        />
-                        <button 
-                          onClick={() => setIsCustomYear(false)}
-                          className="pr-2 text-[#6B7280] hover:text-[#111827]"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <select 
-                          value={selectedYear}
-                          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                          className="bg-transparent border-none outline-none text-sm font-bold text-[#111827] px-4 py-1 cursor-pointer"
-                        >
-                          <option value="-1">Todos os anos</option>
-                          {years.map((year) => (
-                            <option key={year} value={year}>{year}</option>
-                          ))}
-                          {selectedYear !== -1 && !years.includes(selectedYear) && (
-                            <option value={selectedYear}>{selectedYear}</option>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-[10px] text-[#6B7280] italic">
+                              Nenhuma categoria encontrada
+                            </div>
                           )}
-                        </select>
-                        <button 
-                          onClick={() => setIsCustomYear(true)}
-                          className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
-                          title="Personalizar ano"
-                        >
-                          <Calendar className="w-4 h-4" />
-                        </button>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    </>
+                  )}
+                </div>
 
-                  {/* Status Filter - Replaced with Toggle as per screenshot */}
-                  <div className="flex items-center gap-3 bg-white border border-[#E5E7EB] px-4 py-2 rounded-2xl shadow-sm">
-                    <span className={`text-xs font-bold transition-colors ${statusFilter === 'all' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Todos</span>
-                    <button
-                      onClick={() => setStatusFilter(statusFilter === 'paid' ? 'all' : 'paid')}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                        statusFilter === 'paid' ? 'bg-[#22C55E]' : 'bg-slate-200'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          statusFilter === 'paid' ? 'translate-x-6' : 'translate-x-1'
-                        }`}
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm">
+                  {isCustomYear ? (
+                    <div className="flex items-center">
+                      <input 
+                        type="number"
+                        value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
+                        onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                        className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-2 py-0.5 w-16"
+                        autoFocus
+                        onBlur={() => setIsCustomYear(false)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') setIsCustomYear(false);
+                        }}
                       />
-                    </button>
-                    <span className={`text-xs font-bold transition-colors ${statusFilter === 'paid' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Pagos/Recebidos</span>
-                  </div>
+                      <button 
+                        onClick={() => setIsCustomYear(false)}
+                        className="pr-1 text-[#6B7280] hover:text-[#111827]"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <select 
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                        className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-3 py-0.5 cursor-pointer"
+                      >
+                        <option value="-1">Todos os anos</option>
+                        {years.map((year) => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                      <button 
+                        onClick={() => setIsCustomYear(true)}
+                        className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
+                      >
+                        <Calendar className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                    className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-50 transition-all"
+                  >
+                    <Calendar className="w-3 h-3 text-[#6B7280]" />
+                    {selectedMonths.length === 0 ? 'Todos os meses' : 
+                     selectedMonths.length === 12 ? 'Todos os meses' :
+                     selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                     `${selectedMonths.length} meses`}
+                  </button>
+                  
+                  {isMonthDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
+                      <div className="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-[#6B7280] uppercase">Selecionar Meses</span>
+                          <button 
+                            onClick={() => {
+                              if (selectedMonths.length === 12) setSelectedMonths([]);
+                              else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                            }}
+                            className="text-[9px] font-bold text-emerald-600 hover:underline"
+                          >
+                            {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto p-1">
+                          {months.map((month, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                setSelectedMonths(prev => 
+                                  prev.includes(index) 
+                                    ? prev.filter(m => m !== index) 
+                                    : [...prev, index].sort((a, b) => a - b)
+                                );
+                              }}
+                              className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-all ${
+                                selectedMonths.includes(index) 
+                                  ? 'bg-emerald-50 text-emerald-600 font-bold' 
+                                  : 'text-[#6B7280] hover:bg-slate-50'
+                              }`}
+                            >
+                              {month}
+                              {selectedMonths.includes(index) && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 bg-white border border-[#E5E7EB] px-3 py-1 rounded-xl shadow-sm">
+                  <span className={`text-[10px] font-bold transition-colors ${statusFilter === 'all' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Todos</span>
+                  <button
+                    onClick={() => setStatusFilter(statusFilter === 'paid' ? 'all' : 'paid')}
+                    className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors focus:outline-none ${
+                      statusFilter === 'paid' ? 'bg-[#22C55E]' : 'bg-slate-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-2.5 w-2.5 transform rounded-full bg-white transition-transform ${
+                        statusFilter === 'paid' ? 'translate-x-4.5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-[10px] font-bold transition-colors ${statusFilter === 'paid' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Pagos</span>
                 </div>
               </div>
 
-              {/* Financial Health Gauge - Now Rectangular and Centralized */}
-              <FinancialHealthGauge income={stats.income} expense={stats.expense} />
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Stats Row */}
+              <div className="grid grid-cols-5 gap-3 shrink-0">
+                <div className="col-span-1">
+                  <FinancialHealthGauge income={stats.income} expense={stats.expense} compact />
+                </div>
                 <StatCard 
-                  title="Receita do mês" 
+                  title="Receita" 
                   value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  icon={<TrendingUp className="text-emerald-600" />} 
+                  icon={<TrendingUp className="text-emerald-600 w-3.5 h-3.5" />} 
                   bgColor="bg-emerald-50"
                   valueColor="text-emerald-600"
-                  chartData={chartData}
-                  dataKey="receita"
-                  strokeColor="#10b981"
+                  compact
                 />
                 <StatCard 
-                  title="Despesas do mês" 
+                  title="Despesa" 
                   value={`R$ ${stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  icon={<TrendingDown className="text-red-600" />} 
+                  icon={<TrendingDown className="text-red-600 w-3.5 h-3.5" />} 
                   bgColor="bg-red-50"
                   valueColor="text-red-600"
-                  chartData={chartData}
-                  dataKey="despesa"
-                  strokeColor="#ef4444"
+                  compact
                 />
                 <StatCard 
                   title="Economia" 
                   value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  icon={<Wallet className="text-blue-600" />} 
+                  icon={<Wallet className="text-blue-600 w-3.5 h-3.5" />} 
                   bgColor="bg-blue-50"
                   valueColor={stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}
-                  chartData={chartData}
-                  dataKey="saldo"
-                  strokeColor="#3b82f6"
+                  compact
                 />
                 <StatCard 
-                  title="Percentual gasto" 
+                  title="% Gasto" 
                   value={`${stats.percentSpent}%`} 
-                  icon={<PieChartIcon className="text-amber-600" />} 
+                  icon={<PieChartIcon className="text-amber-600 w-3.5 h-3.5" />} 
                   bgColor="bg-amber-50"
-                  chartData={chartData}
-                  dataKey="despesa"
-                  strokeColor="#f59e0b"
+                  compact
                 />
               </div>
 
-              {/* Status Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col transition-colors duration-300">
-                  <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-wider mb-4">Status de Receitas</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Recebido</p>
-                      <p className="text-xl font-black text-[#22C55E]">R$ {stats.paidIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Pendente</p>
-                      <p className="text-xl font-black text-[#EF4444]">R$ {stats.pendingIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    </div>
-                  </div>
-                  <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                    <div 
-                      className="h-full bg-emerald-500 transition-all duration-500" 
-                      style={{ width: `${stats.income > 0 ? (stats.paidIncome / stats.income) * 100 : 0}%` }}
-                    />
-                  </div>
-
-                  {pendingStatsByMonth.income.length > 0 && (
-                    <>
-                      <div className="my-6 border-t border-slate-100 border-dashed"></div>
-                      <div className="flex-1">
-                        <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-3">Pendências por Mês</p>
-                        <div className="h-32">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={pendingStatsByMonth.income}>
-                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={5} />
-                              <Tooltip 
-                                cursor={{ fill: '#f8fafc' }}
-                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px', color: '#000' }}
-                                itemStyle={{ color: '#000' }}
-                                formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
-                              />
-                              <Bar dataKey="pending" fill="#22C55E" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow flex flex-col transition-colors duration-300">
-                  <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-wider mb-4">Status de Despesas</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Pago</p>
-                      <p className="text-xl font-black text-[#22C55E]">R$ {stats.paidExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-[#6B7280] font-bold uppercase mb-1">Pendente</p>
-                      <p className="text-xl font-black text-[#EF4444]">R$ {stats.pendingExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    </div>
-                  </div>
-                  <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                    <div 
-                      className="h-full bg-emerald-500 transition-all duration-500" 
-                      style={{ width: `${stats.expense > 0 ? (stats.paidExpense / stats.expense) * 100 : 0}%` }}
-                    />
-                  </div>
-
-                  {pendingStatsByMonth.expense.length > 0 && (
-                    <>
-                      <div className="my-6 border-t border-slate-100 border-dashed"></div>
-                      <div className="flex-1">
-                        <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-3">Pendências por Mês</p>
-                        <div className="h-32">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={pendingStatsByMonth.expense}>
-                              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={5} />
-                              <Tooltip 
-                                cursor={{ fill: '#f8fafc' }}
-                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', fontSize: '10px', color: '#000' }}
-                                itemStyle={{ color: '#000' }}
-                                formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Pendente']}
-                              />
-                              <Bar dataKey="pending" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Charts Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Middle Row: Charts & Alerts */}
+              <div className="grid grid-cols-3 gap-3 flex-1 min-h-0">
                 {/* Income Pie Chart */}
-                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 mb-6">Receitas por categoria</h3>
-                  <div className="h-64">
+                <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
+                  <h3 className="text-[11px] font-bold text-[#111827] mb-1">Receitas por categoria</h3>
+                  <div className="flex-1 min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={incomeCategoryData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
+                          innerRadius="55%"
+                          outerRadius="75%"
+                          paddingAngle={4}
                           dataKey="value"
-                          label={({ percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''}
-                          labelLine={false}
                         >
                           {incomeCategoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value: number) => {
-                            const percentage = stats.income > 0 ? (value / stats.income) * 100 : 0;
-                            return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentage.toFixed(1)}%)`, 'Receita'];
-                          }}
-                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
-                          itemStyle={{ color: '#000' }}
+                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
+                          contentStyle={{ fontSize: '9px', padding: '4px' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-4 space-y-2 max-h-40 overflow-y-auto pr-2">
-                    {incomeCategoryData.map((cat, i) => {
-                      const percentage = stats.income > 0 ? (cat.value / stats.income) * 100 : 0;
-                      return (
-                        <div key={i} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                            <span className="text-slate-600">{cat.name}</span>
-                          </div>
-                          <div className="text-right">
-                            <span className="font-bold text-slate-900 block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                            <span className="text-[10px] text-slate-400 font-bold">{percentage.toFixed(1)}%</span>
-                          </div>
+                  <div className="mt-1 space-y-0.5 overflow-y-auto max-h-20 scrollbar-hide">
+                    {incomeCategoryData.map((cat, i) => (
+                      <div key={i} className="flex items-center justify-between text-[9px]">
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                          <span className="text-slate-600 truncate max-w-[70px]">{cat.name}</span>
                         </div>
-                      );
-                    })}
-                    {incomeCategoryData.length === 0 && (
-                      <p className="text-center text-slate-400 text-sm italic py-4">Nenhuma receita no período</p>
-                    )}
+                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR')}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 {/* Expense Pie Chart */}
-                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-[#111827] mb-6">Gastos por categoria</h3>
-                  <div className="h-64">
+                <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
+                  <h3 className="text-[11px] font-bold text-[#111827] mb-1">Gastos por categoria</h3>
+                  <div className="flex-1 min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={categoryData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
+                          innerRadius="55%"
+                          outerRadius="75%"
+                          paddingAngle={4}
                           dataKey="value"
-                          label={({ percent }) => percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''}
-                          labelLine={false}
                         >
                           {categoryData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
                         <Tooltip 
-                          formatter={(value: number) => {
-                            const percentage = stats.expense > 0 ? (value / stats.expense) * 100 : 0;
-                            return [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${percentage.toFixed(1)}%)`, 'Gasto'];
-                          }}
-                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
-                          itemStyle={{ color: '#000' }}
+                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
+                          contentStyle={{ fontSize: '9px', padding: '4px' }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-4 space-y-2 max-h-40 overflow-y-auto pr-2">
-                    {categoryData.map((cat, i) => {
-                      const percentage = stats.expense > 0 ? (cat.value / stats.expense) * 100 : 0;
-                      return (
-                        <div key={i} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }}></div>
-                            <span className="text-[#6B7280]">{cat.name}</span>
-                          </div>
-                          <div className="text-right">
-                            <span className="font-bold text-[#111827] block">R$ {cat.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                            <span className="text-[10px] text-[#6B7280] font-bold">{percentage.toFixed(1)}%</span>
-                          </div>
+                  <div className="mt-1 space-y-0.5 overflow-y-auto max-h-20 scrollbar-hide">
+                    {categoryData.map((cat, i) => (
+                      <div key={i} className="flex items-center justify-between text-[9px]">
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                          <span className="text-slate-600 truncate max-w-[70px]">{cat.name}</span>
                         </div>
-                      );
-                    })}
-                    {categoryData.length === 0 && (
-                      <p className="text-center text-[#6B7280] text-sm italic py-4">Nenhum gasto no período</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Bar Chart */}
-                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow">
-                  <h3 className="text-lg font-bold text-[#111827] mb-6">
-                    Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
-                  </h3>
-                  <div className="h-80">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                        <Tooltip 
-                          cursor={{ fill: '#f8fafc' }}
-                          contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                        />
-                        <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px' }} />
-                        <Bar dataKey="receita" name="Receita" fill="#22C55E" radius={[4, 4, 0, 0]} barSize={10} />
-                        <Bar dataKey="despesa" name="Despesa" fill="#EF4444" radius={[4, 4, 0, 0]} barSize={10} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                        <span className="font-bold text-slate-900">R$ {cat.value.toLocaleString('pt-BR')}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 {/* Alerts Section */}
-                <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
-                  <h3 className="text-lg font-bold text-[#111827] mb-6">Alertas e Insights</h3>
-                  <div className="space-y-4">
+                <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
+                  <h3 className="text-[11px] font-bold text-[#111827] mb-1">Alertas & Insights</h3>
+                  <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 scrollbar-hide">
                     {alerts.map((alert, i) => (
-                      <AlertItem 
-                        key={i}
-                        type={alert.type} 
-                        message={alert.message} 
-                        description={alert.description}
-                      />
+                      <div key={i} className={`p-1.5 rounded-xl border flex gap-1.5 ${
+                        alert.type === 'warning' ? 'bg-amber-50 border-amber-100' : 'bg-emerald-50 border-emerald-100'
+                      }`}>
+                        <div className={`shrink-0 mt-0.5 ${alert.type === 'warning' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                          {alert.type === 'warning' ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                        </div>
+                        <div>
+                          <p className="text-[9px] font-bold text-[#111827] leading-tight">{alert.message}</p>
+                          <p className="text-[8px] text-[#6B7280] leading-tight mt-0.5">{alert.description}</p>
+                        </div>
+                      </div>
                     ))}
                   </div>
-                  <button className="w-full mt-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
-                    Ver todos os alertas
-                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Row: Bar Chart */}
+              <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow shrink-0 h-36">
+                <h3 className="text-[11px] font-bold text-[#111827] mb-1">
+                  Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
+                </h3>
+                <div className="h-24">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 7 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 7 }} />
+                      <Tooltip contentStyle={{ fontSize: '9px', padding: '4px' }} />
+                      <Bar dataKey="receita" fill="#22C55E" radius={[2, 2, 0, 0]} barSize={6} />
+                      <Bar dataKey="despesa" fill="#EF4444" radius={[2, 2, 0, 0]} barSize={6} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
@@ -1902,11 +1664,24 @@ Seu controle financeiro inteligente`.trim();
   );
 };
 
-const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey, strokeColor }: any) => (
-  <motion.div 
-    whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow relative overflow-hidden transition-colors duration-300"
-  >
+const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey, strokeColor, compact = false }: any) => {
+  if (compact) {
+    return (
+      <div className={`p-2 rounded-xl border border-[#E5E7EB] shadow-sm flex items-center gap-2 h-full ${bgColor}`}>
+        <div className="shrink-0">{icon}</div>
+        <div>
+          <p className="text-[9px] font-bold text-[#6B7280] uppercase leading-none">{title}</p>
+          <p className={`text-[11px] font-black ${valueColor || 'text-[#111827]'} mt-0.5`}>{value}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <motion.div 
+      whileHover={{ y: -5 }}
+      className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow relative overflow-hidden transition-colors duration-300"
+    >
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-2xl ${bgColor}`}>
@@ -1940,8 +1715,9 @@ const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey,
         </ResponsiveContainer>
       </div>
     )}
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 const AlertItem = ({ type, message, description }: any) => {
   const styles = {
