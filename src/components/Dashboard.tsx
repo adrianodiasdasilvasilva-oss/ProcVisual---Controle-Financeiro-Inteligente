@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   LifeBuoy,
   Mail,
+  CreditCard,
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -42,6 +43,7 @@ import {
   Legend 
 } from 'recharts';
 import { motion } from 'motion/react';
+import { PaymentControl } from './PaymentControl';
 import { 
   collection, 
   addDoc, 
@@ -844,6 +846,7 @@ Seu controle financeiro inteligente`.trim();
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
+    { icon: <CreditCard className="w-5 h-5" />, label: 'Atualizar Lançamentos' },
     { icon: <PieChartIcon className="w-5 h-5" />, label: 'Análises' },
     { icon: <Settings className="w-5 h-5" />, label: 'Configurações' },
     { icon: <LifeBuoy className="w-5 h-5" />, label: 'Suporte' },
@@ -1326,38 +1329,22 @@ Seu controle financeiro inteligente`.trim();
                     )}
                   </div>
 
-                  {/* Status Filter */}
-                  <div className="flex items-center bg-white border border-[#E5E7EB] rounded-2xl p-1 shadow-sm">
+                  {/* Status Filter - Replaced with Toggle as per screenshot */}
+                  <div className="flex items-center gap-3 bg-white border border-[#E5E7EB] px-4 py-2 rounded-2xl shadow-sm">
+                    <span className={`text-xs font-bold transition-colors ${statusFilter === 'all' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Todos</span>
                     <button
-                      onClick={() => setStatusFilter('all')}
-                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        statusFilter === 'all' 
-                          ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-[#6B7280] hover:bg-slate-50'
+                      onClick={() => setStatusFilter(statusFilter === 'paid' ? 'all' : 'paid')}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                        statusFilter === 'paid' ? 'bg-[#22C55E]' : 'bg-slate-200'
                       }`}
                     >
-                      Todos
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          statusFilter === 'paid' ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
                     </button>
-                    <button
-                      onClick={() => setStatusFilter('paid')}
-                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        statusFilter === 'paid' 
-                          ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-[#6B7280] hover:bg-slate-50'
-                      }`}
-                    >
-                      Pagos/Recebidos
-                    </button>
-                    <button
-                      onClick={() => setStatusFilter('pending')}
-                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        statusFilter === 'pending' 
-                          ? 'bg-emerald-600 text-white shadow-md' 
-                          : 'text-[#6B7280] hover:bg-slate-50'
-                      }`}
-                    >
-                      Pendentes
-                    </button>
+                    <span className={`text-xs font-bold transition-colors ${statusFilter === 'paid' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Pagos/Recebidos</span>
                   </div>
                 </div>
               </div>
@@ -1646,124 +1633,18 @@ Seu controle financeiro inteligente`.trim();
                     Ver todos os alertas
                   </button>
                 </div>
-
-                {/* Recent Transactions Section */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                      <h3 className="text-lg font-bold text-[#111827]">Lançamentos Recentes</h3>
-                      {selectedTransactions.length > 0 && (
-                        <motion.button
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          onClick={handleBulkDelete}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 transition-all"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Excluir ({selectedTransactions.length})
-                        </motion.button>
-                      )}
-                    </div>
-                    <button 
-                      onClick={() => setShowAllTransactions(!showAllTransactions)}
-                      className="text-sm font-bold text-[#22C55E] hover:underline"
-                    >
-                      {showAllTransactions ? 'Ver menos' : 'Ver todos'}
-                    </button>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
-                          <th className="pb-4 px-4 w-10">
-                            <input 
-                              type="checkbox" 
-                              className="w-4 h-4 rounded border-slate-300 bg-white text-[#22C55E] focus:ring-emerald-500"
-                              checked={(() => {
-                                const limit = showAllTransactions ? filteredTransactions.length : 5;
-                                const ids = filteredTransactions.slice(0, limit).map(t => t.id).filter((id): id is string => !!id);
-                                return ids.length > 0 && ids.every(id => selectedTransactions.includes(id));
-                              })()}
-                              onChange={() => {
-                                const limit = showAllTransactions ? filteredTransactions.length : 5;
-                                const ids = filteredTransactions.slice(0, limit).map(t => t.id).filter((id): id is string => !!id);
-                                toggleSelectAll(ids);
-                              }}
-                            />
-                          </th>
-                          <th className="pb-4 px-4">Data</th>
-                          <th className="pb-4 px-4">Descrição</th>
-                          <th className="pb-4 px-4">Categoria</th>
-                          <th className="pb-4 px-4 text-right">Valor</th>
-                          <th className="pb-4 px-4 text-center">Pago/Recebido</th>
-                          <th className="pb-4 px-4 text-right">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50">
-                        {filteredTransactions.length > 0 ? (
-                          (showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, 5)).map((t, i) => (
-                            <tr key={i} className={`group hover:bg-slate-50 transition-colors ${t.id && selectedTransactions.includes(t.id) ? 'bg-slate-50' : ''}`}>
-                              <td className="py-4 px-4">
-                                <input 
-                                  type="checkbox" 
-                                  className="w-4 h-4 rounded border-slate-300 bg-white text-[#22C55E] focus:ring-emerald-500"
-                                  checked={!!t.id && selectedTransactions.includes(t.id)}
-                                  onChange={() => t.id && toggleSelectTransaction(t.id)}
-                                />
-                              </td>
-                              <td className="py-4 px-4 text-sm text-[#6B7280]">
-                                {parseDate(t.date).toLocaleDateString('pt-BR')}
-                              </td>
-                              <td className="py-4 px-4">
-                                <span className="text-sm font-bold text-[#111827]">{t.description}</span>
-                              </td>
-                              <td className="py-4 px-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-[#6B7280]">
-                                  {t.category}
-                                </span>
-                              </td>
-                              <td className={`py-4 px-4 text-right font-bold ${t.type === 'income' ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
-                                {t.type === 'income' ? '+' : '-'} R$ {parseFloat(t.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-4 px-4 text-center">
-                                <button 
-                                  onClick={() => handleTogglePaid(t)}
-                                  title={t.paid ? "Marcar como pendente" : "Marcar como pago"}
-                                  className={`p-2 rounded-lg transition-all ${
-                                    t.paid 
-                                      ? 'text-[#22C55E] bg-emerald-50 hover:bg-emerald-100' 
-                                      : 'text-slate-300 hover:text-[#22C55E] hover:bg-emerald-50'
-                                  }`}
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                </button>
-                              </td>
-                              <td className="py-4 px-4 text-right">
-                                <div className="flex items-center justify-end gap-1">
-                                  <button 
-                                    onClick={() => handleDeleteTransaction(t)}
-                                    className="p-2 text-[#6B7280] hover:text-[#EF4444] hover:bg-red-50 rounded-lg transition-all"
-                                    title="Excluir lançamento"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={6} className="py-8 text-center text-[#6B7280] text-sm italic">
-                              Nenhum lançamento encontrado para este período.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
               </div>
             </div>
+          ) : activeTab === 'Atualizar Lançamentos' ? (
+            <PaymentControl 
+              transactions={filteredTransactions}
+              onDelete={handleDeleteTransaction}
+              onTogglePaid={handleTogglePaid}
+              onBulkDelete={handleBulkDelete}
+              selectedTransactions={selectedTransactions}
+              toggleSelectTransaction={toggleSelectTransaction}
+              toggleSelectAll={toggleSelectAll}
+            />
           ) : activeTab === 'Receitas' ? (
             <IncomeView 
               transactions={transactions} 

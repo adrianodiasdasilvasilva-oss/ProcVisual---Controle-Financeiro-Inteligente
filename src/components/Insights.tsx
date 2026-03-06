@@ -28,7 +28,6 @@ import {
   Pie
 } from 'recharts';
 import { motion } from 'motion/react';
-import { FinancialHealthGauge } from './FinancialHealthGauge';
 
 interface InsightsProps {
   transactions: any[];
@@ -143,30 +142,25 @@ export const Insights = ({ transactions, stats, categoryData, onNavigate }: Insi
       </motion.div>
 
       {/* Financial Health Analysis */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-1">
-          <FinancialHealthGauge income={stats.income} expense={stats.expense} />
-        </div>
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <HealthCard 
-            title="Reserva de Emergência"
-            status={stats.balance > 0 ? 'good' : 'warning'}
-            message={stats.balance > 0 ? 'Você está no caminho certo para construir sua reserva.' : 'Tente reduzir gastos supérfluos para começar sua reserva.'}
-            icon={<DollarSign className="w-5 h-5" />}
-          />
-          <HealthCard 
-            title="Diversificação"
-            status={categoryData.length > 3 ? 'good' : 'info'}
-            message={categoryData.length > 3 ? 'Seus gastos estão bem distribuídos.' : 'Você tem poucos registros de categorias diferentes.'}
-            icon={<PieChartIcon className="w-5 h-5" />}
-          />
-          <HealthCard 
-            title="Poder de Investimento"
-            status={stats.percentSpent < 70 ? 'good' : 'warning'}
-            message={stats.percentSpent < 70 ? 'Ótimo! Você tem margem para investir.' : 'Sua margem para investimentos está apertada.'}
-            icon={<TrendingUp className="w-5 h-5" />}
-          />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <HealthCard 
+          title="Reserva de Emergência"
+          status={stats.balance > 0 ? 'good' : 'warning'}
+          message={stats.balance > 0 ? 'Você está no caminho certo para construir sua reserva.' : 'Tente reduzir gastos supérfluos para começar sua reserva.'}
+          icon={<DollarSign className="w-5 h-5" />}
+        />
+        <HealthCard 
+          title="Diversificação"
+          status={categoryData.length > 3 ? 'good' : 'info'}
+          message={categoryData.length > 3 ? 'Seus gastos estão bem distribuídos.' : 'Você tem poucos registros de categorias diferentes.'}
+          icon={<PieChartIcon className="w-5 h-5" />}
+        />
+        <HealthCard 
+          title="Poder de Investimento"
+          status={stats.percentSpent < 70 ? 'good' : 'warning'}
+          message={stats.percentSpent < 70 ? 'Ótimo! Você tem margem para investir.' : 'Sua margem para investimentos está apertada.'}
+          icon={<TrendingUp className="w-5 h-5" />}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
