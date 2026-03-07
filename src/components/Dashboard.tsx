@@ -131,6 +131,8 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [selectedTransactions, setSelectedTransactions] = React.useState<string[]>([]);
   const [statusFilter, setStatusFilter] = React.useState<'all' | 'paid' | 'pending'>('all');
   const [userPhone, setUserPhone] = React.useState('');
+  const [isSavingPhone, setIsSavingPhone] = React.useState(false);
+  const [phoneUpdateSuccess, setPhoneUpdateSuccess] = React.useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [isUploading, setIsUploading] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
@@ -343,6 +345,20 @@ Seu controle financeiro inteligente`.trim();
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
+
+  const handleSavePhone = async () => {
+    if (!auth.currentUser) return;
+    setIsSavingPhone(true);
+    try {
+      await setDoc(doc(db, 'users', auth.currentUser.uid), { phone: userPhone }, { merge: true });
+      setPhoneUpdateSuccess(true);
+      setTimeout(() => setPhoneUpdateSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error saving phone:', error);
+    } finally {
+      setIsSavingPhone(false);
+    }
+  };
 
   const handleSaveTransaction = async (data: any) => {
     const numInstallments = parseInt(data.installments) || 1;
@@ -693,11 +709,16 @@ Seu controle financeiro inteligente`.trim();
       groups[t.category] = (groups[t.category] || 0) + parseFloat(t.amount);
     });
 
-    return Object.entries(groups).map(([name, value], index) => ({
-      name,
-      value,
-      color: COLORS[index % COLORS.length]
-    }));
+    return Object.entries(groups)
+      .map(([name, value]) => ({
+        name,
+        value
+      }))
+      .sort((a, b) => b.value - a.value)
+      .map((item, index) => ({
+        ...item,
+        color: COLORS[index % COLORS.length]
+      }));
   }, [filteredTransactions]);
 
   const incomeCategoryData = React.useMemo(() => {
@@ -1360,20 +1381,61 @@ Seu controle financeiro inteligente`.trim();
 
                       <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Número do WhatsApp</label>
-                        <div className="relative">
-                          <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-                          <input 
-                            type="tel" 
-                            value={userPhone}
-                            onChange={(e) => setUserPhone(e.target.value)}
-                            onBlur={async () => {
-                              if (!auth.currentUser) return;
-                              await setDoc(doc(db, 'users', auth.currentUser.uid), { phone: userPhone }, { merge: true });
-                            }}
-                            placeholder="(00) 00000-0000"
-                            className="w-full pl-11 pr-5 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm"
-                          />
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                            <input 
+                              type="tel" 
+                              value={userPhone}
+                              onChange={(e) => {
+                                let val = e.target.value.replace(/\D/g, '');
+                                if (val.length > 11) val = val.slice(0, 11);
+                                if (val.length > 10) {
+                                  val = val.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+                                } else if (val.length > 5) {
+                                  val = val.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+                                } else if (val.length > 2) {
+                                  val = val.replace(/^(\d{2})(\d{0,5}).*/, '($1) $2');
+                                } else if (val.length > 0) {
+                                  val = val.replace(/^(\d{0,2}).*/, '($1');
+                                }
+                                setUserPhone(val);
+                              }}
+                              placeholder="(00) 00000-0000"
+                              className="w-full pl-11 pr-5 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-slate-900 font-bold text-sm"
+                            />
+                          </div>
+                          <button
+                            onClick={handleSavePhone}
+                            disabled={isSavingPhone}
+                            className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all flex items-center gap-2 shadow-sm active:scale-95 ${
+                              phoneUpdateSuccess 
+                                ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' 
+                                : 'bg-[#22C55E] text-white hover:bg-[#16A34A]'
+                            }`}
+                          >
+                            {isSavingPhone ? (
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            ) : phoneUpdateSuccess ? (
+                              <>
+                                <CheckCircle2 className="w-4 h-4" />
+                                Salvo
+                              </>
+                            ) : (
+                              'Atualizar'
+                            )}
+                          </button>
                         </div>
+                        {phoneUpdateSuccess && (
+                          <motion.p 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-[10px] text-emerald-600 font-bold mt-2 ml-1 flex items-center gap-1"
+                          >
+                            <CheckCircle2 className="w-3 h-3" />
+                            Número atualizado! Você começará a receber notificações neste novo número.
+                          </motion.p>
+                        )}
                         <p className="text-[10px] text-slate-400 mt-2 ml-1">O número deve incluir o DDD. Ex: (11) 99999-9999</p>
                       </div>
                     </div>
