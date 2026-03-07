@@ -839,7 +839,7 @@ Seu controle financeiro inteligente`.trim();
       });
     }
 
-    return list.filter(a => !dismissedAlerts.includes(a.message)).slice(0, 3); // Show top 3 non-dismissed alerts
+    return list.filter(a => !dismissedAlerts.includes(a.message)).slice(0, 3);
   }, [transactions, stats, categoryData, dismissedAlerts]);
 
   const menuItems = [
@@ -867,7 +867,6 @@ Seu controle financeiro inteligente`.trim();
             </div>
             {isSidebarOpen && <span className="text-xl font-bold tracking-tight text-[#F9FAFB]">ProcVisual</span>}
           </div>
-
 
           <nav className="flex-1 px-4 space-y-2">
             {menuItems.map((item, index) => (
@@ -917,93 +916,11 @@ Seu controle financeiro inteligente`.trim();
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
-              <button 
-                onClick={() => setIsTransactionFormOpen(true)}
-                className="hidden sm:flex items-center gap-2 primary-button-gradient px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/10 active:scale-95"
-              >
-                <TrendingUp className="w-5 h-5" />
-                Novo Lançamento
-              </button>
-              <button 
-                onClick={() => setActiveTab('Atualizar Lançamentos')}
-                className={`hidden sm:flex items-center gap-2 secondary-button-gradient px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-500/10 active:scale-95 ${activeTab === 'Atualizar Lançamentos' ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
-              >
-                <CreditCard className="w-5 h-5" />
-                Atualizar Lançamentos
-              </button>
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="relative">
-                  <button 
-                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className={`relative p-2 text-[#6B7280] hover:bg-slate-100 rounded-full transition-all ${isNotificationsOpen ? 'bg-slate-100 text-emerald-600' : ''}`}
-                  >
-                    <Bell className="w-5 h-5" />
-                    {alerts.length > 0 && (
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    )}
-                  </button>
-
-                {isNotificationsOpen && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setIsNotificationsOpen(false)}
-                    ></div>
-                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-4 border-b border-[#E5E7EB] bg-slate-50 flex items-center justify-between">
-                        <h3 className="font-bold text-[#111827]">Notificações</h3>
-                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                          {alerts.length} novas
-                        </span>
-                      </div>
-                      <div className="max-h-[400px] overflow-y-auto p-2 space-y-1">
-                        {alerts.length > 0 ? (
-                          alerts.map((alert, i) => (
-                            <div 
-                              key={i} 
-                              className="p-3 rounded-xl hover:bg-slate-50 transition-colors flex gap-3 cursor-pointer group"
-                            >
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                                alert.type === 'success' ? 'bg-emerald-50 text-emerald-600' : 
-                                alert.type === 'warning' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
-                              }`}>
-                                {alert.type === 'success' ? <Target className="w-5 h-5" /> : 
-                                 alert.type === 'warning' ? <AlertTriangle className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
-                              </div>
-                              <div>
-                                <p className="text-sm font-bold text-[#111827] group-hover:text-emerald-600 transition-colors">{alert.message}</p>
-                                <p className="text-xs text-[#6B7280] leading-tight mt-0.5">{alert.description}</p>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="py-8 text-center">
-                            <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                            <p className="text-sm text-slate-400">Nenhuma notificação por aqui.</p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-3 bg-slate-50 border-t border-[#E5E7EB] text-center">
-                        <button 
-                          onClick={() => {
-                            const allAlertMessages = alerts.map(a => a.message);
-                            setDismissedAlerts(prev => [...new Set([...prev, ...allAlertMessages])]);
-                          }}
-                          className="text-xs font-bold text-[#6B7280] hover:text-emerald-600 transition-colors"
-                        >
-                          Marcar todas como lidas
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-                </div>
-              </div>
-              <div className="flex items-center gap-3 pl-6 border-l border-[#E5E7EB]">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-[#6B7280]">Saldo atual</p>
-                  <p className={`text-lg font-bold ${stats.balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+                  <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Saldo atual</p>
+                  <p className={`text-sm font-bold ${stats.balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -1028,352 +945,369 @@ Seu controle financeiro inteligente`.trim();
               <p className="text-slate-500 font-medium">Carregando seus dados...</p>
             </div>
           ) : activeTab === 'Dashboard' ? (
-            <div className="h-full flex flex-col space-y-3 min-h-0">
-              {/* Header Section: Title & Filters */}
-              <div className="flex flex-wrap items-center justify-start gap-8 shrink-0 px-2">
-                <h2 className="text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="relative">
-                  <button 
-                    onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                    className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-50 transition-all"
-                  >
-                    <PieChartIcon className="w-3 h-3 text-emerald-500" />
-                    {selectedCategories.length === 0 ? 'Todas categorias' : 
-                     selectedCategories.length === 1 ? selectedCategories[0] :
-                     `${selectedCategories.length} categorias`}
-                  </button>
+            <div className="h-full flex flex-col space-y-4 min-h-0">
+              {/* Header Section: Title, Filters & Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-4 shrink-0 bg-white p-3 rounded-2xl border border-[#E5E7EB] shadow-sm">
+                <div className="flex items-center gap-6">
+                  <h2 className="text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
                   
-                  {isCategoryDropdownOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
-                      <div className="absolute left-0 mt-1 w-56 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-[#6B7280] uppercase">Filtrar Categorias</span>
-                          <button 
-                            onClick={() => {
-                              if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
-                              else setSelectedCategories([...allCategories]);
-                            }}
-                            className="text-[9px] font-bold text-emerald-600 hover:underline"
-                          >
-                            {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto p-1">
-                          {allCategories.length > 0 ? (
-                            allCategories.map((cat, index) => (
-                              <button
-                                key={index}
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <button 
+                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                        className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-100 transition-all"
+                      >
+                        <PieChartIcon className="w-3 h-3 text-emerald-500" />
+                        {selectedCategories.length === 0 ? 'Todas categorias' : 
+                         selectedCategories.length === 1 ? selectedCategories[0] :
+                         `${selectedCategories.length} categorias`}
+                      </button>
+                      
+                      {isCategoryDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsCategoryDropdownOpen(false)}></div>
+                          <div className="absolute left-0 mt-1 w-56 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-[#6B7280] uppercase">Filtrar Categorias</span>
+                              <button 
                                 onClick={() => {
-                                  setSelectedCategories(prev => 
-                                    prev.includes(cat) 
-                                      ? prev.filter(c => c !== cat) 
-                                      : [...prev, cat].sort()
-                                  );
+                                  if (selectedCategories.length === allCategories.length) setSelectedCategories([]);
+                                  else setSelectedCategories([...allCategories]);
                                 }}
-                                className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-all text-left ${
-                                  selectedCategories.includes(cat) 
-                                    ? 'bg-emerald-50 text-emerald-600 font-bold' 
-                                    : 'text-[#6B7280] hover:bg-slate-50'
-                                }`}
+                                className="text-[9px] font-bold text-emerald-600 hover:underline"
                               >
-                                <span className="truncate">{cat}</span>
-                                {selectedCategories.includes(cat) && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                                {selectedCategories.length === allCategories.length ? 'Limpar' : 'Todas'}
                               </button>
-                            ))
-                          ) : (
-                            <div className="p-4 text-center text-[10px] text-[#6B7280] italic">
-                              Nenhuma categoria encontrada
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm">
-                  {isCustomYear ? (
-                    <div className="flex items-center">
-                      <input 
-                        type="number"
-                        value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
-                        onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                        className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-2 py-0.5 w-16"
-                        autoFocus
-                        onBlur={() => setIsCustomYear(false)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') setIsCustomYear(false);
-                        }}
-                      />
-                      <button 
-                        onClick={() => setIsCustomYear(false)}
-                        className="pr-1 text-[#6B7280] hover:text-[#111827]"
-                      >
-                        <X className="w-2.5 h-2.5" />
-                      </button>
+                            <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto p-1">
+                              {allCategories.length > 0 ? (
+                                allCategories.map((cat, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => {
+                                      setSelectedCategories(prev => 
+                                        prev.includes(cat) 
+                                          ? prev.filter(c => c !== cat) 
+                                          : [...prev, cat].sort()
+                                      );
+                                    }}
+                                    className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-all text-left ${
+                                      selectedCategories.includes(cat) 
+                                        ? 'bg-emerald-50 text-emerald-600 font-bold' 
+                                        : 'text-[#6B7280] hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    <span className="truncate">{cat}</span>
+                                    {selectedCategories.includes(cat) && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="p-4 text-center text-[10px] text-[#6B7280] italic">
+                                  Nenhuma categoria encontrada
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    <div className="flex items-center">
-                      <select 
-                        value={selectedYear}
-                        onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                        className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-3 py-0.5 cursor-pointer"
-                      >
-                        <option value="-1">Todos os anos</option>
-                        {years.map((year) => (
-                          <option key={year} value={year}>{year}</option>
-                        ))}
-                      </select>
-                      <button 
-                        onClick={() => setIsCustomYear(true)}
-                        className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
-                      >
-                        <Calendar className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-                </div>
 
-                <div className="relative">
-                  <button 
-                    onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
-                    className="flex items-center gap-2 bg-white p-1 rounded-xl border border-[#E5E7EB] shadow-sm px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-50 transition-all"
-                  >
-                    <Calendar className="w-3 h-3 text-[#6B7280]" />
-                    {selectedMonths.length === 0 ? 'Todos os meses' : 
-                     selectedMonths.length === 12 ? 'Todos os meses' :
-                     selectedMonths.length === 1 ? months[selectedMonths[0]] :
-                     `${selectedMonths.length} meses`}
-                  </button>
-                  
-                  {isMonthDropdownOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
-                      <div className="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-[#6B7280] uppercase">Selecionar Meses</span>
-                          <button 
-                            onClick={() => {
-                              if (selectedMonths.length === 12) setSelectedMonths([]);
-                              else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                    <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB]">
+                      {isCustomYear ? (
+                        <div className="flex items-center">
+                          <input 
+                            type="number"
+                            value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
+                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                            className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-2 py-0.5 w-16"
+                            autoFocus
+                            onBlur={() => setIsCustomYear(false)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') setIsCustomYear(false);
                             }}
-                            className="text-[9px] font-bold text-emerald-600 hover:underline"
+                          />
+                          <button 
+                            onClick={() => setIsCustomYear(false)}
+                            className="pr-1 text-[#6B7280] hover:text-[#111827]"
                           >
-                            {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                            <X className="w-2.5 h-2.5" />
                           </button>
                         </div>
-                        <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto p-1">
-                          {months.map((month, index) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                setSelectedMonths(prev => 
-                                  prev.includes(index) 
-                                    ? prev.filter(m => m !== index) 
-                                    : [...prev, index].sort((a, b) => a - b)
-                                );
-                              }}
-                              className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-all ${
-                                selectedMonths.includes(index) 
-                                  ? 'bg-emerald-50 text-emerald-600 font-bold' 
-                                  : 'text-[#6B7280] hover:bg-slate-50'
-                              }`}
-                            >
-                              {month}
-                              {selectedMonths.includes(index) && <CheckCircle2 className="w-3.5 h-3.5" />}
-                            </button>
-                          ))}
+                      ) : (
+                        <div className="flex items-center">
+                          <select 
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                            className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-3 py-0.5 cursor-pointer"
+                          >
+                            <option value="-1">Todos os anos</option>
+                            {years.map((year) => (
+                              <option key={year} value={year}>{year}</option>
+                            ))}
+                          </select>
+                          <button 
+                            onClick={() => setIsCustomYear(true)}
+                            className="p-1 text-[#6B7280] hover:text-emerald-600 transition-colors"
+                          >
+                            <Calendar className="w-3 h-3" />
+                          </button>
                         </div>
-                      </div>
-                    </>
-                  )}
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <button 
+                        onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                        className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-100 transition-all"
+                      >
+                        <Calendar className="w-3 h-3 text-[#6B7280]" />
+                        {selectedMonths.length === 0 ? 'Todos os meses' : 
+                         selectedMonths.length === 12 ? 'Todos os meses' :
+                         selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                         `${selectedMonths.length} meses`}
+                      </button>
+                      
+                      {isMonthDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
+                          <div className="absolute left-0 mt-1 w-48 bg-white rounded-xl shadow-2xl border border-[#E5E7EB] z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="p-2 border-b border-[#E5E7EB] mb-1 flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-[#6B7280] uppercase">Selecionar Meses</span>
+                              <button 
+                                onClick={() => {
+                                  if (selectedMonths.length === 12) setSelectedMonths([]);
+                                  else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                                }}
+                                className="text-[9px] font-bold text-emerald-600 hover:underline"
+                              >
+                                {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 gap-1 max-h-48 overflow-y-auto p-1">
+                              {months.map((month, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    setSelectedMonths(prev => 
+                                      prev.includes(index) 
+                                        ? prev.filter(m => m !== index) 
+                                        : [...prev, index].sort((a, b) => a - b)
+                                    );
+                                  }}
+                                  className={`flex items-center justify-between px-2 py-1.5 rounded-lg text-xs transition-all ${
+                                    selectedMonths.includes(index) 
+                                      ? 'bg-emerald-50 text-emerald-600 font-bold' 
+                                      : 'text-[#6B7280] hover:bg-slate-50'
+                                  }`}
+                                >
+                                  {month}
+                                  {selectedMonths.includes(index) && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-white border border-[#E5E7EB] px-3 py-1 rounded-xl shadow-sm">
-                  <span className={`text-[10px] font-bold transition-colors ${statusFilter === 'all' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Todos</span>
-                  <button
-                    onClick={() => setStatusFilter(statusFilter === 'paid' ? 'all' : 'paid')}
-                    className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors focus:outline-none ${
-                      statusFilter === 'paid' ? 'bg-[#22C55E]' : 'bg-slate-200'
-                    }`}
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setIsTransactionFormOpen(true)}
+                    className="flex items-center gap-2 bg-[#22C55E] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#16A34A] transition-all shadow-sm active:scale-95"
                   >
-                    <span
-                      className={`inline-block h-2.5 w-2.5 transform rounded-full bg-white transition-transform ${
-                        statusFilter === 'paid' ? 'translate-x-4.5' : 'translate-x-1'
-                      }`}
-                    />
+                    <TrendingUp className="w-4 h-4" />
+                    Novo Lançamento
                   </button>
-                  <span className={`text-[10px] font-bold transition-colors ${statusFilter === 'paid' ? 'text-[#111827]' : 'text-[#6B7280]'}`}>Pagos</span>
+                  <button 
+                    onClick={() => setActiveTab('Atualizar Lançamentos')}
+                    className="flex items-center gap-2 bg-[#3B82F6] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#2563EB] transition-all shadow-sm active:scale-95"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    Atualizar Lançamentos
+                  </button>
                 </div>
               </div>
-            </div>
 
               {/* Stats Row */}
-              <div className="grid grid-cols-5 gap-3 shrink-0">
-                <div className="col-span-1">
-                  <FinancialHealthGauge income={stats.income} expense={stats.expense} compact />
-                </div>
+              <div className="grid grid-cols-4 gap-4 shrink-0">
                 <StatCard 
                   title="Receita" 
-                  value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  icon={<TrendingUp className="text-emerald-600 w-3.5 h-3.5" />} 
+                  value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} 
+                  icon={<TrendingUp className="text-emerald-600 w-5 h-5" />} 
                   bgColor="bg-emerald-50"
                   valueColor="text-emerald-600"
-                  compact
                 />
                 <StatCard 
                   title="Despesa" 
-                  value={`R$ ${stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  icon={<TrendingDown className="text-red-600 w-3.5 h-3.5" />} 
+                  value={`R$ ${stats.expense.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} 
+                  icon={<TrendingDown className="text-red-600 w-5 h-5" />} 
                   bgColor="bg-red-50"
                   valueColor="text-red-600"
-                  compact
                 />
                 <StatCard 
                   title="Economia" 
-                  value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
-                  icon={<Wallet className="text-blue-600 w-3.5 h-3.5" />} 
+                  value={`R$ ${stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} 
+                  icon={<Wallet className="text-blue-600 w-5 h-5" />} 
                   bgColor="bg-blue-50"
-                  valueColor={stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}
-                  compact
+                  valueColor={stats.balance >= 0 ? 'text-blue-600' : 'text-red-600'}
                 />
                 <StatCard 
                   title="% Gasto" 
                   value={`${stats.percentSpent}%`} 
-                  icon={<PieChartIcon className="text-amber-600 w-3.5 h-3.5" />} 
+                  icon={<AlertTriangle className="text-amber-600 w-5 h-5" />} 
                   bgColor="bg-amber-50"
-                  compact
+                  valueColor="text-amber-600"
                 />
               </div>
 
               {/* Middle Row: Charts */}
-              <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
+              <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
                 {/* Income Pie Chart */}
-                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
-                  <h3 className="text-[12px] font-black text-[#111827] mb-1 uppercase tracking-tight">Receitas por categoria</h3>
-                  <div className="flex-1 min-h-0 relative">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={incomeCategoryData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius="35%"
-                          outerRadius="98%"
-                          paddingAngle={1}
-                          dataKey="value"
-                          stroke="none"
-                          labelLine={false}
-                          label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                            const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
-                            const RADIAN = Math.PI / 180;
-                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                            return (
-                              <text 
-                                x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
-                                className="text-[11px] font-black"
-                                style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
-                              >
-                                {`${(percent * 100).toFixed(0)}%`}
-                              </text>
-                            );
-                          }}
-                        >
-                          {incomeCategoryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  {/* Compact Legend at bottom */}
-                  <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 overflow-y-auto max-h-16 scrollbar-hide border-t border-slate-50 pt-2">
-                    {incomeCategoryData.map((cat, i) => (
-                      <div key={i} className="flex items-center gap-1 text-[9px]">
-                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }}></div>
-                        <span className="text-slate-700 font-bold uppercase truncate max-w-[80px]">{cat.name}</span>
-                      </div>
-                    ))}
+                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm flex flex-col min-h-0">
+                  <h3 className="text-[11px] font-bold text-[#6B7280] mb-3 uppercase tracking-wider">Receitas por categoria</h3>
+                  <div className="flex flex-1 min-h-0 gap-4 items-center">
+                    {/* Legend on the left */}
+                    <div className="w-1/3 flex flex-col gap-2 overflow-y-auto max-h-full pr-2 scrollbar-hide">
+                      {incomeCategoryData.map((cat, i) => (
+                        <div key={i} className="flex items-start gap-2 text-[10px]">
+                          <div className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: cat.color }}></div>
+                          <span className="text-[#374151] font-bold leading-tight truncate">{cat.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Chart on the right */}
+                    <div className="flex-1 h-full relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={incomeCategoryData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius="40%"
+                            outerRadius="90%"
+                            paddingAngle={2}
+                            dataKey="value"
+                            stroke="none"
+                            labelLine={false}
+                            label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                              const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                              const RADIAN = Math.PI / 180;
+                              const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                              const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                              return (
+                                <text 
+                                  x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
+                                  className="text-[11px] font-black"
+                                  style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
+                                >
+                                  {`${(percent * 100).toFixed(0)}%`}
+                                </text>
+                              );
+                            }}
+                          >
+                            {incomeCategoryData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
 
                 {/* Expense Pie Chart */}
-                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] card-shadow flex flex-col min-h-0">
-                  <h3 className="text-[12px] font-black text-[#111827] mb-1 uppercase tracking-tight">Gastos por categoria</h3>
-                  <div className="flex-1 min-h-0 relative">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={categoryData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius="35%"
-                          outerRadius="98%"
-                          paddingAngle={1}
-                          dataKey="value"
-                          stroke="none"
-                          labelLine={false}
-                          label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                            const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
-                            const RADIAN = Math.PI / 180;
-                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                            return (
-                              <text 
-                                x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
-                                className="text-[11px] font-black"
-                                style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
-                              >
-                                {`${(percent * 100).toFixed(0)}%`}
-                              </text>
-                            );
-                          }}
-                        >
-                          {categoryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  {/* Compact Legend at bottom */}
-                  <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 overflow-y-auto max-h-16 scrollbar-hide border-t border-slate-50 pt-2">
-                    {categoryData.map((cat, i) => (
-                      <div key={i} className="flex items-center gap-1 text-[9px]">
-                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: cat.color }}></div>
-                        <span className="text-slate-700 font-bold uppercase truncate max-w-[80px]">{cat.name}</span>
-                      </div>
-                    ))}
+                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm flex flex-col min-h-0">
+                  <h3 className="text-[11px] font-bold text-[#6B7280] mb-3 uppercase tracking-wider">Gastos por categoria</h3>
+                  <div className="flex flex-1 min-h-0 gap-4 items-center">
+                    {/* Legend on the left */}
+                    <div className="w-1/3 flex flex-col gap-2 overflow-y-auto max-h-full pr-2 scrollbar-hide">
+                      {categoryData.map((cat, i) => (
+                        <div key={i} className="flex items-start gap-2 text-[10px]">
+                          <div className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: cat.color }}></div>
+                          <span className="text-[#374151] font-bold leading-tight truncate">{cat.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Chart on the right */}
+                    <div className="flex-1 h-full relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={categoryData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius="40%"
+                            outerRadius="90%"
+                            paddingAngle={2}
+                            dataKey="value"
+                            stroke="none"
+                            labelLine={false}
+                            label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                              const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                              const RADIAN = Math.PI / 180;
+                              const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                              const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                              return (
+                                <text 
+                                  x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
+                                  className="text-[11px] font-black"
+                                  style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
+                                >
+                                  {`${(percent * 100).toFixed(0)}%`}
+                                </text>
+                              );
+                            }}
+                          >
+                            {categoryData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Row: Bar Chart */}
-              <div className="bg-white p-3 rounded-2xl border border-[#E5E7EB] card-shadow shrink-0 h-36">
-                <h3 className="text-[11px] font-bold text-[#111827] mb-1">
-                  Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
-                </h3>
+              <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm shrink-0 h-40">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
+                    Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
+                  </h3>
+                  <div className="flex items-center gap-4 text-[10px] font-bold">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-[#22C55E]"></div>
+                      <span className="text-slate-600">Receita</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-[#EF4444]"></div>
+                      <span className="text-slate-600">Despesa</span>
+                    </div>
+                  </div>
+                </div>
                 <div className="h-24">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
+                    <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 7 }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 7 }} />
-                      <Tooltip contentStyle={{ fontSize: '9px', padding: '4px' }} />
-                      <Bar dataKey="receita" fill="#22C55E" radius={[2, 2, 0, 0]} barSize={6} />
-                      <Bar dataKey="despesa" fill="#EF4444" radius={[2, 2, 0, 0]} barSize={6} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }} />
+                      <Tooltip 
+                        cursor={{ fill: '#f8fafc' }}
+                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }} 
+                      />
+                      <Bar dataKey="receita" fill="#22C55E" radius={[4, 4, 0, 0]} barSize={24} />
+                      <Bar dataKey="despesa" fill="#EF4444" radius={[4, 4, 0, 0]} barSize={24} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -1647,58 +1581,17 @@ Seu controle financeiro inteligente`.trim();
   );
 };
 
-const StatCard = ({ title, value, icon, bgColor, valueColor, chartData, dataKey, strokeColor, compact = false }: any) => {
-  if (compact) {
-    return (
-      <div className={`p-2 rounded-xl border border-[#E5E7EB] shadow-sm flex items-center gap-2 h-full ${bgColor}`}>
-        <div className="shrink-0">{icon}</div>
-        <div>
-          <p className="text-[9px] font-bold text-[#6B7280] uppercase leading-none">{title}</p>
-          <p className={`text-[11px] font-black ${valueColor || 'text-[#111827]'} mt-0.5`}>{value}</p>
-        </div>
-      </div>
-    );
-  }
-
+const StatCard = ({ title, value, icon, bgColor, valueColor }: any) => {
   return (
-    <motion.div 
-      whileHover={{ y: -5 }}
-      className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow relative overflow-hidden transition-colors duration-300"
-    >
-    <div className="relative z-10">
-      <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 rounded-2xl ${bgColor}`}>
-          {icon}
-        </div>
+    <div className={`p-3 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-3 h-full ${bgColor} transition-all hover:shadow-md`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white shadow-sm`}>
+        {icon}
       </div>
-      <p className="text-sm font-medium text-[#6B7280] mb-1">{title}</p>
-      <h4 className={`text-2xl font-bold ${valueColor || 'text-[#111827]'}`}>{value}</h4>
+      <div className="min-w-0">
+        <p className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider leading-none mb-1">{title}</p>
+        <p className={`text-lg font-black ${valueColor || 'text-[#111827]'} leading-none truncate`}>{value}</p>
+      </div>
     </div>
-    
-    {chartData && (
-      <div className="absolute bottom-0 left-0 right-0 h-16 opacity-30 pointer-events-none">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id={`gradient-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={strokeColor} stopOpacity={0.3}/>
-                <stop offset="95%" stopColor={strokeColor} stopOpacity={0}/>
-              </linearGradient>
-            </defs>
-            <Area 
-              type="monotone" 
-              dataKey={dataKey} 
-              stroke={strokeColor} 
-              strokeWidth={2} 
-              fillOpacity={1} 
-              fill={`url(#gradient-${dataKey})`}
-              dot={false}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    )}
-    </motion.div>
   );
 };
 
