@@ -806,7 +806,7 @@ Seu controle financeiro inteligente`.trim();
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F8FAFC] flex transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-[#F5F7FB] flex transition-colors duration-300">
       {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-[#0F172A] border-r border-[#1E293B] transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
         <div className="h-full flex flex-col">
@@ -854,7 +854,7 @@ Seu controle financeiro inteligente`.trim();
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 h-screen flex flex-col bg-[#F8FAFC] transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <main className={`flex-1 h-screen flex flex-col bg-[#F5F7FB] transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {/* Topbar */}
         <header className="bg-white border-b border-[#E5E7EB] shrink-0">
           <div className="px-8 h-16 flex items-center justify-between">
