@@ -44,6 +44,15 @@
   @apply shadow-[0_10px_30px_rgba(0,0,0,0.08)];
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .primary-button-gradient {
   background: linear-gradient(90deg, #22C55E, #16A34A);
   @apply text-white hover:bg-[#15803D] transition-all;

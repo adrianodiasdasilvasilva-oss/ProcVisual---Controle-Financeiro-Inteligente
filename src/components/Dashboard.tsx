@@ -31,7 +31,6 @@ import {
   Cell, 
   AreaChart,
   Area,
-  ResponsiveContainer, 
   LineChart, 
   Line, 
   XAxis, 
@@ -40,7 +39,9 @@ import {
   Tooltip, 
   BarChart, 
   Bar, 
-  Legend 
+  Legend,
+  Treemap,
+  ResponsiveContainer
 } from 'recharts';
 import { motion } from 'motion/react';
 import { PaymentControl } from './PaymentControl';
@@ -69,7 +70,7 @@ import { AnimatePresence } from 'motion/react';
 import { sendWhatsAppMessage } from '../services/whapiService';
 import { MessageSquare, Phone as PhoneIcon } from 'lucide-react';
 
-const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#6366f1', '#f43f5e', '#8b5cf6', '#ec4899'];
+const COLORS = ['#F85151', '#F79E44', '#4699A3', '#89B16B', '#8B5CF6', '#F59E0B', '#B158A3'];
 
 const parseDate = (dateStr: string) => {
   if (!dateStr || typeof dateStr !== 'string') return new Date();
@@ -703,62 +704,6 @@ Seu controle financeiro inteligente`.trim();
     }));
   }, [filteredTransactions]);
 
-  // Calculate Chart Data (Daily or Monthly depending on filter)
-  const chartData = React.useMemo(() => {
-    if (selectedMonths.length === 1) {
-      const selectedMonth = selectedMonths[0];
-      // Daily evolution for selected month
-      const year = selectedYear === -1 ? new Date().getFullYear() : selectedYear;
-      const daysInMonth = new Date(year, selectedMonth + 1, 0).getDate();
-      const data = [];
-      
-      for (let i = 1; i <= daysInMonth; i++) {
-        data.push({
-          name: `${i}`,
-          receita: 0,
-          despesa: 0,
-          saldo: 0
-        });
-      }
-
-      filteredTransactions.forEach(t => {
-        const date = parseDate(t.date);
-        const day = date.getDate();
-        const val = parseFloat(t.amount) || 0;
-        
-        if (data[day - 1]) {
-          if (t.type === 'income') data[day - 1].receita += val;
-          else data[day - 1].despesa += val;
-        }
-      });
-
-      let cumulativeSaldo = 0;
-      return data.map(d => {
-        cumulativeSaldo += (d.receita - d.despesa);
-        return { ...d, saldo: cumulativeSaldo };
-      });
-    } else {
-      // Monthly evolution
-      const shortMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-      const data = shortMonths.map(m => ({ name: m, receita: 0, despesa: 0, saldo: 0 }));
-
-      filteredTransactions.forEach(t => {
-        const date = parseDate(t.date);
-        const monthIndex = date.getMonth();
-        const val = parseFloat(t.amount) || 0;
-        
-        if (t.type === 'income') data[monthIndex].receita += val;
-        else data[monthIndex].despesa += val;
-      });
-
-      let cumulativeSaldo = 0;
-      return data.map(d => {
-        cumulativeSaldo += (d.receita - d.despesa);
-        return { ...d, saldo: cumulativeSaldo };
-      });
-    }
-  }, [filteredTransactions, selectedMonths, selectedYear]);
-
   // Calculate Annual Goal Stats
   const annualGoalStats = React.useMemo(() => {
     if (!monthlyGoal) return null;
@@ -938,7 +883,7 @@ Seu controle financeiro inteligente`.trim();
           </div>
         </header>
 
-        <div className="flex-1 overflow-hidden p-4">
+        <div className={`flex-1 p-4 ${activeTab === 'Dashboard' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
@@ -1131,7 +1076,7 @@ Seu controle financeiro inteligente`.trim();
               </div>
 
               {/* Stats Row */}
-              <div className="grid grid-cols-4 gap-4 shrink-0">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
                 <StatCard 
                   title="Receita" 
                   value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} 
@@ -1162,156 +1107,91 @@ Seu controle financeiro inteligente`.trim();
                 />
               </div>
 
-              {/* Middle Row: Charts */}
-              <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-                {/* Income Pie Chart */}
-                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm flex flex-col min-h-0">
-                  <h3 className="text-[11px] font-bold text-[#6B7280] mb-3 uppercase tracking-wider">Receitas por categoria</h3>
-                  <div className="flex flex-1 min-h-0 gap-4 items-center">
-                    {/* Legend on the left */}
-                    <div className="w-1/3 flex flex-col gap-2 overflow-y-auto max-h-full pr-2 scrollbar-hide">
-                      {incomeCategoryData.map((cat, i) => (
-                        <div key={i} className="flex items-start gap-2 text-[10px]">
-                          <div className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: cat.color }}></div>
-                          <span className="text-[#374151] font-bold leading-tight truncate">{cat.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Chart on the right */}
-                    <div className="flex-1 h-full relative">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={incomeCategoryData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="40%"
-                            outerRadius="90%"
-                            paddingAngle={2}
-                            dataKey="value"
-                            stroke="none"
-                            labelLine={false}
-                            label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                              const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                              const RADIAN = Math.PI / 180;
-                              const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                              const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                              return (
-                                <text 
-                                  x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
-                                  className="text-[11px] font-black"
-                                  style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
-                                >
-                                  {`${(percent * 100).toFixed(0)}%`}
-                                </text>
-                              );
-                            }}
-                          >
-                            {incomeCategoryData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip 
-                            formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Expense Pie Chart */}
-                <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm flex flex-col min-h-0">
-                  <h3 className="text-[11px] font-bold text-[#6B7280] mb-3 uppercase tracking-wider">Gastos por categoria</h3>
-                  <div className="flex flex-1 min-h-0 gap-4 items-center">
-                    {/* Legend on the left */}
-                    <div className="w-1/3 flex flex-col gap-2 overflow-y-auto max-h-full pr-2 scrollbar-hide">
-                      {categoryData.map((cat, i) => (
-                        <div key={i} className="flex items-start gap-2 text-[10px]">
-                          <div className="w-2 h-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: cat.color }}></div>
-                          <span className="text-[#374151] font-bold leading-tight truncate">{cat.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Chart on the right */}
-                    <div className="flex-1 h-full relative">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={categoryData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="40%"
-                            outerRadius="90%"
-                            paddingAngle={2}
-                            dataKey="value"
-                            stroke="none"
-                            labelLine={false}
-                            label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                              const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-                              const RADIAN = Math.PI / 180;
-                              const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                              const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                              return (
-                                <text 
-                                  x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central"
-                                  className="text-[11px] font-black"
-                                  style={{ pointerEvents: 'none', textShadow: '0px 1px 2px rgba(0,0,0,0.3)' }}
-                                >
-                                  {`${(percent * 100).toFixed(0)}%`}
-                                </text>
-                              );
-                            }}
-                          >
-                            {categoryData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip 
-                            formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Row: Bar Chart */}
-              <div className="bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm shrink-0 h-40">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
-                    Receita vs despesas {selectedMonths.length === 1 ? `em ${months[selectedMonths[0]]}` : 'Anual'}
+              {/* Charts Section */}
+              <div className="flex-1 min-h-0 flex flex-col mt-4">
+                {/* Chart: Para onde está indo seu dinheiro? (Treemap) */}
+                <div className="bg-white p-6 rounded-2xl border border-[#E5E7EB] shadow-sm flex-1 flex flex-col min-h-0">
+                  <h3 className="text-sm font-bold text-[#111827] mb-4">
+                    Para onde está indo seu dinheiro?
                   </h3>
-                  <div className="flex items-center gap-4 text-[10px] font-bold">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-[#22C55E]"></div>
-                      <span className="text-slate-600">Receita</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-[#EF4444]"></div>
-                      <span className="text-slate-600">Despesa</span>
-                    </div>
+                  <div className="flex-1 min-h-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <Treemap
+                        data={categoryData}
+                        dataKey="value"
+                        stroke="#fff"
+                        fill="#8884d8"
+                        content={(props: any) => {
+                          const { x, y, width, height, name, value, color } = props;
+                          const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
+                          const percentage = total > 0 ? (value / total) * 100 : 0;
+
+                          if (width < 30 || height < 30) return null;
+
+                          const isLarge = width > 180 && height > 120;
+                          const isMedium = width > 100 && height > 60;
+
+                          return (
+                            <g>
+                              <rect
+                                x={x}
+                                y={y}
+                                width={width}
+                                height={height}
+                                style={{
+                                  fill: color,
+                                  stroke: '#fff',
+                                  strokeWidth: 2,
+                                  strokeOpacity: 1,
+                                }}
+                              />
+                              <text
+                                x={x + 12}
+                                y={y + (isLarge ? 35 : isMedium ? 25 : 18)}
+                                fill="#fff"
+                                fontSize={isLarge ? 28 : isMedium ? 16 : 11}
+                                fontWeight="600"
+                                opacity={0.95}
+                              >
+                                {name}
+                              </text>
+                              <text
+                                x={x + 12}
+                                y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
+                                fill="#fff"
+                                fontSize={isLarge ? 36 : isMedium ? 20 : 12}
+                                fontWeight="bold"
+                              >
+                                R$ {value.toLocaleString('pt-BR')}
+                              </text>
+                              <text
+                                x={x + 12 + (isLarge ? (value.toLocaleString('pt-BR').length * 22 + 80) : isMedium ? (value.toLocaleString('pt-BR').length * 12 + 50) : (value.toLocaleString('pt-BR').length * 7 + 35))}
+                                y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
+                                fill="#fff"
+                                fontSize={isLarge ? 20 : isMedium ? 14 : 10}
+                                fontWeight="normal"
+                                opacity={0.8}
+                              >
+                                ({percentage.toFixed(0)}%)
+                              </text>
+                            </g>
+                          );
+                        }}
+                      >
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                          formatter={(value: any, name: any) => {
+                            const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
+                            const percentage = total > 0 ? (value / total) * 100 : 0;
+                            return [`R$ ${value.toLocaleString('pt-BR')} (${percentage.toFixed(1)}%)`, name];
+                          }}
+                        />
+                      </Treemap>
+                    </ResponsiveContainer>
                   </div>
                 </div>
-                <div className="h-24">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 9, fontWeight: 'bold' }} />
-                      <Tooltip 
-                        cursor={{ fill: '#f8fafc' }}
-                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }} 
-                      />
-                      <Bar dataKey="receita" fill="#22C55E" radius={[4, 4, 0, 0]} barSize={24} />
-                      <Bar dataKey="despesa" fill="#EF4444" radius={[4, 4, 0, 0]} barSize={24} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
               </div>
+
             </div>
           ) : activeTab === 'Atualizar Lançamentos' ? (
             <PaymentControl 

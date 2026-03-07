@@ -173,7 +173,7 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
             </div>
             <h3 className="text-lg font-bold text-[#111827]">Alertas & Insights</h3>
           </div>
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-hide">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
             {alerts.length > 0 ? (
               alerts.map((alert, i) => (
                 <div key={i} className={`p-3 rounded-xl border flex gap-3 ${
