@@ -101,6 +101,13 @@ interface DashboardProps {
   userEmail: string;
 }
 
+const getHealthStatus = (health: number) => {
+  if (health >= 40) return { label: 'Excelente', color: 'bg-emerald-500', textColor: 'text-emerald-600' };
+  if (health >= 20) return { label: 'Bom', color: 'bg-green-400', textColor: 'text-green-500' };
+  if (health >= 10) return { label: 'Atenção', color: 'bg-yellow-400', textColor: 'text-yellow-500' };
+  return { label: 'Crítico', color: 'bg-red-500', textColor: 'text-red-600' };
+};
+
 export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isTransactionFormOpen, setIsTransactionFormOpen] = React.useState(false);
@@ -600,6 +607,7 @@ Seu controle financeiro inteligente`.trim();
     });
 
     const balance = income - expense;
+    const financialHealth = income > 0 ? ((income - expense) / income) * 100 : (expense > 0 ? -100 : 0);
     const percentSpent = income > 0 ? Math.round((expense / income) * 100) : 0;
 
     // Trend calculation (compared to previous month if single month selected)
@@ -639,6 +647,7 @@ Seu controle financeiro inteligente`.trim();
       income, 
       expense, 
       balance, 
+      financialHealth,
       percentSpent,
       paidIncome,
       pendingIncome,
@@ -858,6 +867,54 @@ Seu controle financeiro inteligente`.trim();
               </button>
               <div className="flex flex-col py-1">
                 <h1 className="text-2xl font-bold text-[#111827] leading-tight">{userName}</h1>
+              </div>
+            </div>
+
+            {/* Financial Health Indicator */}
+            <div className="flex-1 max-w-xs mx-8 hidden lg:block group relative">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Saúde Financeira</span>
+                <span className={`text-[10px] font-bold ${getHealthStatus(stats.financialHealth).textColor}`}>
+                  Status: {getHealthStatus(stats.financialHealth).label}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.max(0, Math.min(100, stats.financialHealth))}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className={`h-full rounded-full ${getHealthStatus(stats.financialHealth).color}`}
+                  />
+                </div>
+                <span className="text-xs font-bold text-[#111827] min-w-[32px]">
+                  {Math.round(stats.financialHealth)}%
+                </span>
+              </div>
+              
+              {/* Tooltip */}
+              <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-[#E5E7EB] rounded-xl shadow-xl p-4 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[60]">
+                <h4 className="text-xs font-bold text-[#111827] mb-3 border-b border-slate-100 pb-2">Detalhes da Saúde Financeira</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-[#6B7280]">Receita Total</span>
+                    <span className="font-bold text-emerald-600">R$ {stats.income.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-[#6B7280]">Despesa Total</span>
+                    <span className="font-bold text-red-600">R$ {stats.expense.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-[#6B7280]">Saldo do Mês</span>
+                    <span className={`font-bold ${stats.balance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      R$ {stats.balance.toLocaleString('pt-BR')}
+                    </span>
+                  </div>
+                  <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between text-[11px]">
+                    <span className="text-[#6B7280]">Percentual de Saúde</span>
+                    <span className="font-bold text-blue-600">{stats.financialHealth.toFixed(1)}%</span>
+                  </div>
+                </div>
               </div>
             </div>
 
