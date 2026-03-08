@@ -896,7 +896,13 @@ Seu controle financeiro inteligente`.trim();
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div className="flex flex-col py-1 overflow-hidden">
-                <h1 className="text-lg lg:text-2xl font-bold text-[#111827] leading-tight truncate max-w-[150px] sm:max-w-none">{userName}</h1>
+                <h1 className="text-base lg:text-2xl font-bold text-[#111827] leading-tight truncate max-w-[120px] sm:max-w-none">{userName}</h1>
+                <div className="lg:hidden flex items-center gap-1.5 mt-0.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${getHealthStatus(stats.financialHealth).color.replace('bg-', 'bg-')}`}></div>
+                  <span className={`text-[10px] font-bold ${getHealthStatus(stats.financialHealth).textColor}`}>
+                    Saúde: {Math.round(stats.financialHealth)}%
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -948,15 +954,15 @@ Seu controle financeiro inteligente`.trim();
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 lg:gap-4">
               <div className="flex items-center gap-2">
-                <div className="text-right hidden sm:block">
-                  <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Saldo atual</p>
-                  <p className={`text-sm font-bold ${stats.balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+                <div className="text-right">
+                  <p className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider hidden sm:block">Saldo atual</p>
+                  <p className={`text-xs sm:text-sm font-bold ${stats.balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-10 h-10 bg-slate-100 rounded-full overflow-hidden border border-[#E5E7EB]">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full overflow-hidden border border-[#E5E7EB] shrink-0">
                   {profileImage ? (
                     <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
