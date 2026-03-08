@@ -138,8 +138,28 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isUploading, setIsUploading] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<string | null>(null);
   const [showAllTransactions, setShowAllTransactions] = React.useState(false);
+  const [deferredPrompt, setDeferredPrompt] = React.useState<any>(null);
   const processingNotificationsRef = React.useRef<Set<string>>(new Set());
   const isProcessingNotificationsRef = React.useRef(false);
+
+  // PWA Install Prompt Logic
+  React.useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   // Fetch user profile data (including image, custom categories, and phone)
   React.useEffect(() => {
@@ -1525,6 +1545,16 @@ Seu controle financeiro inteligente`.trim();
                     </h3>
                     <p className="text-sm text-slate-600 mb-4">Transforme o ProcVisual em um aplicativo no seu celular para acesso rápido.</p>
                     
+                    {deferredPrompt && (
+                      <button
+                        onClick={handleInstallClick}
+                        className="w-full mb-6 py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 active:scale-95"
+                      >
+                        <Smartphone className="w-5 h-5" />
+                        Instalar Agora no Celular
+                      </button>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="p-4 bg-white rounded-xl border border-slate-200">
                         <p className="text-xs font-bold text-slate-400 uppercase mb-2">No Android (Chrome)</p>
