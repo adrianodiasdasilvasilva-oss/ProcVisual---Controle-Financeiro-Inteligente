@@ -24,6 +24,7 @@ import {
   LifeBuoy,
   Mail,
   CreditCard,
+  Smartphone,
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -1513,6 +1514,33 @@ Seu controle financeiro inteligente`.trim();
                             <p className="text-xs text-slate-400 italic">Nenhuma categoria de despesa personalizada.</p>
                           )}
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <Smartphone className="w-5 h-5 text-[#22C55E]" />
+                      Instalar Aplicativo (Atalho)
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-4">Transforme o ProcVisual em um aplicativo no seu celular para acesso rápido.</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="p-4 bg-white rounded-xl border border-slate-200">
+                        <p className="text-xs font-bold text-slate-400 uppercase mb-2">No Android (Chrome)</p>
+                        <ol className="text-xs text-slate-600 space-y-2 list-decimal ml-4">
+                          <li>Toque nos <span className="font-bold">três pontos (⋮)</span> no canto superior direito.</li>
+                          <li>Selecione <span className="font-bold">"Instalar aplicativo"</span> ou <span className="font-bold">"Adicionar à tela inicial"</span>.</li>
+                          <li>Confirme em <span className="font-bold">"Instalar"</span>.</li>
+                        </ol>
+                      </div>
+                      <div className="p-4 bg-white rounded-xl border border-slate-200">
+                        <p className="text-xs font-bold text-slate-400 uppercase mb-2">No iPhone (Safari)</p>
+                        <ol className="text-xs text-slate-600 space-y-2 list-decimal ml-4">
+                          <li>Toque no ícone de <span className="font-bold">Compartilhar (□ com seta)</span> na barra inferior.</li>
+                          <li>Role para baixo e toque em <span className="font-bold">"Adicionar à Tela de Início"</span>.</li>
+                          <li>Toque em <span className="font-bold">"Adicionar"</span> no canto superior.</li>
+                        </ol>
                       </div>
                     </div>
                   </div>
