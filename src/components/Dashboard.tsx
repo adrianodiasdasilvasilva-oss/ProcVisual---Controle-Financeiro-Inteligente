@@ -109,7 +109,7 @@ const getHealthStatus = (health: number) => {
 };
 
 export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(window.innerWidth >= 1024);
   const [isTransactionFormOpen, setIsTransactionFormOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState('Dashboard');
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
@@ -827,9 +827,18 @@ Seu controle financeiro inteligente`.trim();
   ];
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F5F7FB] flex transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-[#F5F7FB] flex transition-colors duration-300 relative">
+      {/* Sidebar Overlay for Mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#0F172A] border-r border-[#1E293B] transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 bg-[#0F172A] border-r border-[#1E293B] transition-all duration-300 
+        ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 lg:w-20'}`}>
         <div className="h-full flex flex-col">
           <div className="p-6 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
@@ -875,19 +884,19 @@ Seu controle financeiro inteligente`.trim();
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 h-screen flex flex-col bg-[#F5F7FB] transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <main className={`flex-1 h-screen flex flex-col bg-[#F5F7FB] transition-all duration-300 pb-16 lg:pb-0 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
         {/* Topbar */}
-        <header className="bg-white border-b border-[#E5E7EB] shrink-0">
-          <div className="px-8 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <header className="bg-white border-b border-[#E5E7EB] shrink-0 sticky top-0 z-30">
+          <div className="px-4 lg:px-8 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3 lg:gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="p-2 text-[#6B7280] hover:bg-slate-100 rounded-lg"
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
-              <div className="flex flex-col py-1">
-                <h1 className="text-2xl font-bold text-[#111827] leading-tight">{userName}</h1>
+              <div className="flex flex-col py-1 overflow-hidden">
+                <h1 className="text-lg lg:text-2xl font-bold text-[#111827] leading-tight truncate max-w-[150px] sm:max-w-none">{userName}</h1>
               </div>
             </div>
 
@@ -961,7 +970,7 @@ Seu controle financeiro inteligente`.trim();
           </div>
         </header>
 
-        <div className={`flex-1 p-4 ${activeTab === 'Dashboard' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 p-4 lg:p-8 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
@@ -970,11 +979,11 @@ Seu controle financeiro inteligente`.trim();
           ) : activeTab === 'Dashboard' ? (
             <div className="h-full flex flex-col space-y-4 min-h-0">
               {/* Header Section: Title, Filters & Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-4 shrink-0 bg-white p-3 rounded-2xl border border-[#E5E7EB] shadow-sm">
-                <div className="flex items-center gap-6">
-                  <h2 className="text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0 bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6">
+                  <h2 className="text-lg lg:text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <div className="relative">
                       <button 
                         onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
@@ -1135,17 +1144,17 @@ Seu controle financeiro inteligente`.trim();
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   <button 
                     onClick={() => setIsTransactionFormOpen(true)}
-                    className="flex items-center gap-2 bg-[#22C55E] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#16A34A] transition-all shadow-sm active:scale-95"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#22C55E] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#16A34A] transition-all shadow-sm active:scale-95"
                   >
                     <TrendingUp className="w-4 h-4" />
                     Novo Lançamento
                   </button>
                   <button 
                     onClick={() => setActiveTab('Atualizar Lançamentos')}
-                    className="flex items-center gap-2 bg-[#3B82F6] text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#2563EB] transition-all shadow-sm active:scale-95"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#3B82F6] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#2563EB] transition-all shadow-sm active:scale-95"
                   >
                     <CreditCard className="w-4 h-4" />
                     Atualizar Lançamentos
@@ -1192,80 +1201,92 @@ Seu controle financeiro inteligente`.trim();
                   <h3 className="text-sm font-bold text-[#111827] mb-4">
                     Para onde está indo seu dinheiro?
                   </h3>
-                  <div className="flex-1 min-h-0">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <Treemap
-                        data={categoryData}
-                        dataKey="value"
-                        stroke="#fff"
-                        fill="#8884d8"
-                        content={(props: any) => {
-                          const { x, y, width, height, name, value, color } = props;
-                          const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
-                          const percentage = total > 0 ? (value / total) * 100 : 0;
-
-                          if (width < 30 || height < 30) return null;
-
-                          const isLarge = width > 180 && height > 120;
-                          const isMedium = width > 100 && height > 60;
-
-                          return (
-                            <g>
-                              <rect
-                                x={x}
-                                y={y}
-                                width={width}
-                                height={height}
-                                style={{
-                                  fill: color,
-                                  stroke: '#fff',
-                                  strokeWidth: 2,
-                                  strokeOpacity: 1,
-                                }}
-                              />
-                              <text
-                                x={x + 12}
-                                y={y + (isLarge ? 35 : isMedium ? 25 : 18)}
-                                fill="#fff"
-                                fontSize={isLarge ? 28 : isMedium ? 16 : 11}
-                                fontWeight="600"
-                                opacity={0.95}
-                              >
-                                {name}
-                              </text>
-                              <text
-                                x={x + 12}
-                                y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
-                                fill="#fff"
-                                fontSize={isLarge ? 36 : isMedium ? 20 : 12}
-                                fontWeight="bold"
-                              >
-                                R$ {value.toLocaleString('pt-BR')}
-                              </text>
-                              <text
-                                x={x + 12 + (isLarge ? (value.toLocaleString('pt-BR').length * 22 + 80) : isMedium ? (value.toLocaleString('pt-BR').length * 12 + 50) : (value.toLocaleString('pt-BR').length * 7 + 35))}
-                                y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
-                                fill="#fff"
-                                fontSize={isLarge ? 20 : isMedium ? 14 : 10}
-                                fontWeight="normal"
-                                opacity={0.8}
-                              >
-                                ({percentage.toFixed(0)}%)
-                              </text>
-                            </g>
-                          );
-                        }}
-                      >
-                        <Tooltip 
-                          contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                          formatter={(value: any, name: any) => {
+                  <div className="flex-1 min-h-[300px] lg:min-h-0 flex flex-col">
+                    {categoryData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <Treemap
+                          data={categoryData}
+                          dataKey="value"
+                          stroke="#fff"
+                          fill="#8884d8"
+                          content={(props: any) => {
+                            const { x, y, width, height, name, value, color } = props;
                             const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
                             const percentage = total > 0 ? (value / total) * 100 : 0;
-                            return [`R$ ${value.toLocaleString('pt-BR')} (${percentage.toFixed(1)}%)`, name];
+
+                            if (width < 15 || height < 15) return null;
+
+                            const isLarge = width > 180 && height > 120;
+                            const isMedium = width > 100 && height > 60;
+                            const isSmall = width > 40 && height > 30;
+
+                            return (
+                              <g>
+                                <rect
+                                  x={x}
+                                  y={y}
+                                  width={width}
+                                  height={height}
+                                  style={{
+                                    fill: color,
+                                    stroke: '#fff',
+                                    strokeWidth: 1,
+                                    strokeOpacity: 1,
+                                  }}
+                                />
+                                <text
+                                  x={x + 6}
+                                  y={y + (isLarge ? 35 : isMedium ? 25 : isSmall ? 18 : 12)}
+                                  fill="#fff"
+                                  fontSize={isLarge ? 28 : isMedium ? 16 : isSmall ? 11 : 8}
+                                  fontWeight="600"
+                                  opacity={0.95}
+                                >
+                                  {width > 40 ? name : name.substring(0, 2)}
+                                </text>
+                                {isSmall && (
+                                  <>
+                                    <text
+                                      x={x + 6}
+                                      y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
+                                      fill="#fff"
+                                      fontSize={isLarge ? 36 : isMedium ? 20 : 12}
+                                      fontWeight="bold"
+                                    >
+                                      R$ {value.toLocaleString('pt-BR')}
+                                    </text>
+                                    <text
+                                      x={x + 6 + (isLarge ? (value.toLocaleString('pt-BR').length * 22 + 80) : isMedium ? (value.toLocaleString('pt-BR').length * 12 + 50) : (value.toLocaleString('pt-BR').length * 7 + 35))}
+                                      y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
+                                      fill="#fff"
+                                      fontSize={isLarge ? 20 : isMedium ? 14 : 10}
+                                      fontWeight="normal"
+                                      opacity={0.8}
+                                    >
+                                      ({percentage.toFixed(0)}%)
+                                    </text>
+                                  </>
+                                )}
+                              </g>
+                            );
                           }}
-                        />
-                      </Treemap>
-                    </ResponsiveContainer>
+                        >
+                          <Tooltip 
+                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                            formatter={(value: any, name: any) => {
+                              const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
+                              const percentage = total > 0 ? (value / total) * 100 : 0;
+                              return [`R$ ${value.toLocaleString('pt-BR')} (${percentage.toFixed(1)}%)`, name];
+                            }}
+                          />
+                        </Treemap>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        <PieChartIcon className="w-8 h-8 mb-2 opacity-20" />
+                        <p className="text-xs font-medium">Nenhuma despesa para exibir</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1572,10 +1593,28 @@ Seu controle financeiro inteligente`.trim();
       {/* Mobile FAB */}
       <button 
         onClick={() => setIsTransactionFormOpen(true)}
-        className="sm:hidden fixed bottom-8 right-8 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:scale-110 active:scale-95 transition-all"
+        className="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:scale-110 active:scale-95 transition-all"
       >
         <TrendingUp className="w-6 h-6" />
       </button>
+
+      {/* Bottom Navigation for Mobile */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] h-16 flex items-center justify-around px-2 lg:hidden z-40">
+        {menuItems.slice(0, 5).map((item, index) => (
+          <button
+            key={index}
+            onClick={() => setActiveTab(item.label)}
+            className={`flex flex-col items-center justify-center gap-1 transition-all flex-1 ${
+              activeTab === item.label ? 'text-emerald-600' : 'text-slate-400'
+            }`}
+          >
+            <div className={`${activeTab === item.label ? 'scale-110' : ''} transition-transform`}>
+              {item.icon}
+            </div>
+            <span className="text-[10px] font-bold">{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 };
