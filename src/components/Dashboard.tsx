@@ -1242,36 +1242,36 @@ Seu controle financeiro inteligente`.trim();
                                 />
                                 <text
                                   x={x + 6}
-                                  y={y + (isLarge ? 35 : isMedium ? 25 : isSmall ? 18 : 12)}
+                                  y={y + (isLarge ? 30 : isMedium ? 22 : 16)}
                                   fill="#fff"
-                                  fontSize={isLarge ? 28 : isMedium ? 16 : isSmall ? 11 : 8}
+                                  fontSize={isLarge ? 24 : isMedium ? 14 : 10}
                                   fontWeight="600"
                                   opacity={0.95}
                                 >
-                                  {width > 40 ? name : name.substring(0, 2)}
+                                  {width > 50 ? name : name.substring(0, 3)}
                                 </text>
-                                {isSmall && (
-                                  <>
-                                    <text
-                                      x={x + 6}
-                                      y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
-                                      fill="#fff"
-                                      fontSize={isLarge ? 36 : isMedium ? 20 : 12}
-                                      fontWeight="bold"
-                                    >
-                                      R$ {value.toLocaleString('pt-BR')}
-                                    </text>
-                                    <text
-                                      x={x + 6 + (isLarge ? (value.toLocaleString('pt-BR').length * 22 + 80) : isMedium ? (value.toLocaleString('pt-BR').length * 12 + 50) : (value.toLocaleString('pt-BR').length * 7 + 35))}
-                                      y={y + (isLarge ? 85 : isMedium ? 50 : 35)}
-                                      fill="#fff"
-                                      fontSize={isLarge ? 20 : isMedium ? 14 : 10}
-                                      fontWeight="normal"
-                                      opacity={0.8}
-                                    >
-                                      ({percentage.toFixed(0)}%)
-                                    </text>
-                                  </>
+                                {height > 45 && width > 40 && (
+                                  <text
+                                    x={x + 6}
+                                    y={y + (isLarge ? 65 : isMedium ? 45 : 32)}
+                                    fill="#fff"
+                                    fontSize={isLarge ? 30 : isMedium ? 18 : 11}
+                                    fontWeight="bold"
+                                  >
+                                    R$ {value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+                                  </text>
+                                )}
+                                {height > 65 && width > 40 && (
+                                  <text
+                                    x={x + 6}
+                                    y={y + (isLarge ? 95 : isMedium ? 65 : 46)}
+                                    fill="#fff"
+                                    fontSize={isLarge ? 18 : isMedium ? 13 : 9}
+                                    fontWeight="normal"
+                                    opacity={0.9}
+                                  >
+                                    {percentage.toFixed(1)}%
+                                  </text>
                                 )}
                               </g>
                             );
