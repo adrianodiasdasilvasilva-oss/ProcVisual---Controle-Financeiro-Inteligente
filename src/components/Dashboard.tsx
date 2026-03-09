@@ -920,7 +920,7 @@ Seu controle financeiro inteligente`.trim();
                 <h1 className="text-base lg:text-2xl font-bold text-white leading-tight truncate max-w-[120px] sm:max-w-none">{userName}</h1>
                 <div className="lg:hidden flex items-center gap-1.5 mt-0.5">
                   <div className={`w-1.5 h-1.5 rounded-full ${getHealthStatus(stats.financialHealth).color}`}></div>
-                  <span className={`text-[10px] font-bold ${stats.balance >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
+                  <span className={`text-[10px] font-bold ${stats.balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                     Saúde: {Math.round(stats.financialHealth)}%
                   </span>
                 </div>
@@ -943,7 +943,7 @@ Seu controle financeiro inteligente`.trim();
                     className={`h-full rounded-full ${getHealthStatus(stats.financialHealth).color}`}
                   />
                 </div>
-                <span className={`text-xs font-bold min-w-[32px] drop-shadow-sm ${stats.balance >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
+                <span className={`text-xs font-bold min-w-[32px] drop-shadow-sm ${stats.balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                   {Math.round(stats.financialHealth)}%
                 </span>
               </div>
@@ -968,7 +968,7 @@ Seu controle financeiro inteligente`.trim();
                   </div>
                   <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between text-[11px]">
                     <span className="text-[#6B7280]">Percentual de Saúde</span>
-                    <span className="font-bold text-blue-600">{stats.financialHealth.toFixed(1)}%</span>
+                    <span className="font-bold text-emerald-600">{stats.financialHealth.toFixed(1)}%</span>
                   </div>
                 </div>
               </div>
@@ -978,7 +978,7 @@ Seu controle financeiro inteligente`.trim();
               <div className="flex items-center gap-2">
                 <div className="text-right">
                   <p className="text-[9px] font-bold text-white uppercase tracking-wider hidden sm:block">Saldo atual</p>
-                  <p className={`text-xs sm:text-sm font-bold ${stats.balance >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
+                  <p className={`text-xs sm:text-sm font-bold ${stats.balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
