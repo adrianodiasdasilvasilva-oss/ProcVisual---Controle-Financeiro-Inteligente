@@ -103,10 +103,10 @@ interface DashboardProps {
 }
 
 const getHealthStatus = (health: number) => {
-  if (health >= 40) return { label: 'Excelente', color: 'bg-emerald-500', textColor: 'text-emerald-600' };
-  if (health >= 20) return { label: 'Bom', color: 'bg-green-400', textColor: 'text-green-500' };
-  if (health >= 10) return { label: 'Atenção', color: 'bg-yellow-400', textColor: 'text-yellow-500' };
-  return { label: 'Crítico', color: 'bg-red-500', textColor: 'text-red-600' };
+  if (health >= 40) return { label: 'Excelente', color: 'bg-emerald-500', textColor: 'text-emerald-600', vibrantTextColor: 'text-emerald-400' };
+  if (health >= 20) return { label: 'Bom', color: 'bg-green-400', textColor: 'text-green-500', vibrantTextColor: 'text-green-400' };
+  if (health >= 10) return { label: 'Atenção', color: 'bg-yellow-400', textColor: 'text-yellow-500', vibrantTextColor: 'text-yellow-400' };
+  return { label: 'Crítico', color: 'bg-red-500', textColor: 'text-red-600', vibrantTextColor: 'text-red-400' };
 };
 
 export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => {
@@ -907,36 +907,35 @@ Seu controle financeiro inteligente`.trim();
       {/* Main Content */}
       <main className={`flex-1 h-screen flex flex-col bg-[#F5F7FB] transition-all duration-300 pb-16 lg:pb-0 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
         {/* Topbar */}
-        <header className="bg-white border-b border-[#E5E7EB] shrink-0 sticky top-0 z-30">
-          <div className="px-4 lg:px-8 h-16 flex items-center justify-between">
+        <header className="bg-[#0F172A] border-b border-[#1E293B] shrink-0 sticky top-0 z-30">
+          <div className="px-4 lg:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3 lg:gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-[#6B7280] hover:bg-slate-100 rounded-lg"
+                className="p-2 text-[#9CA3AF] hover:bg-[#1E293B] rounded-lg"
               >
                 {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
               <div className="flex flex-col py-1 overflow-hidden">
-                <h1 className="text-base lg:text-2xl font-bold text-[#111827] leading-tight truncate max-w-[120px] sm:max-w-none">{userName}</h1>
+                <h1 className="text-base lg:text-2xl font-bold text-white leading-tight truncate max-w-[120px] sm:max-w-none">{userName}</h1>
                 <div className="lg:hidden flex items-center gap-1.5 mt-0.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${getHealthStatus(stats.financialHealth).color.replace('bg-', 'bg-')}`}></div>
-                  <span className={`text-[10px] font-bold ${getHealthStatus(stats.financialHealth).textColor}`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${getHealthStatus(stats.financialHealth).color}`}></div>
+                  <span className={`text-[10px] font-bold ${stats.balance >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
                     Saúde: {Math.round(stats.financialHealth)}%
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Financial Health Indicator */}
             <div className="flex-1 max-w-xs mx-8 hidden lg:block group relative">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Saúde Financeira</span>
-                <span className={`text-[10px] font-bold ${getHealthStatus(stats.financialHealth).textColor}`}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Saúde Financeira</span>
+                <span className={`text-[10px] font-bold ${getHealthStatus(stats.financialHealth).vibrantTextColor}`}>
                   Status: {getHealthStatus(stats.financialHealth).label}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="flex-1 h-2.5 bg-white rounded-full overflow-hidden shadow-inner">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.max(0, Math.min(100, stats.financialHealth))}%` }}
@@ -944,7 +943,7 @@ Seu controle financeiro inteligente`.trim();
                     className={`h-full rounded-full ${getHealthStatus(stats.financialHealth).color}`}
                   />
                 </div>
-                <span className="text-xs font-bold text-[#111827] min-w-[32px]">
+                <span className={`text-xs font-bold min-w-[32px] drop-shadow-sm ${stats.balance >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
                   {Math.round(stats.financialHealth)}%
                 </span>
               </div>
@@ -978,12 +977,12 @@ Seu controle financeiro inteligente`.trim();
             <div className="flex items-center gap-3 lg:gap-4">
               <div className="flex items-center gap-2">
                 <div className="text-right">
-                  <p className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider hidden sm:block">Saldo atual</p>
-                  <p className={`text-xs sm:text-sm font-bold ${stats.balance >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+                  <p className="text-[9px] font-bold text-white uppercase tracking-wider hidden sm:block">Saldo atual</p>
+                  <p className={`text-xs sm:text-sm font-bold ${stats.balance >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
                     R$ {stats.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-100 rounded-full overflow-hidden border border-[#E5E7EB] shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#1E293B] rounded-full overflow-hidden border border-[#1E293B] shrink-0">
                   {profileImage ? (
                     <img src={profileImage} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -997,16 +996,16 @@ Seu controle financeiro inteligente`.trim();
           </div>
         </header>
 
-        <div className={`flex-1 p-4 lg:p-8 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 p-2 lg:p-4 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
               <p className="text-slate-500 font-medium">Carregando seus dados...</p>
             </div>
           ) : activeTab === 'Dashboard' ? (
-            <div className="h-full flex flex-col space-y-4 min-h-0">
+            <div className="h-full flex flex-col space-y-2 min-h-0">
               {/* Header Section: Title, Filters & Action Buttons */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0 bg-white p-4 rounded-2xl border border-[#E5E7EB] shadow-sm">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 shrink-0 bg-white p-2 rounded-2xl border border-[#E5E7EB] shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6">
                   <h2 className="text-lg lg:text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
                   
@@ -1190,7 +1189,7 @@ Seu controle financeiro inteligente`.trim();
               </div>
 
               {/* Stats Row */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 shrink-0">
                 <StatCard 
                   title="Receita" 
                   value={`R$ ${stats.income.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`} 
@@ -1222,7 +1221,7 @@ Seu controle financeiro inteligente`.trim();
               </div>
 
               {/* Charts Section */}
-              <div className="flex-1 min-h-0 flex flex-col mt-4">
+              <div className="flex-1 min-h-0 flex flex-col mt-2">
                 {/* Chart: Para onde está indo seu dinheiro? (Treemap) */}
                 <div className="bg-white p-6 rounded-2xl border border-[#E5E7EB] shadow-sm flex-1 flex flex-col min-h-0">
                   <h3 className="text-sm font-bold text-[#111827] mb-4">
@@ -1237,7 +1236,7 @@ Seu controle financeiro inteligente`.trim();
                           stroke="#fff"
                           fill="#8884d8"
                           content={(props: any) => {
-                            const { x, y, width, height, name, value, color } = props;
+                            const { x, y, width, height, name, value, color, index } = props;
                             const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
                             const percentage = total > 0 ? (value / total) * 100 : 0;
 
@@ -1249,6 +1248,11 @@ Seu controle financeiro inteligente`.trim();
 
                             return (
                               <g>
+                                <defs>
+                                  <clipPath id={`clip-${name}-${index}`}>
+                                    <rect x={x} y={y} width={width} height={height} />
+                                  </clipPath>
+                                </defs>
                                 <rect
                                   x={x}
                                   y={y}
@@ -1261,39 +1265,41 @@ Seu controle financeiro inteligente`.trim();
                                     strokeOpacity: 1,
                                   }}
                                 />
-                                <text
-                                  x={x + 6}
-                                  y={y + (isLarge ? 30 : isMedium ? 22 : 16)}
-                                  fill="#fff"
-                                  fontSize={isLarge ? 24 : isMedium ? 14 : 10}
-                                  fontWeight="600"
-                                  opacity={0.95}
-                                >
-                                  {width > 50 ? name : name.substring(0, 3)}
-                                </text>
-                                {height > 45 && width > 40 && (
+                                <g clipPath={`url(#clip-${name}-${index})`}>
                                   <text
                                     x={x + 6}
-                                    y={y + (isLarge ? 65 : isMedium ? 45 : 32)}
+                                    y={y + (isLarge ? 30 : isMedium ? 22 : 16)}
                                     fill="#fff"
-                                    fontSize={isLarge ? 30 : isMedium ? 18 : 11}
-                                    fontWeight="bold"
+                                    fontSize={isLarge ? 24 : isMedium ? 14 : 10}
+                                    fontWeight="600"
+                                    opacity={0.95}
                                   >
-                                    R$ {value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+                                    {width > 120 ? name : width > 80 ? (name.length > 10 ? name.substring(0, 8) + '..' : name) : width > 50 ? (name.length > 6 ? name.substring(0, 5) + '..' : name) : name.substring(0, 3)}
                                   </text>
-                                )}
-                                {height > 65 && width > 40 && (
-                                  <text
-                                    x={x + 6}
-                                    y={y + (isLarge ? 95 : isMedium ? 65 : 46)}
-                                    fill="#fff"
-                                    fontSize={isLarge ? 18 : isMedium ? 13 : 9}
-                                    fontWeight="normal"
-                                    opacity={0.9}
-                                  >
-                                    {percentage.toFixed(1)}%
-                                  </text>
-                                )}
+                                  {height > 45 && width > 40 && (
+                                    <text
+                                      x={x + 6}
+                                      y={y + (isLarge ? 65 : isMedium ? 45 : 32)}
+                                      fill="#fff"
+                                      fontSize={isLarge ? 30 : isMedium ? 18 : 11}
+                                      fontWeight="bold"
+                                    >
+                                      R$ {value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+                                    </text>
+                                  )}
+                                  {height > 65 && width > 40 && (
+                                    <text
+                                      x={x + 6}
+                                      y={y + (isLarge ? 95 : isMedium ? 65 : 46)}
+                                      fill="#fff"
+                                      fontSize={isLarge ? 18 : isMedium ? 13 : 9}
+                                      fontWeight="normal"
+                                      opacity={0.9}
+                                    >
+                                      {percentage.toFixed(1)}%
+                                    </text>
+                                  )}
+                                </g>
                               </g>
                             );
                           }}
@@ -1685,13 +1691,13 @@ Seu controle financeiro inteligente`.trim();
 
 const StatCard = ({ title, value, icon, bgColor, valueColor }: any) => {
   return (
-    <div className={`p-3 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-3 h-full ${bgColor} transition-all hover:shadow-md`}>
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-white shadow-sm`}>
+    <div className={`p-2 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-2 h-full ${bgColor} transition-all hover:shadow-md`}>
+      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-white shadow-sm`}>
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[9px] font-bold text-[#6B7280] uppercase tracking-wider leading-none mb-1">{title}</p>
-        <p className={`text-lg font-black ${valueColor || 'text-[#111827]'} leading-none truncate`}>{value}</p>
+        <p className="text-[8px] font-bold text-[#6B7280] uppercase tracking-wider leading-none mb-1">{title}</p>
+        <p className={`text-base font-black ${valueColor || 'text-[#111827]'} leading-none truncate`}>{value}</p>
       </div>
     </div>
   );
