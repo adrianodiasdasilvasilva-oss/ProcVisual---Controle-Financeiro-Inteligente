@@ -42,6 +42,7 @@ interface InsightsProps {
 export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate }: InsightsProps) => {
   const [monthlySaving, setMonthlySaving] = React.useState('500');
   const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
+  const [simYears, setSimYears] = React.useState('1');
 
   // Find highest expense category for a real insight
   const topExpense = React.useMemo(() => {
@@ -90,9 +91,10 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
     const data = [];
     const monthly = parseFloat(monthlySaving) || 0;
     const rate = (parseFloat(interestRate) || 0) / 100 / 12;
+    const totalMonths = (parseInt(simYears) || 1) * 12;
     let total = 0;
 
-    for (let i = 0; i <= 12; i++) {
+    for (let i = 0; i <= totalMonths; i++) {
       data.push({
         month: i === 0 ? 'Hoje' : `${i}m`,
         valor: Math.round(total),
@@ -103,7 +105,7 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
   };
 
   const projectionData = calculateProjection();
-  const oneYearTotal = projectionData[12].valor;
+  const finalTotal = projectionData[projectionData.length - 1].valor;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -200,58 +202,31 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Monthly Comparison */}
-        <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-[#111827]">Comparação Mensal</h3>
-            <div className="flex items-center gap-4 text-xs font-medium">
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Receitas</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Gastos</div>
-            </div>
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyComparison}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <Tooltip 
-                  cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
-                  itemStyle={{ color: '#000' }}
-                  formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
-                />
-                <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />
-                <Bar dataKey="gastos" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={30} />
-              </BarChart>
-            </ResponsiveContainer>
+      {/* Monthly Comparison */}
+      <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-[#111827]">Comparação Mensal</h3>
+          <div className="flex items-center gap-4 text-xs font-medium">
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Receitas</div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Gastos</div>
           </div>
         </div>
-
-        {/* Future Projection */}
-        <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
-          <h3 className="text-lg font-bold text-[#111827] mb-6">Projeção Futura</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={projectionData}>
-                <defs>
-                  <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
-                  itemStyle={{ color: '#000' }}
-                />
-                <Area type="monotone" dataKey="valor" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValor)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={monthlyComparison}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+              <Tooltip 
+                cursor={{ fill: '#f8fafc' }}
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
+                itemStyle={{ color: '#000' }}
+                formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
+              />
+              <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />
+              <Bar dataKey="gastos" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={30} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
@@ -287,54 +262,43 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
                 className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold"
               />
             </div>
+            <div>
+              <label className="block text-sm font-bold text-[#6B7280] mb-3">Período (anos)</label>
+              <input 
+                type="number" 
+                value={simYears}
+                onChange={(e) => setSimYears(e.target.value)}
+                min="1"
+                max="30"
+                className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold"
+              />
+            </div>
           </div>
 
           <div className="lg:col-span-2 flex flex-col md:flex-row items-center justify-around p-8 bg-slate-50 rounded-[16px] border border-slate-100 gap-8">
             <div className="text-center">
-              <p className="text-sm font-bold text-[#6B7280] mb-2 uppercase tracking-wider">Em 1 ano você terá</p>
-              <h4 className="text-5xl font-black text-[#22C55E]">R$ {oneYearTotal.toLocaleString('pt-BR')}</h4>
+              <p className="text-sm font-bold text-[#6B7280] mb-2 uppercase tracking-wider">
+                Em {simYears} {parseInt(simYears) === 1 ? 'ano' : 'anos'}, seu saldo poderá chegar a
+              </p>
+              <h4 className="text-5xl font-black text-[#22C55E]">R$ {finalTotal.toLocaleString('pt-BR')}</h4>
               <p className="text-xs text-[#6B7280] mt-2 flex items-center justify-center gap-1">
                 <Info className="w-3 h-3" /> Cálculo baseado em juros compostos mensais
               </p>
             </div>
             <div className="h-20 w-px bg-slate-200 hidden md:block"></div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-[#6B7280]">Rendimento total</p>
-                  <p className="font-bold text-[#111827]">R$ {(oneYearTotal - (parseFloat(monthlySaving) * 12)).toLocaleString('pt-BR')}</p>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-emerald-600" />
               </div>
-              <div className="space-y-3">
-                <button 
-                  onClick={() => {
-                    if (stats.balance > 0) {
-                      onNavigate?.('Dashboard', parseFloat(monthlySaving));
-                    }
-                  }}
-                  disabled={stats.balance <= 0}
-                  className={`w-full px-6 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                    stats.balance > 0 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
-                >
-                  Inserir meta no seu Dashboard <ArrowRight className="w-4 h-4" />
-                </button>
-                {stats.balance <= 0 && (
-                  <p className="text-[10px] text-red-500 font-medium text-center leading-tight">
-                    <AlertCircle className="w-3 h-3 inline mr-1 mb-0.5" />
-                    Você precisa ter saldo positivo em 'Economia' para definir uma meta.
-                  </p>
-                )}
+              <div>
+                <p className="text-xs text-[#6B7280]">Rendimento total</p>
+                <p className="font-bold text-[#111827]">R$ {(finalTotal - (parseFloat(monthlySaving) * 12 * (parseInt(simYears) || 1))).toLocaleString('pt-BR')}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 };
