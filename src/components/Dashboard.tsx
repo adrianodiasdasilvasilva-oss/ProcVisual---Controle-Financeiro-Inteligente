@@ -1233,80 +1233,22 @@ Seu controle financeiro inteligente`.trim();
                   <div className="flex-1 min-h-[300px] lg:min-h-0 flex flex-col">
                     {categoryData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <Treemap
-                          data={categoryData}
-                          dataKey="value"
-                          stroke="#fff"
-                          fill="#8884d8"
-                          content={(props: any) => {
-                            const { x, y, width, height, name, value, color, index } = props;
-                            const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
-                            const percentage = total > 0 ? (value / total) * 100 : 0;
-
-                            if (width < 15 || height < 15) return null;
-
-                            const isLarge = width > 180 && height > 120;
-                            const isMedium = width > 100 && height > 60;
-                            const isSmall = width > 40 && height > 30;
-
-                            return (
-                              <g>
-                                <defs>
-                                  <clipPath id={`clip-${name}-${index}`}>
-                                    <rect x={x} y={y} width={width} height={height} />
-                                  </clipPath>
-                                </defs>
-                                <rect
-                                  x={x}
-                                  y={y}
-                                  width={width}
-                                  height={height}
-                                  style={{
-                                    fill: color,
-                                    stroke: '#fff',
-                                    strokeWidth: 1,
-                                    strokeOpacity: 1,
-                                  }}
-                                />
-                                <g clipPath={`url(#clip-${name}-${index})`}>
-                                  <text
-                                    x={x + 6}
-                                    y={y + (isLarge ? 30 : isMedium ? 22 : 16)}
-                                    fill="#fff"
-                                    fontSize={isLarge ? 24 : isMedium ? 14 : 10}
-                                    fontWeight="600"
-                                    opacity={0.95}
-                                  >
-                                    {width > 120 ? name : width > 80 ? (name.length > 10 ? name.substring(0, 8) + '..' : name) : width > 50 ? (name.length > 6 ? name.substring(0, 5) + '..' : name) : name.substring(0, 3)}
-                                  </text>
-                                  {height > 45 && width > 40 && (
-                                    <text
-                                      x={x + 6}
-                                      y={y + (isLarge ? 65 : isMedium ? 45 : 32)}
-                                      fill="#fff"
-                                      fontSize={isLarge ? 30 : isMedium ? 18 : 11}
-                                      fontWeight="bold"
-                                    >
-                                      R$ {value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
-                                    </text>
-                                  )}
-                                  {height > 65 && width > 40 && (
-                                    <text
-                                      x={x + 6}
-                                      y={y + (isLarge ? 95 : isMedium ? 65 : 46)}
-                                      fill="#fff"
-                                      fontSize={isLarge ? 18 : isMedium ? 13 : 9}
-                                      fontWeight="normal"
-                                      opacity={0.9}
-                                    >
-                                      {percentage.toFixed(1)}%
-                                    </text>
-                                  )}
-                                </g>
-                              </g>
-                            );
-                          }}
-                        >
+                        <PieChart>
+                          <Pie
+                            data={categoryData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius="60%"
+                            outerRadius="85%"
+                            paddingAngle={2}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            labelLine={false}
+                          >
+                            {categoryData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
                           <Tooltip 
                             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
                             formatter={(value: any, name: any) => {
@@ -1315,7 +1257,14 @@ Seu controle financeiro inteligente`.trim();
                               return [`R$ ${value.toLocaleString('pt-BR')} (${percentage.toFixed(1)}%)`, name];
                             }}
                           />
-                        </Treemap>
+                          <Legend 
+                            layout="horizontal" 
+                            verticalAlign="bottom" 
+                            align="center"
+                            iconType="circle"
+                            wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }}
+                          />
+                        </PieChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
