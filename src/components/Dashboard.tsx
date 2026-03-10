@@ -998,7 +998,7 @@ Seu controle financeiro inteligente`.trim();
           </div>
         </header>
 
-        <div className={`flex-1 p-2 lg:p-4 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 p-2 lg:p-4 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>

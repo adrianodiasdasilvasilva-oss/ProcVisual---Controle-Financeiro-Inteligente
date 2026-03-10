@@ -53,7 +53,7 @@ export const PaymentControl = ({
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+      <div className="bg-white p-4 sm:p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <h3 className="text-lg font-bold text-[#111827]">Todos os Lançamentos</h3>
@@ -71,11 +71,11 @@ export const PaymentControl = ({
           </div>
         </div>
         
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        <div className="overflow-x-auto pb-4 custom-scrollbar">
+          <table className="w-full text-left min-w-[900px] table-fixed sm:table-auto">
             <thead>
               <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
-                <th className="pb-4 px-4 w-10">
+                <th className="pb-4 px-4 w-12">
                   <input 
                     type="checkbox" 
                     className="w-4 h-4 rounded border-slate-300 bg-white text-[#22C55E] focus:ring-emerald-500"
@@ -86,12 +86,12 @@ export const PaymentControl = ({
                     }}
                   />
                 </th>
-                <th className="pb-4 px-4">Data</th>
+                <th className="pb-4 px-4 w-28">Data</th>
                 <th className="pb-4 px-4">Descrição</th>
-                <th className="pb-4 px-4">Categoria</th>
-                <th className="pb-4 px-4 text-right">Valor</th>
-                <th className="pb-4 px-4 text-center">Pago/Recebido</th>
-                <th className="pb-4 px-4 text-right">Ações</th>
+                <th className="pb-4 px-4 w-32">Categoria</th>
+                <th className="pb-4 px-4 w-32 text-right">Valor</th>
+                <th className="pb-4 px-4 w-32 text-center">Pago/Recebido</th>
+                <th className="pb-4 px-4 w-20 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">

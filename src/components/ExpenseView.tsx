@@ -254,15 +254,15 @@ export const ExpenseView = ({
         </div>
 
         {/* Top Expenses Table */}
-        <div className="lg:col-span-3 bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+        <div className="lg:col-span-3 bg-white p-4 sm:p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-[#111827]">Maiores Gastos do Período</h3>
             <button className="text-sm font-bold text-red-600 hover:underline flex items-center gap-1">
               Analisar todos os gastos <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto pb-4 custom-scrollbar">
+            <table className="w-full text-left min-w-[900px]">
               <thead>
                 <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
                   <th className="pb-4 px-4">Data</th>
