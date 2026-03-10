@@ -1171,6 +1171,19 @@ Seu controle financeiro inteligente`.trim();
                         </>
                       )}
                     </div>
+
+                    <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB]">
+                      <CheckCircle2 className="w-3 h-3 text-[#6B7280] ml-2" />
+                      <select 
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value as any)}
+                        className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-2 py-0.5 cursor-pointer"
+                      >
+                        <option value="all">Todos os status</option>
+                        <option value="paid">Pago / Recebido</option>
+                        <option value="pending">Pendente</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
@@ -1237,7 +1250,8 @@ Seu controle financeiro inteligente`.trim();
                         <BarChart
                           data={categoryData}
                           layout="vertical"
-                          margin={{ top: 5, right: 60, left: 0, bottom: 5 }}
+                          margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
+                          barCategoryGap={10}
                         >
                           <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f0f0f0" />
                           <XAxis type="number" hide />
@@ -1258,7 +1272,7 @@ Seu controle financeiro inteligente`.trim();
                           <Bar 
                             dataKey="value" 
                             radius={[0, 10, 10, 0]} 
-                            barSize={20}
+                            barSize={32}
                           >
                             {categoryData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
