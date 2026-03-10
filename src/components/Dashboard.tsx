@@ -1009,20 +1009,25 @@ Seu controle financeiro inteligente`.trim();
           ) : activeTab === 'Dashboard' ? (
             <div className="h-full flex flex-col space-y-2 min-h-0">
               {/* Header Section: Title, Filters & Action Buttons */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 shrink-0 bg-white p-2 rounded-2xl border border-[#E5E7EB] shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6">
-                  <h2 className="text-lg lg:text-xl font-bold text-[#111827] whitespace-nowrap">Painel Financeiro</h2>
+              <div className="flex items-center justify-between gap-2 shrink-0 bg-white p-1.5 rounded-2xl border border-[#E5E7EB] shadow-sm overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-2 lg:gap-4 shrink-0">
+                  <h2 className="text-sm lg:text-lg font-bold text-[#111827] whitespace-nowrap hidden md:block">Painel</h2>
                   
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <div className="relative">
                       <button 
                         onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-                        className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-100 transition-all"
+                        className="flex items-center gap-1.5 bg-slate-50 rounded-xl border border-[#E5E7EB] px-2 py-1.5 text-[10px] font-bold text-[#111827] hover:bg-slate-100 transition-all whitespace-nowrap"
                       >
                         <PieChartIcon className="w-3 h-3 text-emerald-500" />
-                        {selectedCategories.length === 0 ? 'Todas categorias' : 
-                         selectedCategories.length === 1 ? selectedCategories[0] :
-                         `${selectedCategories.length} categorias`}
+                        <span className="hidden sm:inline">
+                          {selectedCategories.length === 0 ? 'Categorias' : 
+                           selectedCategories.length === 1 ? selectedCategories[0] :
+                           `${selectedCategories.length} cats`}
+                        </span>
+                        <span className="sm:hidden">
+                          {selectedCategories.length === 0 ? 'Cats' : selectedCategories.length}
+                        </span>
                       </button>
                       
                       {isCategoryDropdownOpen && (
@@ -1074,14 +1079,14 @@ Seu controle financeiro inteligente`.trim();
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB]">
+                    <div className="flex items-center gap-1 bg-slate-50 rounded-xl border border-[#E5E7EB] px-1">
                       {isCustomYear ? (
                         <div className="flex items-center">
                           <input 
                             type="number"
                             value={selectedYear === -1 ? new Date().getFullYear() : selectedYear}
                             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-2 py-0.5 w-16"
+                            className="bg-transparent border-none outline-none text-[10px] font-bold text-[#111827] px-1 py-0.5 w-12"
                             autoFocus
                             onBlur={() => setIsCustomYear(false)}
                             onKeyDown={(e) => {
@@ -1092,7 +1097,7 @@ Seu controle financeiro inteligente`.trim();
                             onClick={() => setIsCustomYear(false)}
                             className="pr-1 text-[#6B7280] hover:text-[#111827]"
                           >
-                            <X className="w-2.5 h-2.5" />
+                            <X className="w-2 h-2" />
                           </button>
                         </div>
                       ) : (
@@ -1100,9 +1105,9 @@ Seu controle financeiro inteligente`.trim();
                           <select 
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                            className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-3 py-0.5 cursor-pointer"
+                            className="bg-transparent border-none outline-none text-[10px] font-bold text-[#111827] px-2 py-1.5 cursor-pointer"
                           >
-                            <option value="-1">Todos os anos</option>
+                            <option value="-1">Anos</option>
                             {years.map((year) => (
                               <option key={year} value={year}>{year}</option>
                             ))}
@@ -1120,13 +1125,18 @@ Seu controle financeiro inteligente`.trim();
                     <div className="relative">
                       <button 
                         onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
-                        className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-100 transition-all"
+                        className="flex items-center gap-1.5 bg-slate-50 rounded-xl border border-[#E5E7EB] px-2 py-1.5 text-[10px] font-bold text-[#111827] hover:bg-slate-100 transition-all whitespace-nowrap"
                       >
                         <Calendar className="w-3 h-3 text-[#6B7280]" />
-                        {selectedMonths.length === 0 ? 'Todos os meses' : 
-                         selectedMonths.length === 12 ? 'Todos os meses' :
-                         selectedMonths.length === 1 ? months[selectedMonths[0]] :
-                         `${selectedMonths.length} meses`}
+                        <span className="hidden sm:inline">
+                          {selectedMonths.length === 0 ? 'Meses' : 
+                           selectedMonths.length === 12 ? 'Todos meses' :
+                           selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                           `${selectedMonths.length} meses`}
+                        </span>
+                        <span className="sm:hidden">
+                          {selectedMonths.length === 0 ? 'Meses' : selectedMonths.length}
+                        </span>
                       </button>
                       
                       {isMonthDropdownOpen && (
@@ -1172,35 +1182,37 @@ Seu controle financeiro inteligente`.trim();
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB]">
-                      <CheckCircle2 className="w-3 h-3 text-[#6B7280] ml-2" />
+                    <div className="flex items-center gap-1 bg-slate-50 rounded-xl border border-[#E5E7EB] px-1">
+                      <CheckCircle2 className="w-3 h-3 text-[#6B7280] ml-1" />
                       <select 
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as any)}
-                        className="bg-transparent border-none outline-none text-[11px] font-bold text-[#111827] px-2 py-0.5 cursor-pointer"
+                        className="bg-transparent border-none outline-none text-[10px] font-bold text-[#111827] px-1 py-1.5 cursor-pointer"
                       >
-                        <option value="all">Todos os status</option>
-                        <option value="paid">Pago / Recebido</option>
+                        <option value="all">Status</option>
+                        <option value="paid">Pago</option>
                         <option value="pending">Pendente</option>
                       </select>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button 
                     onClick={() => setIsTransactionFormOpen(true)}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#22C55E] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#16A34A] transition-all shadow-sm active:scale-95"
+                    className="flex items-center justify-center gap-1.5 bg-[#22C55E] text-white px-3 py-2 rounded-xl text-[10px] font-bold hover:bg-[#16A34A] transition-all shadow-sm active:scale-95 whitespace-nowrap"
                   >
-                    <TrendingUp className="w-4 h-4" />
-                    Novo Lançamento
+                    <Plus className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Novo Lançamento</span>
+                    <span className="sm:hidden">Novo</span>
                   </button>
                   <button 
                     onClick={() => setActiveTab('Atualizar Lançamentos')}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[#3B82F6] text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#2563EB] transition-all shadow-sm active:scale-95"
+                    className="flex items-center justify-center gap-1.5 bg-[#3B82F6] text-white px-3 py-2 rounded-xl text-[10px] font-bold hover:bg-[#2563EB] transition-all shadow-sm active:scale-95 whitespace-nowrap"
                   >
-                    <CreditCard className="w-4 h-4" />
-                    Atualizar Lançamentos
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Atualizar Lançamentos</span>
+                    <span className="sm:hidden">Atualizar</span>
                   </button>
                 </div>
               </div>
