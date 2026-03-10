@@ -43,7 +43,8 @@ import {
   Bar, 
   Legend,
   Treemap,
-  ResponsiveContainer
+  ResponsiveContainer,
+  LabelList
 } from 'recharts';
 import { motion } from 'motion/react';
 import { PaymentControl } from './PaymentControl';
@@ -1233,38 +1234,47 @@ Seu controle financeiro inteligente`.trim();
                   <div className="flex-1 min-h-[300px] lg:min-h-0 flex flex-col">
                     {categoryData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={categoryData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius="60%"
-                            outerRadius="85%"
-                            paddingAngle={2}
-                            dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            labelLine={false}
-                          >
-                            {categoryData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
+                        <BarChart
+                          data={categoryData}
+                          layout="vertical"
+                          margin={{ top: 5, right: 60, left: 0, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f0f0f0" />
+                          <XAxis type="number" hide />
+                          <YAxis 
+                            dataKey="name" 
+                            type="category" 
+                            width={120}
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fontSize: 10, fontWeight: 'bold', fill: '#64748b', textAnchor: 'start' }}
+                            dx={-110}
+                          />
                           <Tooltip 
                             contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontSize: '11px', fontWeight: 'bold' }}
-                            formatter={(value: any, name: any) => {
-                              const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
-                              const percentage = total > 0 ? (value / total) * 100 : 0;
-                              return [`R$ ${value.toLocaleString('pt-BR')} (${percentage.toFixed(1)}%)`, name];
-                            }}
+                            formatter={(value: any) => [`R$ ${value.toLocaleString('pt-BR')}`, 'Valor']}
+                            cursor={{ fill: 'transparent' }}
                           />
-                          <Legend 
-                            layout="horizontal" 
-                            verticalAlign="bottom" 
-                            align="center"
-                            iconType="circle"
-                            wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }}
-                          />
-                        </PieChart>
+                          <Bar 
+                            dataKey="value" 
+                            radius={[0, 10, 10, 0]} 
+                            barSize={20}
+                          >
+                            {categoryData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                            <LabelList 
+                              dataKey="value" 
+                              position="right" 
+                              formatter={(value: number) => {
+                                const total = categoryData.reduce((acc, curr) => acc + curr.value, 0);
+                                return total > 0 ? `${((value / total) * 100).toFixed(1)}%` : '0%';
+                              }}
+                              style={{ fontSize: '10px', fontWeight: 'bold', fill: '#64748b' }}
+                              offset={10}
+                            />
+                          </Bar>
+                        </BarChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
