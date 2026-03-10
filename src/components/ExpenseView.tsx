@@ -141,7 +141,7 @@ export const ExpenseView = ({
   }, [expenseTransactions, selectedYear]);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-[#111827]">Análise de Despesas</h2>
         <p className="text-[#6B7280]">Controle seus gastos e identifique economias.</p>
@@ -261,8 +261,8 @@ export const ExpenseView = ({
               Analisar todos os gastos <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="overflow-x-auto pb-4 custom-scrollbar">
-            <table className="w-full text-left min-w-[900px]">
+          <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+            <table className="w-full text-left min-w-[900px] border-collapse">
               <thead>
                 <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
                   <th className="pb-4 px-4">Data</th>

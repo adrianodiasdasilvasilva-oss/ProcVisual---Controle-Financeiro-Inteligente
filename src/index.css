@@ -58,6 +58,10 @@
   @apply text-white hover:bg-[#15803D] transition-all;
 }
 
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   height: 8px;
   display: block !important;

@@ -45,7 +45,7 @@ export const PaymentControl = ({
   toggleSelectAll
 }: PaymentControlProps) => {
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[#111827]">Atualizar Lançamentos</h2>
@@ -71,8 +71,8 @@ export const PaymentControl = ({
           </div>
         </div>
         
-        <div className="overflow-x-auto pb-4 custom-scrollbar">
-          <table className="w-full text-left min-w-[900px] table-fixed sm:table-auto">
+        <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
+          <table className="w-full text-left min-w-[900px] table-fixed sm:table-auto border-collapse">
             <thead>
               <tr className="text-xs font-bold text-[#6B7280] uppercase tracking-wider border-b border-slate-100">
                 <th className="pb-4 px-4 w-12">

@@ -25,6 +25,7 @@ import {
   Mail,
   CreditCard,
   Smartphone,
+  Plus,
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -905,7 +906,7 @@ Seu controle financeiro inteligente`.trim();
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 h-screen flex flex-col bg-[#F5F7FB] transition-all duration-300 pb-16 lg:pb-0 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
+      <main className={`flex-1 min-w-0 h-screen flex flex-col bg-[#F5F7FB] transition-all duration-300 pb-16 lg:pb-0 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
         {/* Topbar */}
         <header className="bg-[#0F172A] border-b border-[#1E293B] shrink-0 sticky top-0 z-30">
           <div className="px-4 lg:px-8 h-14 flex items-center justify-between">
@@ -998,7 +999,7 @@ Seu controle financeiro inteligente`.trim();
           </div>
         </header>
 
-        <div className={`flex-1 p-2 lg:p-4 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
+        <div className={`flex-1 min-w-0 p-2 lg:p-4 ${activeTab === 'Dashboard' ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
@@ -1663,12 +1664,14 @@ Seu controle financeiro inteligente`.trim();
       </AnimatePresence>
 
       {/* Mobile FAB */}
-      <button 
-        onClick={() => setIsTransactionFormOpen(true)}
-        className="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:scale-110 active:scale-95 transition-all"
-      >
-        <TrendingUp className="w-6 h-6" />
-      </button>
+      {!['Dashboard', 'Análises', 'Configurações'].includes(activeTab) && (
+        <button 
+          onClick={() => setIsTransactionFormOpen(true)}
+          className="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:scale-110 active:scale-95 transition-all"
+        >
+          {['Receitas', 'Despesas'].includes(activeTab) ? <Plus className="w-6 h-6" /> : <TrendingUp className="w-6 h-6" />}
+        </button>
+      )}
 
       {/* Bottom Navigation for Mobile */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] h-16 flex items-center justify-around px-2 lg:hidden z-40">
