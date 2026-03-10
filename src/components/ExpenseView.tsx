@@ -148,36 +148,36 @@ export const ExpenseView = ({
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         <KPICard 
           title="Despesa Total"
-          value={`R$ ${stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+          value={`R$ ${stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
           trend={`${stats.variation >= 0 ? '+' : ''}${stats.variation.toFixed(1)}%`}
           trendUp={stats.variation <= 0} // Inverted for expenses: lower is better
-          icon={<TrendingDown className="w-6 h-6 text-red-600" />}
+          icon={<TrendingDown className="w-4 h-4 text-red-600" />}
           bgColor="bg-red-50"
-          description="vs. mês anterior"
+          valueColor="text-red-600"
         />
         <KPICard 
           title="Burn Rate"
           value={`${stats.burnRate.toFixed(1)}%`}
-          icon={<AlertCircle className="w-6 h-6 text-orange-600" />}
+          icon={<AlertCircle className="w-4 h-4 text-orange-600" />}
           bgColor="bg-orange-50"
-          description="Consumo da receita"
+          valueColor="text-orange-600"
         />
         <KPICard 
           title="Maior Saída"
-          value={`R$ ${stats.maxExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-          icon={<CreditCard className="w-6 h-6 text-slate-600" />}
+          value={`R$ ${stats.maxExpense.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
+          icon={<CreditCard className="w-4 h-4 text-slate-600" />}
           bgColor="bg-slate-50"
-          description="Gasto recorde"
+          valueColor="text-slate-600"
         />
         <KPICard 
           title="Lançamentos"
           value={stats.count.toString()}
-          icon={<Receipt className="w-6 h-6 text-blue-600" />}
+          icon={<Receipt className="w-4 h-4 text-blue-600" />}
           bgColor="bg-blue-50"
-          description="Total de notas/recibos"
+          valueColor="text-blue-600"
         />
       </div>
 
@@ -335,24 +335,22 @@ export const ExpenseView = ({
   );
 };
 
-const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: any) => (
-  <motion.div 
-    whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300"
-  >
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-3 rounded-2xl ${bgColor}`}>
-        {icon}
-      </div>
-      {trend && (
-        <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-          {trendUp ? <ArrowDownRight className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
-          {trend}
-        </div>
-      )}
+const KPICard = ({ title, value, trend, trendUp, icon, bgColor, valueColor }: any) => (
+  <div className={`p-2 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-2 h-full ${bgColor} transition-all hover:shadow-md`}>
+    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-white shadow-sm`}>
+      {icon}
     </div>
-    <p className="text-sm font-medium text-[#6B7280] mb-1">{title}</p>
-    <h4 className="text-2xl font-bold text-[#111827]">{value}</h4>
-    <p className="text-xs text-[#6B7280] mt-1">{description}</p>
-  </motion.div>
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center justify-between gap-1">
+        <p className="text-[8px] font-bold text-[#6B7280] uppercase tracking-wider leading-none mb-1 truncate">{title}</p>
+        {trend && (
+          <div className={`flex items-center gap-0.5 text-[8px] font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'} shrink-0`}>
+            {trendUp ? <ArrowDownRight className="w-2 h-2" /> : <ArrowUpRight className="w-2 h-2" />}
+            {trend}
+          </div>
+        )}
+      </div>
+      <p className={`text-base font-black ${valueColor || 'text-[#111827]'} leading-none truncate`}>{value}</p>
+    </div>
+  </div>
 );

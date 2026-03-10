@@ -52,7 +52,8 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
   // Calculate Monthly Data for Comparison
   const monthlyComparison = React.useMemo(() => {
     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const groups: Record<string, number> = {};
+    const expenseGroups: Record<string, number> = {};
+    const incomeGroups: Record<string, number> = {};
     
     // Past 4 months
     const currentMonthIndex = new Date().getMonth();
@@ -60,24 +61,28 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
     for (let i = 3; i >= 0; i--) {
       const m = months[(currentMonthIndex - i + 12) % 12];
       relevantMonths.push(m);
-      groups[m] = 0;
+      expenseGroups[m] = 0;
+      incomeGroups[m] = 0;
     }
 
-    transactions.filter(t => t.type === 'expense').forEach(t => {
+    transactions.forEach(t => {
+      if (!t.date) return;
       const [y, m, d] = t.date.split('-').map(Number);
       const date = new Date(y, m - 1, d);
       const mName = months[date.getMonth()];
-      if (groups[mName] !== undefined) {
-        groups[mName] += parseFloat(t.amount);
+      if (expenseGroups[mName] !== undefined) {
+        if (t.type === 'expense') {
+          expenseGroups[mName] += parseFloat(t.amount);
+        } else {
+          incomeGroups[mName] += parseFloat(t.amount);
+        }
       }
     });
 
-    const avg = Object.values(groups).reduce((a, b) => a + b, 0) / relevantMonths.length;
-
     return relevantMonths.map(m => ({
       month: m,
-      gastos: groups[m],
-      media: Math.round(avg)
+      gastos: expenseGroups[m],
+      receitas: incomeGroups[m]
     }));
   }, [transactions]);
 
@@ -136,9 +141,6 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
               </p>
             )}
           </div>
-          <button className="bg-white text-emerald-700 px-6 py-3 rounded-xl font-bold hover:bg-emerald-50 transition-all shrink-0">
-            Ver Detalhes
-          </button>
         </div>
         {/* Decorative background elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
@@ -204,8 +206,8 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-[#111827]">Comparação Mensal</h3>
             <div className="flex items-center gap-4 text-xs font-medium">
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500"></div> Gastos</div>
-              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-slate-200"></div> Média</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Receitas</div>
+              <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div> Gastos</div>
             </div>
           </div>
           <div className="h-64">
@@ -218,9 +220,10 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', color: '#000' }}
                   itemStyle={{ color: '#000' }}
+                  formatter={(value: number) => `R$ ${value.toLocaleString('pt-BR')}`}
                 />
-                <Bar dataKey="gastos" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={30} />
-                <Bar dataKey="media" fill="#e2e8f0" radius={[4, 4, 0, 0]} barSize={30} />
+                <Bar dataKey="receitas" fill="#10b981" radius={[4, 4, 0, 0]} barSize={30} />
+                <Bar dataKey="gastos" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>

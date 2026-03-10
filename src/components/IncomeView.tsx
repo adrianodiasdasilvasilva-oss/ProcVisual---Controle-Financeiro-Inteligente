@@ -142,36 +142,36 @@ export const IncomeView = ({
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         <KPICard 
           title="Receita Total"
-          value={`R$ ${stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+          value={`R$ ${stats.total.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
           trend={`${stats.growth.toFixed(1)}%`}
           trendUp={stats.growth >= 0}
-          icon={<DollarSign className="w-6 h-6 text-emerald-600" />}
+          icon={<DollarSign className="w-4 h-4 text-emerald-600" />}
           bgColor="bg-emerald-50"
-          description="vs. mês anterior"
+          valueColor="text-emerald-600"
         />
         <KPICard 
           title="Ticket Médio"
-          value={`R$ ${stats.avgTicket.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-          icon={<Target className="w-6 h-6 text-blue-600" />}
+          value={`R$ ${stats.avgTicket.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
+          icon={<Target className="w-4 h-4 text-blue-600" />}
           bgColor="bg-blue-50"
-          description="Por lançamento"
+          valueColor="text-blue-600"
         />
         <KPICard 
           title="Maior Entrada"
-          value={`R$ ${stats.maxIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-          icon={<TrendingUp className="w-6 h-6 text-purple-600" />}
+          value={`R$ ${stats.maxIncome.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
+          icon={<TrendingUp className="w-4 h-4 text-purple-600" />}
           bgColor="bg-purple-50"
-          description="Recorde do período"
+          valueColor="text-purple-600"
         />
         <KPICard 
           title="Volume"
           value={stats.count.toString()}
-          icon={<Calendar className="w-6 h-6 text-amber-600" />}
+          icon={<Calendar className="w-4 h-4 text-amber-600" />}
           bgColor="bg-amber-50"
-          description="Recebimentos totais"
+          valueColor="text-amber-600"
         />
       </div>
 
@@ -329,24 +329,22 @@ export const IncomeView = ({
   );
 };
 
-const KPICard = ({ title, value, trend, trendUp, icon, bgColor, description }: any) => (
-  <motion.div 
-    whileHover={{ y: -5 }}
-    className="bg-white p-6 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300"
-  >
-    <div className="flex justify-between items-start mb-4">
-      <div className={`p-3 rounded-2xl ${bgColor}`}>
-        {icon}
-      </div>
-      {trend && (
-        <div className={`flex items-center gap-1 text-xs font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'}`}>
-          {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-          {trend}
-        </div>
-      )}
+const KPICard = ({ title, value, trend, trendUp, icon, bgColor, valueColor }: any) => (
+  <div className={`p-2 rounded-2xl border border-[#E5E7EB] shadow-sm flex items-center gap-2 h-full ${bgColor} transition-all hover:shadow-md`}>
+    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-white shadow-sm`}>
+      {icon}
     </div>
-    <p className="text-sm font-medium text-[#6B7280] mb-1">{title}</p>
-    <h4 className="text-2xl font-bold text-[#111827]">{value}</h4>
-    <p className="text-xs text-[#6B7280] mt-1">{description}</p>
-  </motion.div>
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center justify-between gap-1">
+        <p className="text-[8px] font-bold text-[#6B7280] uppercase tracking-wider leading-none mb-1 truncate">{title}</p>
+        {trend && (
+          <div className={`flex items-center gap-0.5 text-[8px] font-bold ${trendUp ? 'text-emerald-600' : 'text-red-600'} shrink-0`}>
+            {trendUp ? <ArrowUpRight className="w-2 h-2" /> : <ArrowDownRight className="w-2 h-2" />}
+            {trend}
+          </div>
+        )}
+      </div>
+      <p className={`text-base font-black ${valueColor || 'text-[#111827]'} leading-none truncate`}>{value}</p>
+    </div>
+  </div>
 );
