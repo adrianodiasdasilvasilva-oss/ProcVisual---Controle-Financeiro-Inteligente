@@ -1272,7 +1272,7 @@ Seu controle financeiro inteligente`.trim();
                           <Bar 
                             dataKey="value" 
                             radius={[0, 10, 10, 0]} 
-                            barSize={32}
+                            barSize={20}
                           >
                             {categoryData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
