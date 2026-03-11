@@ -29,20 +29,31 @@ import {
   PieChart,
   Pie
 } from 'recharts';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface InsightsProps {
   transactions: any[];
   stats: any;
   categoryData: any[];
   alerts: any[];
+  goalTracking: Record<number, boolean[]>;
+  onUpdateGoalTracking: (year: number, monthIdx: number, achieved: boolean) => void;
   onNavigate?: (tab: string, value?: number) => void;
 }
 
-export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate }: InsightsProps) => {
+export const Insights = ({ 
+  transactions, 
+  stats, 
+  categoryData, 
+  alerts, 
+  goalTracking,
+  onUpdateGoalTracking,
+  onNavigate 
+}: InsightsProps) => {
   const [monthlySaving, setMonthlySaving] = React.useState('500');
   const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
   const [simYears, setSimYears] = React.useState('1');
+  const [showTracking, setShowTracking] = React.useState(false);
 
   // Find highest expense category for a real insight
   const topExpense = React.useMemo(() => {
@@ -297,7 +308,120 @@ export const Insights = ({ transactions, stats, categoryData, alerts, onNavigate
             </div>
           </div>
         </div>
+        
+        <div className="mt-8 pt-8 border-t border-slate-100 flex justify-center">
+          <button
+            onClick={() => setShowTracking(!showTracking)}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all active:scale-95 ${
+              showTracking 
+                ? 'bg-slate-100 text-slate-600' 
+                : 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700'
+            }`}
+          >
+            {showTracking ? (
+              <>Ocultar Acompanhamento</>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                Iniciar Acompanhamento de Metas
+              </>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Goal Tracking Section */}
+      <AnimatePresence>
+        {showTracking && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-white p-8 rounded-[16px] border border-[#E5E7EB] card-shadow transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-50 rounded-lg">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#111827]">Acompanhamento de Metas</h3>
+                    <p className="text-xs text-[#6B7280]">Marque os meses em que você atingiu sua meta de economia.</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500 px-2">Ano:</span>
+                  <select 
+                    className="bg-transparent border-none outline-none text-xs font-bold text-slate-900 cursor-pointer"
+                    value={new Date().getFullYear()}
+                    disabled
+                  >
+                    <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold text-slate-700">Progresso Anual</span>
+                  <span className="text-sm font-bold text-emerald-600">
+                    {Math.round(((goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0) / 12) * 100)}%
+                  </span>
+                </div>
+                <div className="h-4 bg-slate-100 rounded-full overflow-hidden shadow-inner border border-slate-200/50">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0) / 12) * 100}%` }}
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-lg"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-2 text-center italic">
+                  {goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0} de 12 meses concluídos
+                </p>
+              </div>
+
+              {/* Monthly Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((month, idx) => {
+                  const isAchieved = goalTracking[new Date().getFullYear()]?.[idx] || false;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => onUpdateGoalTracking(new Date().getFullYear(), idx, !isAchieved)}
+                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all group relative overflow-hidden ${
+                        isAchieved 
+                          ? 'bg-emerald-50 border-emerald-500 shadow-md shadow-emerald-100' 
+                          : 'bg-white border-slate-100 hover:border-slate-200 text-slate-400'
+                      }`}
+                    >
+                      {isAchieved && (
+                        <motion.div 
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute top-1 right-1"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        </motion.div>
+                      )}
+                      <span className={`text-xs font-bold uppercase tracking-wider mb-1 ${isAchieved ? 'text-emerald-700' : 'text-slate-400'}`}>
+                        {month}
+                      </span>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                        isAchieved ? 'bg-emerald-500 text-white' : 'bg-slate-50 text-slate-300 group-hover:bg-slate-100'
+                      }`}>
+                        <Target className="w-4 h-4" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

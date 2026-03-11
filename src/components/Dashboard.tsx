@@ -131,6 +131,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
+  const [goalTracking, setGoalTracking] = React.useState<Record<number, boolean[]>>({});
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [customCategories, setCustomCategories] = React.useState<{income: string[], expense: string[]}>({ income: [], expense: [] });
   const [selectedTransactions, setSelectedTransactions] = React.useState<string[]>([]);
@@ -178,6 +179,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         setUserPhone(data.phone || '');
         setNotificationsEnabled(data.notificationsEnabled !== false);
         setMonthlyGoal(data.monthlyGoal || null);
+        setGoalTracking(data.goalTracking || {});
         if (data.welcomeDismissed) {
           setIsWelcomeVisible(false);
         }
@@ -229,6 +231,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         if (t.type !== 'expense' || !t.id || !t.date || t.paid) continue;
 
         // Skip notifications if the expense was created today or later (to avoid immediate alerts for newly launched items)
+        /* 
         if (t.createdAt) {
           const createdDate = new Date(t.createdAt);
           createdDate.setHours(0, 0, 0, 0);
@@ -236,6 +239,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
             continue;
           }
         }
+        */
 
         const parts = t.date.split('-');
         if (parts.length !== 3) continue;
@@ -253,33 +257,26 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         const formatCurrency = (val: number) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const formatDate = (date: Date) => date.toLocaleDateString('pt-BR');
 
-        const buildMessage = (title: string) => `
-${title} 
-
+        const buildMessage = () => `
+Olá! 👋 Passando para avisar que a sua conta referente a categoria de "${t.category}" vence ${formatDate(dueDate)} 
 ━━━━━━━━━━━━━━━
-
-📂 Categoria: ${t.category}
 🧾 Descrição: ${t.description}
 💰 Valor: ${formatCurrency(parseFloat(t.amount))}
-
-📅 Data: ${formatDate(dueDate)}
-
 ━━━━━━━━━━━━━━━
-
 📊 Resumo do mês:
 • Total gasto: ${formatCurrency(totalGastoMes)}
 • Restante do orçamento: ${formatCurrency(economia)}
 
 ⚠️ Atenção: Você já utilizou ${percentUtilizado}% do seu limite mensal.
-
 ━━━━━━━━━━━━━━━
 
 🔗 *ProcVisual*
-Acesse seu dashboard: \u200B${window.location.origin}
+Acesse seu dashboard: https://proc-visual-controle-financeiro-int.vercel.app/
 
 Seu controle financeiro inteligente`.trim();
 
         // 5 days before (or less, but more than 0)
+        /*
         if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
           processingNotificationsRef.current.add(fiveDayKey);
           
@@ -293,7 +290,7 @@ Seu controle financeiro inteligente`.trim();
             console.error("Error double checking notification status:", e);
           }
 
-          const message = buildMessage('💸 Alerta de vencimento próximo');
+          const message = buildMessage();
           const res = await sendWhatsAppMessage(phone, message);
           if (res.success) {
             // Update immediately to prevent duplicate if app closes or re-runs
@@ -302,6 +299,7 @@ Seu controle financeiro inteligente`.trim();
             processingNotificationsRef.current.delete(fiveDayKey);
           }
         }
+        */
 
         // On due date
         if (diffDays === 0 && !t.notifiedOnDueDate && !processingNotificationsRef.current.has(dueDayKey)) {
@@ -317,7 +315,7 @@ Seu controle financeiro inteligente`.trim();
             console.error("Error double checking notification status:", e);
           }
 
-          const message = buildMessage('🚨 Alerta de vencimento HOJE');
+          const message = buildMessage();
           const res = await sendWhatsAppMessage(phone, message);
           if (res.success) {
             // Update immediately
@@ -376,6 +374,28 @@ Seu controle financeiro inteligente`.trim();
     if (selectedMonths.length === 1) return months[selectedMonths[0]];
     return selectedMonths.map(m => months[m].substring(0, 3)).join('_');
   }, [selectedMonths, months]);
+
+  const handleUpdateGoalTracking = async (year: number, monthIdx: number, achieved: boolean) => {
+    if (!auth.currentUser) return;
+    
+    const currentYearTracking = goalTracking[year] || Array(12).fill(false);
+    const updatedYearTracking = [...currentYearTracking];
+    updatedYearTracking[monthIdx] = achieved;
+    
+    const updatedTracking = {
+      ...goalTracking,
+      [year]: updatedYearTracking
+    };
+    
+    setGoalTracking(updatedTracking);
+    
+    try {
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(userDocRef, { goalTracking: updatedTracking }, { merge: true });
+    } catch (error) {
+      console.error('Error updating goal tracking:', error);
+    }
+  };
 
   const handleSavePhone = async () => {
     if (!auth.currentUser) return;
@@ -1344,6 +1364,8 @@ Seu controle financeiro inteligente`.trim();
               stats={stats} 
               categoryData={categoryData} 
               alerts={alerts}
+              goalTracking={goalTracking}
+              onUpdateGoalTracking={handleUpdateGoalTracking}
               onNavigate={async (tab, value) => {
                 setActiveTab(tab);
                 if (tab === 'Dashboard' && value !== undefined) {
