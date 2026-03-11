@@ -26,6 +26,7 @@ import {
   CreditCard,
   Smartphone,
   Plus,
+  FileText,
 } from 'lucide-react';
 import { 
   PieChart, 
@@ -69,6 +70,7 @@ import { IncomeView } from './IncomeView';
 import { ExpenseView } from './ExpenseView';
 import { ImageCropper } from './ImageCropper';
 import { FinancialHealthGauge } from './FinancialHealthGauge';
+import { Reports } from './Reports';
 import { AnimatePresence } from 'motion/react';
 import { sendWhatsAppMessage } from '../services/whapiService';
 import { MessageSquare, Phone as PhoneIcon } from 'lucide-react';
@@ -845,6 +847,7 @@ Seu controle financeiro inteligente`.trim();
     { icon: <TrendingUp className="w-5 h-5" />, label: 'Receitas' },
     { icon: <TrendingDown className="w-5 h-5" />, label: 'Despesas' },
     { icon: <PieChartIcon className="w-5 h-5" />, label: 'Análises' },
+    { icon: <FileText className="w-5 h-5" />, label: 'Relatórios' },
     { icon: <Settings className="w-5 h-5" />, label: 'Configurações' },
     { icon: <LifeBuoy className="w-5 h-5" />, label: 'Suporte' },
   ];
@@ -1345,6 +1348,11 @@ Seu controle financeiro inteligente`.trim();
                 }
               }}
             />
+          ) : activeTab === 'Relatórios' ? (
+            <Reports 
+              transactions={transactions} 
+              monthlyGoal={monthlyGoal} 
+            />
           ) : activeTab === 'Configurações' ? (
             <div className="max-w-2xl mx-auto space-y-8">
               <div className="bg-white p-8 rounded-[16px] border border-[#E5E7EB] card-shadow">
@@ -1637,7 +1645,7 @@ Seu controle financeiro inteligente`.trim();
       </AnimatePresence>
 
       {/* Mobile FAB */}
-      {!['Dashboard', 'Análises', 'Configurações'].includes(activeTab) && (
+      {!['Dashboard', 'Análises', 'Configurações', 'Relatórios'].includes(activeTab) && (
         <button 
           onClick={() => setIsTransactionFormOpen(true)}
           className="lg:hidden fixed bottom-20 right-6 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 hover:scale-110 active:scale-95 transition-all"
