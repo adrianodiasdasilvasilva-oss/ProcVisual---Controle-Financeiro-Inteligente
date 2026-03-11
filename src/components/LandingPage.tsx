@@ -126,51 +126,40 @@ export const Hero = ({ onSignup }: HeroProps) => {
               Ver demonstração
             </button>
           </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          className="relative max-w-5xl mx-auto"
-        >
-          <div className="bg-white rounded-3xl p-4 md:p-8 card-shadow border border-slate-100 overflow-hidden">
-            {/* Mockup Dashboard Header */}
-            <div className="flex items-center justify-between mb-8 pb-4 border-bottom border-slate-100">
-              <div className="flex gap-4">
-                <div className="w-32 h-8 bg-slate-100 rounded-md animate-pulse"></div>
-                <div className="w-24 h-8 bg-slate-100 rounded-md animate-pulse"></div>
-              </div>
-              <div className="w-10 h-10 bg-slate-100 rounded-full animate-pulse"></div>
-            </div>
-            
-            {/* Mockup Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="w-12 h-12 bg-white rounded-xl mb-4 shadow-sm"></div>
-                  <div className="h-4 w-24 bg-slate-200 rounded mb-2"></div>
-                  <div className="h-8 w-32 bg-slate-300 rounded"></div>
+          {/* Dashboard Preview Images */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 max-w-6xl mx-auto px-4"
+          >
+            {[
+              { title: "Painel Geral", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_3.png" },
+              { title: "Análise de Despesas", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_1.png" },
+              { title: "Análise de Receitas", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_2.png" },
+              { title: "Relatórios Detalhados", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_0.png" }
+            ].map((item, i) => (
+              <div key={i} className="group relative">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-lg transition-all group-hover:shadow-xl group-hover:-translate-y-2 bg-white p-2">
+                  <div className="aspect-[9/16] overflow-hidden rounded-xl bg-slate-50">
+                    <img 
+                      src={item.img} 
+                      alt={item.title} 
+                      className="w-full h-full object-contain"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="mt-3 text-center">
+                    <span className="text-slate-900 text-sm font-bold">{item.title}</span>
+                  </div>
+                  <div className="absolute inset-0 bg-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"></div>
                 </div>
-              ))}
-            </div>
-
-            {/* Mockup Chart Area */}
-            <div className="h-64 bg-slate-50 rounded-2xl border border-slate-100 p-6 flex items-end gap-2">
-              {[40, 70, 45, 90, 65, 80, 55, 95, 75, 60, 85, 50].map((h, i) => (
-                <div 
-                  key={i} 
-                  className="flex-1 bg-emerald-500/20 rounded-t-lg transition-all hover:bg-emerald-500/40"
-                  style={{ height: `${h}%` }}
-                ></div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Decorative Elements */}
-          <div className="absolute -top-6 -right-6 w-24 h-24 bg-emerald-100 rounded-full blur-3xl opacity-50 -z-10"></div>
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50 -z-10"></div>
+              </div>
+            ))}
+          </motion.div>
         </motion.div>
+
       </div>
     </section>
   );
@@ -266,10 +255,10 @@ export const WhatsAppSection = () => {
               
               <div className="space-y-4">
                 {[
-                  "Alertas de contas a pagar e receber",
-                  "Envio de relatórios PDF/Excel por mensagem",
-                  "Resumos financeiros rápidos via chat",
-                  "Suporte técnico humanizado e instantâneo"
+                  "Alertas de contas a pagar",
+                  "Envio de relatórios em PDF por mensagem",
+                  "Resumos financeiros rápidos",
+                  "Suporte técnico humanizado"
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 text-slate-300">
                     <div className="w-5 h-5 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400">
@@ -302,23 +291,21 @@ export const WhatsAppSection = () => {
                 </div>
                 
                 <div className="p-4 space-y-4">
-                  <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
-                    <p className="text-[11px] text-slate-800">Olá! 👋 Passando para avisar que a conta <b>Aluguel</b> vence amanhã (12/03).</p>
-                    <p className="text-[9px] text-slate-400 text-right mt-1">09:41</p>
-                  </div>
-                  
-                  <div className="bg-[#DCF8C6] p-3 rounded-lg rounded-tr-none shadow-sm max-w-[85%] ml-auto">
-                    <p className="text-[11px] text-slate-800">Obrigado! Pode me enviar o relatório de gastos deste mês?</p>
-                    <p className="text-[9px] text-slate-400 text-right mt-1">09:42</p>
-                  </div>
-
-                  <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
-                    <p className="text-[11px] text-slate-800">Com certeza! Segue o relatório detalhado em PDF e Excel. 👇</p>
-                    <div className="mt-2 p-2 bg-slate-50 rounded border border-slate-100 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-red-500" />
-                      <span className="text-[9px] font-bold">Relatorio_Março.pdf</span>
+                  <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[95%]">
+                    <div className="text-[10px] text-slate-800 space-y-1">
+                      <p>Olá! 👋 Passando para avisar que a sua categoria de <b>Moradia</b> vence 11/03/2026</p>
+                      <p>━━━━━━━━━━━━━━━</p>
+                      <p>🧾 Descrição: Internet</p>
+                      <p>💰 Valor: R$ 100,00</p>
+                      <p>━━━━━━━━━━━━━━━</p>
+                      <p>📊 Resumo do mês:</p>
+                      <p>• Total gasto: R$ 1.837,27</p>
+                      <p>• Restante do orçamento: R$ 1.662,73</p>
+                      <br />
+                      <p>⚠️ Atenção: Você já utilizou 52% da sua receita.</p>
+                      <p>━━━━━━━━━━━━━━━</p>
                     </div>
-                    <p className="text-[9px] text-slate-400 text-right mt-1">09:42</p>
+                    <p className="text-[8px] text-slate-400 text-right mt-1">09:41</p>
                   </div>
                 </div>
               </div>
