@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Header, Hero, Features, Footer } from './components/LandingPage';
+import { Header, Hero, Features, Footer, WhatsAppSection, Pricing } from './components/LandingPage';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 import { auth, db } from './firebase';
@@ -413,6 +413,8 @@ export default function App() {
       <main>
         <Hero onSignup={handleSignup} />
         <Features />
+        <WhatsAppSection />
+        <Pricing onSignup={handleSignup} />
         
         {/* Extra Section for better flow */}
         <section className="py-24 bg-emerald-600 overflow-hidden relative">

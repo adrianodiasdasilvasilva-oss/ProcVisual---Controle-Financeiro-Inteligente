@@ -354,7 +354,10 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
                 className="flex items-center gap-2 bg-transparent px-3 py-1.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
               >
                 <Calendar className="w-4 h-4 text-slate-400" />
-                {monthsLabel}
+                {selectedMonths.length === 0 ? 'Todos os meses' : 
+                 selectedMonths.length === 12 ? 'Todos os meses' :
+                 selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                 `${selectedMonths.length} meses`}
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isMonthDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               

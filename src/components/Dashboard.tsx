@@ -1132,7 +1132,10 @@ Seu controle financeiro inteligente`.trim();
                         className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-100 transition-all"
                       >
                         <Calendar className="w-3 h-3 text-[#6B7280]" />
-                        {monthsLabel}
+                        {selectedMonths.length === 0 ? 'Todos os meses' : 
+                         selectedMonths.length === 12 ? 'Todos os meses' :
+                         selectedMonths.length === 1 ? months[selectedMonths[0]] :
+                         `${selectedMonths.length} meses`}
                       </button>
                       
                       {isMonthDropdownOpen && (
