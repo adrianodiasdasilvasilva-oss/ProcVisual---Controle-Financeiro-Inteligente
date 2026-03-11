@@ -346,6 +346,86 @@ export const Pricing = ({ onSignup }: { onSignup: () => void }) => {
 };
 
 export const Footer = () => {
+  const [activeModal, setActiveModal] = React.useState<'terms' | 'privacy' | 'contact' | 'about' | null>(null);
+
+  const modals = {
+    terms: {
+      title: "Termos de Uso",
+      content: (
+        <div className="space-y-6 text-slate-600">
+          <section>
+            <h4 className="font-bold text-slate-900 mb-2">1. Aceitação dos termos</h4>
+            <p>Ao utilizar a ProcVisual, você concorda com os termos e condições descritos nesta página.</p>
+          </section>
+          <section>
+            <h4 className="font-bold text-slate-900 mb-2">2. Uso da plataforma</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>O usuário é responsável pelos dados inseridos.</li>
+              <li>A ProcVisual é uma ferramenta de organização financeira.</li>
+              <li>Não oferecemos aconselhamento financeiro profissional.</li>
+            </ul>
+          </section>
+          <section>
+            <h4 className="font-bold text-slate-900 mb-2">3. Responsabilidade do usuário</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Manter senha segura.</li>
+              <li>Informações financeiras são inseridas pelo próprio usuário.</li>
+            </ul>
+          </section>
+          <section>
+            <h4 className="font-bold text-slate-900 mb-2">4. Limitação de responsabilidade</h4>
+            <p>A ProcVisual não se responsabiliza por decisões financeiras tomadas com base nas informações registradas no sistema.</p>
+          </section>
+          <section>
+            <h4 className="font-bold text-slate-900 mb-2">5. Alterações</h4>
+            <p>Os termos podem ser atualizados a qualquer momento para melhorar o serviço.</p>
+          </section>
+        </div>
+      )
+    },
+    privacy: {
+      title: "Política de Privacidade",
+      content: (
+        <div className="space-y-6 text-slate-600">
+          <p>Utilizamos práticas de segurança para proteger suas informações. Seus dados financeiros são privados e não são vendidos ou compartilhados com terceiros.</p>
+          <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-center gap-3">
+            <span className="text-2xl">🔐</span>
+            <p className="text-emerald-800 font-medium text-sm">Seus dados financeiros são visíveis apenas para você.</p>
+          </div>
+          <p>O usuário pode solicitar a exclusão de seus dados a qualquer momento.</p>
+        </div>
+      )
+    },
+    contact: {
+      title: "Contato",
+      content: (
+        <div className="space-y-6 text-slate-600">
+          <div className="text-center py-4">
+            <h4 className="font-bold text-slate-900 text-xl mb-2">Suporte ProcVisual</h4>
+            <p className="mb-6">Se tiver dúvidas, sugestões ou problemas, entre em contato:</p>
+            <a href="mailto:procvisual.dashboard@gmail.com" className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all">
+              📧 Email: procvisual.dashboard@gmail.com
+            </a>
+          </div>
+          <p className="text-center text-sm italic">Nossa equipe está sempre trabalhando para melhorar a ProcVisual. Ficaremos felizes em ouvir você.</p>
+        </div>
+      )
+    },
+    about: {
+      title: "Sobre a ProcVisual",
+      content: (
+        <div className="space-y-4 text-slate-600 leading-relaxed">
+          <p>A ProcVisual foi criada para ajudar pessoas a visualizar suas finanças de forma simples, clara e inteligente.</p>
+          <p>Acreditamos que entender para onde o dinheiro está indo é o primeiro passo para conquistar uma vida financeira mais equilibrada. Por isso, a ProcVisual oferece ferramentas práticas para registrar receitas, acompanhar despesas e analisar hábitos financeiros de forma visual e fácil de compreender.</p>
+          <p>Com gráficos intuitivos, relatórios organizados e indicadores de saúde financeira, nossa missão é transformar números em informações úteis para o dia a dia. Assim, cada usuário pode tomar decisões financeiras com mais consciência, planejamento e segurança.</p>
+          <p>A ProcVisual foi pensada para ser acessível a qualquer pessoa, independentemente do nível de conhecimento em finanças. Nosso objetivo é simplificar o controle financeiro e ajudar você a ter mais clareza sobre sua vida financeira.</p>
+          <p>Estamos sempre trabalhando para melhorar a plataforma e desenvolver novas funcionalidades que tornem a experiência cada vez mais prática, eficiente e útil para nossos usuários.</p>
+          <p className="font-bold text-slate-900 mt-6">ProcVisual — visualize melhor suas finanças e tome decisões mais inteligentes.</p>
+        </div>
+      )
+    }
+  };
+
   return (
     <footer className="bg-slate-50 border-t border-slate-200 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -362,10 +442,11 @@ export const Footer = () => {
             <span className="text-lg font-bold tracking-tight text-slate-900">ProcVisual</span>
           </div>
           
-          <nav className="flex gap-8">
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Termos</a>
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Privacidade</a>
-            <a href="#" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Contato</a>
+          <nav className="flex flex-wrap justify-center gap-6 md:gap-8">
+            <button onClick={() => setActiveModal('about')} className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Sobre</button>
+            <button onClick={() => setActiveModal('terms')} className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Termos</button>
+            <button onClick={() => setActiveModal('privacy')} className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Privacidade</button>
+            <button onClick={() => setActiveModal('contact')} className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Contato</button>
           </nav>
 
           <div className="text-sm text-slate-400">
@@ -373,6 +454,38 @@ export const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Overlay */}
+      {activeModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+          >
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <h3 className="text-xl font-bold text-slate-900">{modals[activeModal].title}</h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-slate-500" />
+              </button>
+            </div>
+            <div className="p-8 overflow-y-auto">
+              {modals[activeModal].content}
+            </div>
+            <div className="p-6 border-t border-slate-100 text-center bg-slate-50/50">
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all"
+              >
+                Fechar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </footer>
   );
 };
