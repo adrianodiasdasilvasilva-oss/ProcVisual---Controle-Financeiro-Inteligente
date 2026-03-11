@@ -223,8 +223,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
       });
 
       const economia = totalReceitaMes - totalGastoMes;
-      const goalValue = goal || totalReceitaMes || 0;
-      const percentUtilizado = goalValue > 0 ? Math.round((totalGastoMes / goalValue) * 100) : 0;
+      const percentUtilizado = totalReceitaMes > 0 ? Math.round((totalGastoMes / totalReceitaMes) * 100) : 0;
 
       for (const t of currentTransactions) {
         // Only notify for unpaid expenses
@@ -258,7 +257,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         const formatDate = (date: Date) => date.toLocaleDateString('pt-BR');
 
         const buildMessage = () => `
-Olá! 👋 Passando para avisar que a sua conta referente a categoria de "${t.category}" vence ${formatDate(dueDate)} 
+Olá! 👋 Passando para avisar que a sua conta referente a categoria de ${t.category} vence ${formatDate(dueDate)} 
 ━━━━━━━━━━━━━━━
 🧾 Descrição: ${t.description}
 💰 Valor: ${formatCurrency(parseFloat(t.amount))}
@@ -267,7 +266,7 @@ Olá! 👋 Passando para avisar que a sua conta referente a categoria de "${t.ca
 • Total gasto: ${formatCurrency(totalGastoMes)}
 • Restante do orçamento: ${formatCurrency(economia)}
 
-⚠️ Atenção: Você já utilizou ${percentUtilizado}% do seu limite mensal.
+⚠️ Atenção: Você já utilizou ${percentUtilizado}% da sua receita.
 ━━━━━━━━━━━━━━━
 
 🔗 *ProcVisual*
