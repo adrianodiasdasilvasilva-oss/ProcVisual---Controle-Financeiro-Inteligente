@@ -15,7 +15,6 @@ import {
   ArrowDownRight,
   CheckCircle2,
   Clock,
-  Printer,
   FileSpreadsheet,
   MessageCircle
 } from 'lucide-react';
@@ -34,7 +33,7 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 interface Transaction {
@@ -56,7 +55,8 @@ const COLORS = ['#F85151', '#F79E44', '#4699A3', '#89B16B', '#8B5CF6', '#F59E0B'
 
 export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
   const [reportType, setReportType] = React.useState<'detailed' | 'category' | 'monthly' | 'forecast'>('detailed');
-  const [selectedMonth, setSelectedMonth] = React.useState(new Date().getMonth());
+  const [selectedMonths, setSelectedMonths] = React.useState<number[]>([new Date().getMonth()]);
+  const [isMonthDropdownOpen, setIsMonthDropdownOpen] = React.useState(false);
   const [selectedYear, setSelectedYear] = React.useState(new Date().getFullYear());
   const [categoryFilter, setCategoryFilter] = React.useState('all');
   const [sortConfig, setSortConfig] = React.useState<{ key: 'date' | 'amount'; direction: 'asc' | 'desc' }>({ key: 'date', direction: 'desc' });
@@ -71,7 +71,7 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
   const filteredTransactions = React.useMemo(() => {
     return transactions.filter(t => {
       const date = new Date(t.date + 'T00:00:00');
-      const monthMatch = date.getMonth() === selectedMonth;
+      const monthMatch = selectedMonths.length === 0 || selectedMonths.includes(date.getMonth());
       const yearMatch = date.getFullYear() === selectedYear;
       const categoryMatch = categoryFilter === 'all' || t.category === categoryFilter;
       return monthMatch && yearMatch && categoryMatch;
@@ -86,12 +86,18 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
         return sortConfig.direction === 'asc' ? amountA - amountB : amountB - amountA;
       }
     });
-  }, [transactions, selectedMonth, selectedYear, categoryFilter, sortConfig]);
+  }, [transactions, selectedMonths, selectedYear, categoryFilter, sortConfig]);
 
   const categories = React.useMemo(() => {
     const cats = new Set(transactions.map(t => t.category));
     return ['all', ...Array.from(cats)];
   }, [transactions]);
+
+  const monthsLabel = React.useMemo(() => {
+    if (selectedMonths.length === 0 || selectedMonths.length === 12) return 'Todos os meses';
+    if (selectedMonths.length === 1) return months[selectedMonths[0]];
+    return selectedMonths.map(m => months[m].substring(0, 3)).join('_');
+  }, [selectedMonths, months]);
 
   const categoryStats = React.useMemo(() => {
     const expenses = filteredTransactions.filter(t => t.type === 'expense');
@@ -161,12 +167,39 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Relatório");
-    XLSX.writeFile(wb, `Relatorio_Financeiro_${months[selectedMonth]}_${selectedYear}.xlsx`);
+    const excelLabel = selectedMonths.length === 0 || selectedMonths.length === 12 
+      ? 'Todos_Meses' 
+      : monthsLabel.replace(/ /g, '_');
+    XLSX.writeFile(wb, `Relatorio_Financeiro_${excelLabel}_${selectedYear}.xlsx`);
   };
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const title = `Relatório Financeiro - ${months[selectedMonth]} / ${selectedYear}`;
+    const logoUrl = 'https://i.imgur.com/mPPZOMY.jpeg';
+    const footerText = 'ProcVisual - Controle Inteligente';
+    
+    const addHeaderAndFooter = (data?: any) => {
+      // Logo
+      try {
+        doc.addImage(logoUrl, 'JPEG', 170, 10, 20, 20);
+      } catch (e) {
+        // Silently fail if logo cannot be loaded
+      }
+
+      // Footer
+      const pageSize = doc.internal.pageSize;
+      const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+      const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+      
+      doc.setFontSize(10);
+      doc.setTextColor(150);
+      doc.text(footerText, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      
+      // Reset for main content
+      doc.setTextColor(0);
+    };
+
+    const title = `Relatório Financeiro - ${monthsLabel} / ${selectedYear}`;
     
     doc.setFontSize(18);
     doc.text(title, 14, 22);
@@ -183,10 +216,11 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
         t.paid ? 'Pago' : 'Pendente'
       ]);
 
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 40,
         head: [['Data', 'Descrição', 'Categoria', 'Valor', 'Status']],
         body: tableData,
+        didDrawPage: addHeaderAndFooter,
       });
     } else if (reportType === 'category') {
       const tableData = categoryStats.map(c => [
@@ -195,10 +229,11 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
         `${c.percent.toFixed(1)}%`
       ]);
 
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 40,
         head: [['Categoria', 'Total Gasto', 'Percentual']],
         body: tableData,
+        didDrawPage: addHeaderAndFooter,
       });
     } else if (reportType === 'monthly') {
       doc.text(`Resumo Financeiro:`, 14, 45);
@@ -214,21 +249,55 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
         .map(t => [t.description, t.category, `R$ ${parseFloat(t.amount).toLocaleString('pt-BR')}`]);
 
       doc.text(`Top 5 Maiores Gastos:`, 14, 105);
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 110,
         head: [['Descrição', 'Categoria', 'Valor']],
         body: topExpenses,
+        didDrawPage: addHeaderAndFooter,
       });
+    } else if (reportType === 'forecast') {
+      doc.text(`Previsão de Saldo do Mês:`, 14, 45);
+      doc.text(`Saldo Atual (Pago): R$ ${forecastStats.currentBalance.toLocaleString('pt-BR')}`, 14, 55);
+      doc.text(`Receitas Previstas: R$ ${forecastStats.futureIncome.toLocaleString('pt-BR')}`, 14, 65);
+      doc.text(`Despesas Previstas: R$ ${forecastStats.futureExpense.toLocaleString('pt-BR')}`, 14, 75);
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Saldo Estimado Final: R$ ${forecastStats.estimatedBalance.toLocaleString('pt-BR')}`, 14, 90);
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      const statusText = forecastStats.status === 'safe' ? 'Saldo Confortável' :
+                         forecastStats.status === 'warning' ? 'Atenção Necessária' :
+                         'Risco de Saldo Negativo';
+      doc.text(`Status: ${statusText}`, 14, 100);
+
+      const tableData = [
+        ['Saldo Atual', `R$ ${forecastStats.currentBalance.toLocaleString('pt-BR')}`],
+        ['Receitas Futuras', `R$ ${forecastStats.futureIncome.toLocaleString('pt-BR')}`],
+        ['Despesas Futuras', `R$ ${forecastStats.futureExpense.toLocaleString('pt-BR')}`],
+        ['Saldo Estimado', `R$ ${forecastStats.estimatedBalance.toLocaleString('pt-BR')}`]
+      ];
+
+      autoTable(doc, {
+        startY: 110,
+        head: [['Indicador', 'Valor']],
+        body: tableData,
+        didDrawPage: addHeaderAndFooter,
+      });
+    } else {
+      // For other types or if no table is drawn, add footer manually
+      addHeaderAndFooter();
     }
 
-    doc.save(`Relatorio_${reportType}_${months[selectedMonth]}.pdf`);
+    doc.save(`Relatorio_${reportType}_${monthsLabel.replace(/ /g, '_')}.pdf`);
   };
 
   const shareOnWhatsApp = () => {
     const lines = [];
     lines.push("*Relatório Financeiro - ProcVisual*");
     lines.push("--------------------------------");
-    lines.push(`📅 *Período:* ${months[selectedMonth]} / ${selectedYear}`);
+    lines.push(`📅 *Período:* ${monthsLabel} / ${selectedYear}`);
     lines.push("");
 
     if (reportType === 'monthly') {
@@ -265,10 +334,6 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
     window.open(url.toString(), '_blank');
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <div className="p-4 lg:p-8 space-y-6 overflow-y-auto h-full pb-24">
       {/* Header & Filters */}
@@ -283,15 +348,58 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
-            <select 
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-              className="bg-transparent text-sm font-bold text-slate-700 px-3 py-1.5 outline-none cursor-pointer"
-            >
-              {months.map((m, i) => (
-                <option key={i} value={i}>{m}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <button 
+                onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
+                className="flex items-center gap-2 bg-transparent px-3 py-1.5 text-sm font-bold text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
+              >
+                <Calendar className="w-4 h-4 text-slate-400" />
+                {monthsLabel}
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isMonthDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isMonthDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsMonthDropdownOpen(false)}></div>
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 p-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 border-b border-slate-100 mb-1 flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">Selecionar Meses</span>
+                      <button 
+                        onClick={() => {
+                          if (selectedMonths.length === 12) setSelectedMonths([]);
+                          else setSelectedMonths(Array.from({ length: 12 }, (_, i) => i));
+                        }}
+                        className="text-[10px] font-bold text-blue-600 hover:underline"
+                      >
+                        {selectedMonths.length === 12 ? 'Limpar' : 'Todos'}
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-1 max-h-64 overflow-y-auto p-1">
+                      {months.map((month, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            setSelectedMonths(prev => 
+                              prev.includes(index) 
+                                ? prev.filter(m => m !== index) 
+                                : [...prev, index].sort((a, b) => a - b)
+                            );
+                          }}
+                          className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
+                            selectedMonths.includes(index) 
+                              ? 'bg-blue-50 text-blue-600 font-bold' 
+                              : 'text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          {month}
+                          {selectedMonths.includes(index) && <CheckCircle2 className="w-4 h-4" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <select 
               value={selectedYear}
               onChange={(e) => setSelectedYear(parseInt(e.target.value))}
@@ -304,13 +412,6 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-slate-600 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all shadow-sm"
-            >
-              <Printer className="w-4 h-4" />
-              Imprimir
-            </button>
             <button 
               onClick={exportToPDF}
               className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition-all shadow-sm"
@@ -334,7 +435,7 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
         {[
           { id: 'detailed', label: 'Detalhadas', icon: <TableIcon className="w-4 h-4" /> },
           { id: 'category', label: 'Por Categoria', icon: <PieChartIcon className="w-4 h-4" /> },
-          { id: 'monthly', label: 'Resumo Mensal', icon: <FileText className="w-4 h-4" /> },
+          { id: 'monthly', label: selectedMonths.length === 1 ? 'Resumo Mensal' : 'Resumo do Período', icon: <FileText className="w-4 h-4" /> },
           { id: 'forecast', label: 'Previsão', icon: <TrendingUp className="w-4 h-4" /> },
         ].map((tab) => (
           <button
@@ -543,7 +644,9 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
                   <div className="flex-1 space-y-4">
                     <h3 className="text-xl font-bold text-slate-800">Resumo Automático</h3>
                     <p className="text-slate-600 leading-relaxed">
-                      Neste mês de <span className="font-bold text-slate-800">{months[selectedMonth]}</span>, suas despesas representaram <span className={`font-bold ${monthlyStats.expensePercentOfIncome > 80 ? 'text-red-600' : 'text-blue-600'}`}>{monthlyStats.expensePercentOfIncome.toFixed(1)}%</span> da sua renda total.
+                      Neste período de <span className="font-bold text-slate-800">
+                        {monthsLabel}
+                      </span>, suas despesas representaram <span className={`font-bold ${monthlyStats.expensePercentOfIncome > 80 ? 'text-red-600' : 'text-blue-600'}`}>{monthlyStats.expensePercentOfIncome.toFixed(1)}%</span> da sua renda total.
                     </p>
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                       <p className="text-sm text-slate-500">

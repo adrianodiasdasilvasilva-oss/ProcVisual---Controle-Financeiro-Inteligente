@@ -371,6 +371,12 @@ Seu controle financeiro inteligente`.trim();
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
 
+  const monthsLabel = React.useMemo(() => {
+    if (selectedMonths.length === 0 || selectedMonths.length === 12) return 'Todos os meses';
+    if (selectedMonths.length === 1) return months[selectedMonths[0]];
+    return selectedMonths.map(m => months[m].substring(0, 3)).join('_');
+  }, [selectedMonths, months]);
+
   const handleSavePhone = async () => {
     if (!auth.currentUser) return;
     setIsSavingPhone(true);
@@ -1126,10 +1132,7 @@ Seu controle financeiro inteligente`.trim();
                         className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-bold text-[#111827] hover:bg-slate-100 transition-all"
                       >
                         <Calendar className="w-3 h-3 text-[#6B7280]" />
-                        {selectedMonths.length === 0 ? 'Todos os meses' : 
-                         selectedMonths.length === 12 ? 'Todos os meses' :
-                         selectedMonths.length === 1 ? months[selectedMonths[0]] :
-                         `${selectedMonths.length} meses`}
+                        {monthsLabel}
                       </button>
                       
                       {isMonthDropdownOpen && (
