@@ -126,38 +126,6 @@ export const Hero = ({ onSignup }: HeroProps) => {
               Ver demonstração
             </button>
           </div>
-
-          {/* Dashboard Preview Images */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 max-w-6xl mx-auto px-4"
-          >
-            {[
-              { title: "Painel Geral", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_3.png" },
-              { title: "Análise de Despesas", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_1.png" },
-              { title: "Análise de Receitas", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_2.png" },
-              { title: "Relatórios Detalhados", img: "https://storage.googleapis.com/birdview-external-production/67d0be05166649738096f26d/1741735141528-input_file_0.png" }
-            ].map((item, i) => (
-              <div key={i} className="group relative">
-                <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-lg transition-all group-hover:shadow-xl group-hover:-translate-y-2 bg-white p-2">
-                  <div className="aspect-[9/16] overflow-hidden rounded-xl bg-slate-50">
-                    <img 
-                      src={item.img} 
-                      alt={item.title} 
-                      className="w-full h-full object-contain"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div className="mt-3 text-center">
-                    <span className="text-slate-900 text-sm font-bold">{item.title}</span>
-                  </div>
-                  <div className="absolute inset-0 bg-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-2xl"></div>
-                </div>
-              </div>
-            ))}
-          </motion.div>
         </motion.div>
 
       </div>
@@ -203,7 +171,7 @@ export const Features = () => {
     <section id="recursos" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Tudo o que você precisa para prosperar</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Tudo o que você precisa para organizar sua vida financeira</h2>
           <p className="text-slate-600 max-w-2xl mx-auto">Funcionalidades exclusivas desenhadas para quem busca clareza e controle total.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -279,7 +247,7 @@ export const WhatsAppSection = () => {
               className="relative z-10"
             >
               {/* Mockup WhatsApp UI */}
-              <div className="bg-[#E5DDD5] w-full max-w-[320px] mx-auto rounded-[32px] border-[8px] border-slate-800 shadow-2xl overflow-hidden aspect-[9/19]">
+              <div className="bg-[#E5DDD5] w-full max-w-[320px] mx-auto rounded-[32px] border-[8px] border-slate-800 shadow-2xl overflow-hidden min-h-[400px] pb-8">
                 <div className="bg-[#075E54] p-4 flex items-center gap-3">
                   <div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden">
                     <img src="https://i.imgur.com/mPPZOMY.jpeg" alt="ProcVisual" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
