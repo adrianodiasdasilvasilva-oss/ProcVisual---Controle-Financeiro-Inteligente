@@ -230,7 +230,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         if (t.type !== 'expense' || !t.id || !t.date || t.paid) continue;
 
         // Skip notifications if the expense was created today or later (to avoid immediate alerts for newly launched items)
-        /* 
         if (t.createdAt) {
           const createdDate = new Date(t.createdAt);
           createdDate.setHours(0, 0, 0, 0);
@@ -238,7 +237,6 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
             continue;
           }
         }
-        */
 
         const parts = t.date.split('-');
         if (parts.length !== 3) continue;
@@ -275,7 +273,6 @@ Acesse seu dashboard: https://proc-visual-controle-financeiro-int.vercel.app/
 Seu controle financeiro inteligente`.trim();
 
         // 5 days before (or less, but more than 0)
-        /*
         if (diffDays <= 5 && diffDays > 0 && !t.notified5DaysBefore && !processingNotificationsRef.current.has(fiveDayKey)) {
           processingNotificationsRef.current.add(fiveDayKey);
           
@@ -298,7 +295,6 @@ Seu controle financeiro inteligente`.trim();
             processingNotificationsRef.current.delete(fiveDayKey);
           }
         }
-        */
 
         // On due date
         if (diffDays === 0 && !t.notifiedOnDueDate && !processingNotificationsRef.current.has(dueDayKey)) {
