@@ -100,7 +100,7 @@ interface HeroProps {
 
 export const Hero = ({ onSignup }: HeroProps) => {
   return (
-    <section className="pt-32 pb-20 px-4 bg-gradient-to-b from-blue-50/50 to-transparent">
+    <section className="pt-32 pb-12 px-4 bg-gradient-to-b from-blue-50/50 to-transparent">
       <div className="max-w-7xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -114,7 +114,7 @@ export const Hero = ({ onSignup }: HeroProps) => {
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10">
             O ProcVisual é o controle inteligente que te avisa no WhatsApp, gera relatórios instantâneos e te ajuda a tomar as melhores decisões para o seu dinheiro.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button 
               onClick={onSignup}
               className="w-full sm:w-auto bg-emerald-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 group"
@@ -168,7 +168,7 @@ export const Features = () => {
   ];
 
   return (
-    <section id="recursos" className="py-24 bg-white">
+    <section id="recursos" className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Tudo o que você precisa para organizar sua vida financeira</h2>
