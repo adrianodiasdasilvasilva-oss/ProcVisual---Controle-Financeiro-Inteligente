@@ -225,38 +225,44 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
   };
 
   const shareOnWhatsApp = () => {
-    let message = `*Relatório Financeiro - ProcVisual*\n`;
-    message += `--------------------------------\n`;
-    message += `📅 *Período:* ${months[selectedMonth]} / ${selectedYear}\n\n`;
+    const lines = [];
+    lines.push("*Relatório Financeiro - ProcVisual*");
+    lines.push("--------------------------------");
+    lines.push(`📅 *Período:* ${months[selectedMonth]} / ${selectedYear}`);
+    lines.push("");
 
     if (reportType === 'monthly') {
-      message += `📊 *RESUMO MENSAL*\n`;
-      message += `✅ Receitas: R$ ${monthlyStats.income.toLocaleString('pt-BR')}\n`;
-      message += `🔻 Despesas: R$ ${monthlyStats.expense.toLocaleString('pt-BR')}\n`;
-      message += `💰 Saldo: R$ ${monthlyStats.balance.toLocaleString('pt-BR')}\n\n`;
-      message += `💡 *Insight:* Suas despesas representam ${monthlyStats.expensePercentOfIncome.toFixed(1)}% da sua renda.\n`;
+      lines.push("📊 *RESUMO MENSAL*");
+      lines.push(`✅ Receitas: R$ ${monthlyStats.income.toLocaleString('pt-BR')}`);
+      lines.push(`🔻 Despesas: R$ ${monthlyStats.expense.toLocaleString('pt-BR')}`);
+      lines.push(`💰 Saldo: R$ ${monthlyStats.balance.toLocaleString('pt-BR')}`);
+      lines.push("");
+      lines.push(`💡 *Insight:* Suas despesas representam ${monthlyStats.expensePercentOfIncome.toFixed(1)}% da sua renda.`);
     } else if (reportType === 'forecast') {
-      message += `🔮 *PREVISÃO DE SALDO*\n`;
-      message += `💰 Saldo Atual: R$ ${forecastStats.currentBalance.toLocaleString('pt-BR')}\n`;
-      message += `✅ Receitas Previstas: R$ ${forecastStats.futureIncome.toLocaleString('pt-BR')}\n`;
-      message += `🔻 Despesas Previstas: R$ ${forecastStats.futureExpense.toLocaleString('pt-BR')}\n`;
-      message += `🏁 *Saldo Estimado:* R$ ${forecastStats.estimatedBalance.toLocaleString('pt-BR')}\n`;
+      lines.push("🔮 *PREVISÃO DE SALDO*");
+      lines.push(`💰 Saldo Atual: R$ ${forecastStats.currentBalance.toLocaleString('pt-BR')}`);
+      lines.push(`✅ Receitas Previstas: R$ ${forecastStats.futureIncome.toLocaleString('pt-BR')}`);
+      lines.push(`🔻 Despesas Previstas: R$ ${forecastStats.futureExpense.toLocaleString('pt-BR')}`);
+      lines.push(`🏁 *Saldo Estimado:* R$ ${forecastStats.estimatedBalance.toLocaleString('pt-BR')}`);
     } else if (reportType === 'detailed') {
-      message += `📝 *RELATÓRIO DETALHADO*\n`;
-      message += `Total de transações: ${filteredTransactions.length}\n`;
-      message += `Total gasto: R$ ${monthlyStats.expense.toLocaleString('pt-BR')}\n`;
+      lines.push("📝 *RELATÓRIO DETALHADO*");
+      lines.push(`Total de transações: ${filteredTransactions.length}`);
+      lines.push(`Total gasto: R$ ${monthlyStats.expense.toLocaleString('pt-BR')}`);
     } else {
-      message += `📂 *GASTOS POR CATEGORIA*\n`;
+      lines.push("📂 *GASTOS POR CATEGORIA*");
       categoryStats.slice(0, 5).forEach(c => {
-        message += `• ${c.name}: R$ ${c.value.toLocaleString('pt-BR')} (${c.percent.toFixed(1)}%)\n`;
+        lines.push(`• ${c.name}: R$ ${c.value.toLocaleString('pt-BR')} (${c.percent.toFixed(1)}%)`);
       });
     }
 
-    message += `\n--------------------------------\n`;
-    message += `*ProcVisual - Controle Inteligente*`;
-    
-    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    lines.push("");
+    lines.push("--------------------------------");
+    lines.push("*ProcVisual - Controle Inteligente*");
+
+    const message = lines.join("\n");
+    const url = new URL("https://wa.me/");
+    url.searchParams.set("text", message);
+    window.open(url.toString(), '_blank');
   };
 
   const handlePrint = () => {
