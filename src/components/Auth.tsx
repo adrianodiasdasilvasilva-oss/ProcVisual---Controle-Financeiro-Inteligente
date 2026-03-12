@@ -129,189 +129,158 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-900">
-      {/* Left Side - Image/Visual */}
-      <div className="hidden md:flex md:w-1/2 bg-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2070" 
-            alt="Análise de dados" 
-            className="w-full h-full object-cover opacity-50"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
-        </div>
-        
-        <div className="relative z-10 p-12 flex flex-col justify-end h-full text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <h2 className="text-4xl font-bold mb-4">Transforme seus dados em decisões.</h2>
-            <p className="text-slate-300 text-lg max-w-md">
-              Acompanhe cada centavo e veja seu patrimônio crescer com ferramentas de análise profissional simplificadas para você.
-            </p>
-          </motion.div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-6">
+      {/* Form Container */}
+      <div className="max-w-md w-full bg-slate-800/50 p-8 md:p-12 rounded-3xl border border-slate-700 backdrop-blur-sm relative">
+        <button 
+          onClick={onBack}
+          className="mb-8 flex items-center gap-2 text-slate-500 hover:text-white transition-colors group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-medium">Voltar</span>
+        </button>
 
-        {/* Floating Decorative Elements */}
-        <div className="absolute top-1/4 right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 left-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Right Side - Form */}
-      <div className="flex-1 flex flex-col p-6 md:p-12 lg:p-20 justify-center relative">
-        <div className="max-w-md w-full mx-auto">
-          <button 
-            onClick={onBack}
-            className="mb-8 flex items-center gap-2 text-slate-500 hover:text-white transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm font-medium">Voltar</span>
-          </button>
-
-          <div className="flex items-center gap-2 mb-12">
-            <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
-              <img 
-                src="https://i.imgur.com/mPPZOMY.jpeg" 
-                alt="ProcVisual Logo" 
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">ProcVisual</span>
+        <div className="flex items-center gap-2 mb-12">
+          <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+            <img 
+              src="https://i.imgur.com/mPPZOMY.jpeg" 
+              alt="ProcVisual Logo" 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </div>
+          <span className="text-xl font-bold tracking-tight text-white">ProcVisual</span>
+        </div>
 
-          <motion.div
-            key={mode}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <h1 className="text-3xl font-bold text-white mb-2">
-              {mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
-            </h1>
-            <p className="text-slate-400 mb-8">
-              {mode === 'login' 
-                ? 'Acesse sua conta para gerenciar suas finanças.' 
-                : 'Comece sua jornada para a liberdade financeira hoje.'}
-            </p>
+        <motion.div
+          key={mode}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h1 className="text-3xl font-bold text-white mb-2">
+            {mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+          </h1>
+          <p className="text-slate-400 mb-8">
+            {mode === 'login' 
+              ? 'Acesse sua conta para gerenciar suas finanças.' 
+              : 'Comece sua jornada para a liberdade financeira hoje.'}
+          </p>
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              {mode === 'signup' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">Nome completo</label>
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {mode === 'signup' && (
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Nome completo</label>
+                  <input 
+                    type="text" 
+                    placeholder="Seu nome"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Celular</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                     <input 
-                      type="text" 
-                      placeholder="Seu nome"
+                      type="tel" 
+                      placeholder="(00) 00000-0000"
                       required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">Celular</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                      <input 
-                        type="tel" 
-                        placeholder="(00) 00000-0000"
-                        required
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                  <input 
-                    type="email" 
-                    placeholder="seu@email.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                  />
                 </div>
+              </>
+            )}
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input 
+                  type="email" 
+                  placeholder="seu@email.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                />
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2">Senha</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    placeholder="••••••••"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-
-              {mode === 'login' && (
-                <div className="flex justify-end">
-                  <button 
-                    type="button" 
-                    onClick={() => setIsForgotPasswordOpen(true)}
-                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
-                  >
-                    Esqueceu a senha?
-                  </button>
-                </div>
-              )}
-
-              {message && (
-                <div className={`p-4 rounded-xl text-sm font-medium ${
-                  message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                }`}>
-                  {message.text}
-                </div>
-              )}
-
-              <button 
-                disabled={isLoading}
-                className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  mode === 'login' ? 'Entrar' : 'Criar conta'
-                )}
-              </button>
-            </form>
-
-            <div className="mt-8 text-center">
-              <p className="text-slate-400">
-                {mode === 'login' ? 'Não tem conta?' : 'Já tem uma conta?'}
-                <button 
-                  onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                  className="ml-2 font-bold text-emerald-500 hover:text-emerald-400"
-                >
-                  {mode === 'login' ? 'Criar conta' : 'Fazer login'}
-                </button>
-              </p>
             </div>
-          </motion.div>
-        </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Senha</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-12 pr-12 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {mode === 'login' && (
+              <div className="flex justify-end">
+                <button 
+                  type="button" 
+                  onClick={() => setIsForgotPasswordOpen(true)}
+                  className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                >
+                  Esqueceu a senha?
+                </button>
+              </div>
+            )}
+
+            {message && (
+              <div className={`p-4 rounded-xl text-sm font-medium ${
+                message.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+              }`}>
+                {message.text}
+              </div>
+            )}
+
+            <button 
+              disabled={isLoading}
+              className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              ) : (
+                mode === 'login' ? 'Entrar' : 'Criar conta'
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-slate-400">
+              {mode === 'login' ? 'Não tem conta?' : 'Já tem uma conta?'}
+              <button 
+                onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                className="ml-2 font-bold text-emerald-500 hover:text-emerald-400"
+              >
+                {mode === 'login' ? 'Criar conta' : 'Fazer login'}
+              </button>
+            </p>
+          </div>
+        </motion.div>
       </div>
+
       {/* Forgot Password Modal */}
       <AnimatePresence>
         {isForgotPasswordOpen && (
