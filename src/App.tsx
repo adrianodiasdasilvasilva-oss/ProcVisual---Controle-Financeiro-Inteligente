@@ -338,7 +338,7 @@ export default function App() {
             </div>
             <h1 className="text-3xl font-bold text-slate-900 mb-4">Ative seu acesso vitalício</h1>
             <p className="text-slate-600 mb-8 text-lg">
-              Para liberar o acesso completo ao dashboard e todas as funcionalidades do ProcVisual, é necessário concluir o pagamento único.
+              Para liberar o acesso completo ao dashboard e todas as funcionalidades da ProcVisual, é necessário concluir o pagamento único.
             </p>
             
             <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-left">

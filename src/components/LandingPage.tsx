@@ -112,7 +112,7 @@ export const Hero = ({ onSignup }: HeroProps) => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">na palma da mão</span>
           </h1>
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10">
-            O ProcVisual é o controle inteligente que te avisa no WhatsApp, gera relatórios instantâneos e te ajuda a tomar as melhores decisões para o seu dinheiro.
+            A ProcVisual é o controle inteligente que te avisa direto no celular, gera relatórios instantâneos e te ajuda a tomar as melhores decisões para o seu dinheiro.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button 
@@ -137,8 +137,8 @@ export const Features = () => {
   const features = [
     {
       icon: <MessageCircle className="w-8 h-8 text-emerald-500" />,
-      title: "Notificações no WhatsApp",
-      description: "Receba alertas automáticos das suas contas a vencer diretamente no seu WhatsApp. Nunca mais esqueça um pagamento."
+      title: "Notificações no Whatsapp",
+      description: "Receba avisos automáticos das suas contas a vencer diretamente no seu WhatsApp. Nunca mais esqueça um pagamento."
     },
     {
       icon: <BarChart3 className="w-8 h-8 text-blue-600" />,
@@ -147,8 +147,8 @@ export const Features = () => {
     },
     {
       icon: <FileText className="w-8 h-8 text-slate-700" />,
-      title: "Relatórios Inteligentes",
-      description: "Extraia relatórios detalhados em PDF ou Excel e compartilhe resumos financeiros via WhatsApp com um clique."
+      title: "Relatórios Instantâneos",
+      description: "Extraia relatórios detalhados em PDF ou Excel e compartilhe resumos financeiros de forma simples com um clique."
     },
     {
       icon: <Target className="w-8 h-8 text-rose-500" />,
@@ -158,12 +158,12 @@ export const Features = () => {
     {
       icon: <Smartphone className="w-8 h-8 text-indigo-600" />,
       title: "App no seu Celular",
-      description: "Instale o ProcVisual como um aplicativo no seu celular sem precisar baixar nada na loja. Rápido e prático."
+      description: "Instale a ProcVisual como um aplicativo no seu celular sem precisar baixar nada na loja. Rápido e prático."
     },
     {
       icon: <Headphones className="w-8 h-8 text-emerald-600" />,
-      title: "Suporte VIP via WhatsApp",
-      description: "Clientes ativos contam com suporte humanizado e prioritário da equipe ProcVisual diretamente pelo WhatsApp."
+      title: "Suporte VIP Prioritário",
+      description: "Clientes ativos contam com suporte humanizado e prioritário da equipe ProcVisual sempre que você precisar."
     }
   ];
 
@@ -215,10 +215,10 @@ export const WhatsAppSection = () => {
               </span>
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
                 Seu financeiro conversa <br />
-                <span className="text-emerald-400">com seu WhatsApp</span>
+                <span className="text-emerald-400">onde você já está</span>
               </h2>
               <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                Esqueça planilhas complexas que você nunca abre. O ProcVisual te mantém informado onde você já está. Receba alertas de vencimento, envie relatórios para sócios ou familiares e tire dúvidas com nosso suporte, tudo pelo WhatsApp.
+                Esqueça planilhas complexas que você nunca abre. A ProcVisual te mantém informado no seu Whatsapp. Receba alertas de vencimento, envie relatórios para sócios ou familiares e tire dúvidas com nosso suporte, tudo de forma prática.
               </p>
               
               <div className="space-y-4">
@@ -313,11 +313,11 @@ export const Pricing = ({ onSignup }: { onSignup: () => void }) => {
             <ul className="space-y-4 text-left mb-10">
               {[
                 "Dashboard Financeiro Completo",
-                "Notificações de Contas via WhatsApp",
+                "Notificações de Contas Automáticas",
                 "Relatórios em PDF e Excel",
                 "Simulador de Metas e Objetivos",
                 "Instalação como App no Celular",
-                "Suporte VIP via WhatsApp",
+                "Suporte VIP Humanizado",
                 "Atualizações Vitalícias Inclusas"
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-slate-600">

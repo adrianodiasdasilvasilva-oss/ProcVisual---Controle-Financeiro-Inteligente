@@ -162,15 +162,15 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
 
       {/* Right Side - Form */}
       <div className="flex-1 flex flex-col p-6 md:p-12 lg:p-20 justify-center relative">
-        <button 
-          onClick={onBack}
-          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Voltar</span>
-        </button>
-
         <div className="max-w-md w-full mx-auto">
+          <button 
+            onClick={onBack}
+            className="mb-8 flex items-center gap-2 text-slate-500 hover:text-white transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-sm font-medium">Voltar</span>
+          </button>
+
           <div className="flex items-center gap-2 mb-12">
             <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
               <img 

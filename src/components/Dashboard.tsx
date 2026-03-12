@@ -1419,7 +1419,7 @@ Seu controle financeiro inteligente`.trim();
                   <div className="p-6 rounded-[16px] bg-slate-50 border border-slate-100">
                     <h3 className="font-bold text-[#111827] mb-4 flex items-center gap-2">
                       <MessageSquare className="w-5 h-5 text-[#22C55E]" />
-                      Notificações WhatsApp
+                      Notificações no WhatsApp
                     </h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#E5E7EB]">
@@ -1441,7 +1441,7 @@ Seu controle financeiro inteligente`.trim();
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Número do WhatsApp</label>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Seu Número (DDD + Celular)</label>
                         <div className="flex gap-2">
                           <div className="relative flex-1">
                             <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
@@ -1556,7 +1556,7 @@ Seu controle financeiro inteligente`.trim();
                       <Smartphone className="w-5 h-5 text-[#22C55E]" />
                       Instalar Aplicativo (Atalho)
                     </h3>
-                    <p className="text-sm text-slate-600 mb-4">Transforme o ProcVisual em um aplicativo no seu celular para acesso rápido.</p>
+                    <p className="text-sm text-slate-600 mb-4">Transforme a ProcVisual em um aplicativo no seu celular para acesso rápido.</p>
                     
                     {deferredPrompt && (
                       <button
