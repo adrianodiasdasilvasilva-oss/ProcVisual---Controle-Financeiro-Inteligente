@@ -1361,6 +1361,7 @@ Seu controle financeiro inteligente`.trim();
               alerts={alerts}
               goalTracking={goalTracking}
               onUpdateGoalTracking={handleUpdateGoalTracking}
+              monthlyGoal={monthlyGoal}
               onNavigate={async (tab, value) => {
                 setActiveTab(tab);
                 if (tab === 'Dashboard' && value !== undefined) {
@@ -1419,7 +1420,7 @@ Seu controle financeiro inteligente`.trim();
                   <div className="p-6 rounded-[16px] bg-slate-50 border border-slate-100">
                     <h3 className="font-bold text-[#111827] mb-4 flex items-center gap-2">
                       <MessageSquare className="w-5 h-5 text-[#22C55E]" />
-                      Notificações no WhatsApp
+                      Notificações no Celular
                     </h3>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-[#E5E7EB]">
@@ -1616,7 +1617,7 @@ Seu controle financeiro inteligente`.trim();
                         <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                           <PhoneIcon className="w-6 h-6 text-emerald-600" />
                         </div>
-                        <span className="text-xs font-bold text-slate-400 uppercase mb-1">WhatsApp</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase mb-1">Fale Conosco</span>
                         <span className="text-lg font-bold text-slate-900">(19) 9 9131-2218</span>
                       </a>
                       

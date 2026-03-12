@@ -39,6 +39,7 @@ interface InsightsProps {
   goalTracking: Record<number, boolean[]>;
   onUpdateGoalTracking: (year: number, monthIdx: number, achieved: boolean) => void;
   onNavigate?: (tab: string, value?: number) => void;
+  monthlyGoal: number | null;
 }
 
 export const Insights = ({ 
@@ -48,7 +49,8 @@ export const Insights = ({
   alerts, 
   goalTracking,
   onUpdateGoalTracking,
-  onNavigate 
+  onNavigate,
+  monthlyGoal
 }: InsightsProps) => {
   const [monthlySaving, setMonthlySaving] = React.useState('500');
   const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
@@ -347,7 +349,14 @@ export const Insights = ({
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-[#111827]">Acompanhamento de Metas</h3>
-                    <p className="text-xs text-[#6B7280]">Marque os meses em que você atingiu sua meta de economia.</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-[#6B7280]">Marque os meses em que você atingiu sua meta de economia.</p>
+                      {monthlyGoal && (
+                        <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                          Meta: R$ {monthlyGoal.toLocaleString('pt-BR')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -366,7 +375,14 @@ export const Insights = ({
               {/* Progress Bar */}
               <div className="mb-10">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-bold text-slate-700">Progresso Anual</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-slate-700">Progresso Anual</span>
+                    {monthlyGoal && (
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        Acumulado: R$ {((goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0) * monthlyGoal).toLocaleString('pt-BR')} de R$ {(monthlyGoal * 12).toLocaleString('pt-BR')}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-sm font-bold text-emerald-600">
                     {Math.round(((goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0) / 12) * 100)}%
                   </span>
