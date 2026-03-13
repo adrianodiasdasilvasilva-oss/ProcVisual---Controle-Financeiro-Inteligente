@@ -94,17 +94,67 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 relative overflow-hidden">
+      {/* Background Elements - Organic Waves */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Top Right Wave */}
+        <svg 
+          className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] opacity-40 blur-[2px]" 
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M800 0C600 100 400 50 200 150C0 250 100 450 0 600V800H800V0Z" 
+            fill="url(#paint0_linear_app)"
+          />
+          <defs>
+            <linearGradient id="paint0_linear_app" x1="800" y1="0" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#10B981" stopOpacity="0.6" />
+              <stop offset="1" stopColor="#3B82F6" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Bottom Left Wave */}
+        <svg 
+          className="absolute bottom-[-10%] left-[-5%] w-[70%] h-[70%] opacity-30 blur-[1px]" 
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M0 800C200 700 400 750 600 650C800 550 700 350 800 200V0H0V800Z" 
+            fill="url(#paint1_linear_app)"
+          />
+          <defs>
+            <linearGradient id="paint1_linear_app" x1="0" y1="800" x2="800" y2="0" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#3B82F6" stopOpacity="0.5" />
+              <stop offset="1" stopColor="#10B981" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Subtle Halftone Pattern on Waves */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(#0F172A 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+      </div>
+
+      <div className="bg-[#0F172A] p-8 rounded-3xl shadow-2xl border border-slate-800 max-w-md w-full text-center relative z-10">
+        <div className="w-16 h-16 bg-emerald-100/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
+        <h1 className="text-2xl font-bold text-white mb-2">
           {isConfirmMode ? 'Definir Nova Senha' : 'Redefinir Senha'}
         </h1>
-        <p className="text-slate-500 mb-8">
+        <p className="text-slate-400 mb-8">
           {isConfirmMode 
             ? 'Agora você pode escolher sua nova senha de acesso.' 
             : 'Digite seu email abaixo para receber o link de redefinição.'}
@@ -159,7 +209,7 @@ const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
         
         <button 
           onClick={onBack}
-          className="mt-6 text-sm font-medium text-slate-500 hover:text-slate-900"
+          className="mt-6 text-sm font-medium text-slate-400 hover:text-white transition-colors"
         >
           Voltar para o login
         </button>
@@ -327,26 +377,76 @@ export default function App() {
   if (view === 'dashboard') {
     if (!hasAccess) {
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 relative overflow-hidden">
+          {/* Background Elements - Organic Waves */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            {/* Top Right Wave */}
+            <svg 
+              className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] opacity-40 blur-[2px]" 
+              viewBox="0 0 800 800" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M800 0C600 100 400 50 200 150C0 250 100 450 0 600V800H800V0Z" 
+                fill="url(#paint0_linear_access)"
+              />
+              <defs>
+                <linearGradient id="paint0_linear_access" x1="800" y1="0" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#10B981" stopOpacity="0.6" />
+                  <stop offset="1" stopColor="#3B82F6" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Bottom Left Wave */}
+            <svg 
+              className="absolute bottom-[-10%] left-[-5%] w-[70%] h-[70%] opacity-30 blur-[1px]" 
+              viewBox="0 0 800 800" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M0 800C200 700 400 750 600 650C800 550 700 350 800 200V0H0V800Z" 
+                fill="url(#paint1_linear_access)"
+              />
+              <defs>
+                <linearGradient id="paint1_linear_access" x1="0" y1="800" x2="800" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#3B82F6" stopOpacity="0.5" />
+                  <stop offset="1" stopColor="#10B981" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Subtle Halftone Pattern on Waves */}
+            <div 
+              className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: `radial-gradient(#0F172A 1px, transparent 1px)`,
+                backgroundSize: '24px 24px'
+              }}
+            />
+          </div>
+
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-8 md:p-12 rounded-3xl shadow-xl max-w-lg w-full text-center"
+            className="bg-[#0F172A] p-8 md:p-12 rounded-3xl shadow-2xl border border-slate-800 max-w-lg w-full text-center relative z-10"
           >
-            <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8">
+            <div className="w-20 h-20 bg-emerald-100/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8">
               <CreditCard className="w-10 h-10" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">Ative seu acesso</h1>
-            <p className="text-slate-600 mb-8 text-lg">
+            <h1 className="text-3xl font-bold text-white mb-4">Ative seu acesso</h1>
+            <p className="text-slate-400 mb-8 text-lg">
               Para liberar o acesso completo ao dashboard e todas as funcionalidades da ProcVisual, é necessário concluir a assinatura mensal.
             </p>
             
-            <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-left">
-              <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <div className="bg-slate-800/50 rounded-2xl p-6 mb-8 text-left border border-slate-700">
+              <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                 O que você recebe:
               </h3>
-              <ul className="space-y-3 text-slate-600">
+              <ul className="space-y-3 text-slate-400">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
                   Acesso completo a todas as ferramentas
@@ -376,7 +476,7 @@ export default function App() {
               </a>
               <button 
                 onClick={handleLogout}
-                className="w-full text-slate-500 font-medium hover:text-slate-800 transition-colors"
+                className="w-full text-slate-400 font-medium hover:text-white transition-colors"
               >
                 Sair da conta
               </button>

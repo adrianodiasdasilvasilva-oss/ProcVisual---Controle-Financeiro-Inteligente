@@ -129,9 +129,59 @@ export const Auth = ({ onBack, onLoginSuccess, initialMode = 'login' }: AuthProp
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-6 relative overflow-hidden">
+      {/* Background Elements - Organic Waves */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Top Right Wave */}
+        <svg 
+          className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] opacity-40 blur-[2px]" 
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M800 0C600 100 400 50 200 150C0 250 100 450 0 600V800H800V0Z" 
+            fill="url(#paint0_linear)"
+          />
+          <defs>
+            <linearGradient id="paint0_linear" x1="800" y1="0" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#10B981" stopOpacity="0.6" />
+              <stop offset="1" stopColor="#3B82F6" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Bottom Left Wave */}
+        <svg 
+          className="absolute bottom-[-10%] left-[-5%] w-[70%] h-[70%] opacity-30 blur-[1px]" 
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M0 800C200 700 400 750 600 650C800 550 700 350 800 200V0H0V800Z" 
+            fill="url(#paint1_linear)"
+          />
+          <defs>
+            <linearGradient id="paint1_linear" x1="0" y1="800" x2="800" y2="0" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#3B82F6" stopOpacity="0.5" />
+              <stop offset="1" stopColor="#10B981" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Subtle Halftone Pattern on Waves (Optional/Subtle) */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(#0F172A 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+      </div>
+
       {/* Form Container */}
-      <div className="max-w-md w-full bg-slate-800/50 p-8 md:p-12 rounded-3xl border border-slate-700 backdrop-blur-sm relative">
+      <div className="max-w-md w-full bg-[#0F172A] p-8 md:p-12 rounded-3xl border border-slate-800 shadow-2xl relative z-10">
         <button 
           onClick={onBack}
           className="mb-8 flex items-center gap-2 text-slate-500 hover:text-white transition-colors group"

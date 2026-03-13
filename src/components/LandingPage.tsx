@@ -334,10 +334,6 @@ export const Pricing = ({ onSignup }: { onSignup: () => void }) => {
               Ativar meu acesso agora
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <p className="mt-4 text-xs text-slate-400 flex items-center justify-center gap-2">
-              <ShieldCheck className="w-4 h-4" />
-              Pagamento seguro e garantia de 7 dias
-            </p>
           </div>
         </div>
       </div>
