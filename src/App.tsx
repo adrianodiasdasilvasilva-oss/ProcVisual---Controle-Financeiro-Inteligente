@@ -192,7 +192,7 @@ export default function App() {
   const [user, setUser] = React.useState<any>(null);
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
-  const [hasLifetimeAccess, setHasLifetimeAccess] = React.useState(false);
+  const [hasAccess, setHasAccess] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isCheckingAccess, setIsCheckingAccess] = React.useState(true);
 
@@ -210,7 +210,7 @@ export default function App() {
       } else {
         setUserName('');
         setUserEmail('');
-        setHasLifetimeAccess(false);
+        setHasAccess(false);
         setIsCheckingAccess(false);
         if (view === 'dashboard') setView('landing');
       }
@@ -233,13 +233,13 @@ export default function App() {
       
       let access = false;
       if (userDoc.exists()) {
-        access = userDoc.data().hasLifetimeAccess;
+        access = userDoc.data().hasLifetimeAccess || userDoc.data().hasAccess;
       }
 
       // If payment just succeeded, update Firestore
       if (paymentStatus === 'success' && !access) {
         await setDoc(userDocRef, { 
-          hasLifetimeAccess: true,
+          hasAccess: true,
           updatedAt: new Date().toISOString()
         }, { merge: true });
         access = true;
@@ -250,7 +250,7 @@ export default function App() {
         window.history.replaceState(null, '', newUrl);
       }
       
-      setHasLifetimeAccess(access);
+      setHasAccess(access);
     } catch (error) {
       console.error('Error checking access:', error);
     } finally {
@@ -325,7 +325,7 @@ export default function App() {
   }
 
   if (view === 'dashboard') {
-    if (!hasLifetimeAccess) {
+    if (!hasAccess) {
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
           <motion.div 
@@ -336,9 +336,9 @@ export default function App() {
             <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8">
               <CreditCard className="w-10 h-10" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">Ative seu acesso vitalício</h1>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Ative seu acesso</h1>
             <p className="text-slate-600 mb-8 text-lg">
-              Para liberar o acesso completo ao dashboard e todas as funcionalidades da ProcVisual, é necessário concluir o pagamento único.
+              Para liberar o acesso completo ao dashboard e todas as funcionalidades da ProcVisual, é necessário concluir a assinatura mensal.
             </p>
             
             <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-left">
@@ -349,7 +349,7 @@ export default function App() {
               <ul className="space-y-3 text-slate-600">
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                  Acesso vitalício sem mensalidades
+                  Acesso completo a todas as ferramentas
                 </li>
                 <li className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
@@ -368,23 +368,12 @@ export default function App() {
 
             <div className="space-y-4">
               <a 
-                href="https://buy.stripe.com/6oUeV6ggQ1Kq30B9nRdMI00"
+                href="https://buy.stripe.com/4gM00c7Kk2OugRr43xdMI01"
                 className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 text-lg"
               >
                 Pagar agora
                 <ArrowRight className="w-5 h-5" />
               </a>
-              <button 
-                onClick={checkAccess}
-                disabled={isCheckingAccess}
-                className="w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {isCheckingAccess ? (
-                  <div className="w-5 h-5 border-2 border-slate-400 border-t-slate-600 rounded-full animate-spin"></div>
-                ) : (
-                  'Já paguei, liberar acesso'
-                )}
-              </button>
               <button 
                 onClick={handleLogout}
                 className="w-full text-slate-500 font-medium hover:text-slate-800 transition-colors"

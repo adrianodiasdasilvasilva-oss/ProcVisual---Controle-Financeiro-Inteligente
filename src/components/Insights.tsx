@@ -39,7 +39,8 @@ interface InsightsProps {
   goalTracking: Record<number, boolean[]>;
   onUpdateGoalTracking: (year: number, monthIdx: number, achieved: boolean) => void;
   onNavigate?: (tab: string, value?: number) => void;
-  monthlyGoal: number | null;
+  totalGoal: number | null;
+  onUpdateGoal: (value: number) => void;
 }
 
 export const Insights = ({ 
@@ -50,12 +51,34 @@ export const Insights = ({
   goalTracking,
   onUpdateGoalTracking,
   onNavigate,
-  monthlyGoal
+  totalGoal,
+  onUpdateGoal
 }: InsightsProps) => {
-  const [monthlySaving, setMonthlySaving] = React.useState('500');
-  const [interestRate, setInterestRate] = React.useState('10'); // 10% ao ano
   const [simYears, setSimYears] = React.useState('1');
   const [showTracking, setShowTracking] = React.useState(false);
+  const [inputValue, setInputValue] = React.useState(totalGoal?.toString() || '');
+
+  React.useEffect(() => {
+    setInputValue(totalGoal?.toString() || '');
+  }, [totalGoal]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputValue(val);
+    const num = parseFloat(val);
+    if (!isNaN(num)) {
+      onUpdateGoal(num);
+    } else if (val === '') {
+      onUpdateGoal(0);
+    }
+  };
+
+  // Calculate Monthly Saving needed to reach totalGoal
+  const monthlySavingNeeded = React.useMemo(() => {
+    if (!totalGoal) return 0;
+    const totalMonths = (parseInt(simYears) || 1) * 12;
+    return totalGoal / totalMonths;
+  }, [totalGoal, simYears]);
 
   // Find highest expense category for a real insight
   const topExpense = React.useMemo(() => {
@@ -102,8 +125,7 @@ export const Insights = ({
 
   const calculateProjection = () => {
     const data = [];
-    const monthly = parseFloat(monthlySaving) || 0;
-    const rate = (parseFloat(interestRate) || 0) / 100 / 12;
+    const monthly = monthlySavingNeeded;
     const totalMonths = (parseInt(simYears) || 1) * 12;
     let total = 0;
 
@@ -112,7 +134,7 @@ export const Insights = ({
         month: i === 0 ? 'Hoje' : `${i}m`,
         valor: Math.round(total),
       });
-      total = (total + monthly) * (1 + rate);
+      total += monthly;
     }
     return data;
   };
@@ -137,28 +159,28 @@ export const Insights = ({
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-8 text-white shadow-xl shadow-emerald-100"
+        className="relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg shadow-emerald-100"
       >
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-          <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md">
-            <Lightbulb className="w-12 h-12 text-yellow-300" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-5">
+          <div className="p-3 bg-white/20 rounded-xl backdrop-blur-md">
+            <Lightbulb className="w-8 h-8 text-yellow-300" />
           </div>
           <div className="flex-1 text-center md:text-left">
-            <h3 className="text-2xl font-bold mb-2">Oportunidade de Economia</h3>
+            <h3 className="text-xl font-bold mb-1">Oportunidade de Economia</h3>
             {topExpense ? (
-              <p className="text-emerald-50 text-lg leading-relaxed">
+              <p className="text-emerald-50 text-sm leading-relaxed">
                 Você poderia economizar <span className="font-bold text-white">R$ {(topExpense.value * 0.2).toLocaleString('pt-BR')}/mês</span> reduzindo gastos em <span className="font-bold text-white">{topExpense.name.toLowerCase()}</span> em 20%. 
                 Esse valor investido renderia <span className="font-bold text-white">R$ {(topExpense.value * 0.2 * 12.8).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span> em um ano.
               </p>
             ) : (
-              <p className="text-emerald-50 text-lg leading-relaxed">
-                Adicione suas despesas para que nossa IA identifique oportunidades de economia personalizadas para você.
+              <p className="text-emerald-50 text-sm leading-relaxed">
+                Adicione suas despesas para identificar oportunidades de economia personalizadas.
               </p>
             )}
           </div>
         </div>
         {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
       </motion.div>
 
       {/* Financial Health Analysis */}
@@ -255,25 +277,17 @@ export const Insights = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-[#6B7280] mb-3">Se eu economizar por mês</label>
+              <label className="block text-sm font-bold text-[#6B7280] mb-3">Minha meta total é</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R$</span>
                 <input 
                   type="number" 
-                  value={monthlySaving}
-                  onChange={(e) => setMonthlySaving(e.target.value)}
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  placeholder="Ex: 10000"
                   className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold"
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-[#6B7280] mb-3">Rendimento anual esperado (%)</label>
-              <input 
-                type="number" 
-                value={interestRate}
-                onChange={(e) => setInterestRate(e.target.value)}
-                className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xl font-bold"
-              />
             </div>
             <div>
               <label className="block text-sm font-bold text-[#6B7280] mb-3">Período (anos)</label>
@@ -291,11 +305,11 @@ export const Insights = ({
           <div className="lg:col-span-2 flex flex-col md:flex-row items-center justify-around p-8 bg-slate-50 rounded-[16px] border border-slate-100 gap-8">
             <div className="text-center">
               <p className="text-sm font-bold text-[#6B7280] mb-2 uppercase tracking-wider">
-                Em {simYears} {parseInt(simYears) === 1 ? 'ano' : 'anos'}, seu saldo poderá chegar a
+                Para isso, você deve economizar por mês
               </p>
-              <h4 className="text-5xl font-black text-[#22C55E]">R$ {finalTotal.toLocaleString('pt-BR')}</h4>
+              <h4 className="text-5xl font-black text-[#22C55E]">R$ {monthlySavingNeeded.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h4>
               <p className="text-xs text-[#6B7280] mt-2 flex items-center justify-center gap-1">
-                <Info className="w-3 h-3" /> Cálculo baseado em juros compostos mensais
+                <Info className="w-3 h-3" /> Não está sendo considerado no cálculo juros mensais
               </p>
             </div>
             <div className="h-20 w-px bg-slate-200 hidden md:block"></div>
@@ -304,8 +318,8 @@ export const Insights = ({
                 <TrendingUp className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-xs text-[#6B7280]">Rendimento total</p>
-                <p className="font-bold text-[#111827]">R$ {(finalTotal - (parseFloat(monthlySaving) * 12 * (parseInt(simYears) || 1))).toLocaleString('pt-BR')}</p>
+                <p className="text-xs text-[#6B7280]">Total a economizar</p>
+                <p className="font-bold text-[#111827]">R$ {(totalGoal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
             </div>
           </div>
@@ -351,9 +365,9 @@ export const Insights = ({
                     <h3 className="text-xl font-bold text-[#111827]">Acompanhamento de Metas</h3>
                     <div className="flex items-center gap-2">
                       <p className="text-xs text-[#6B7280]">Marque os meses em que você atingiu sua meta de economia.</p>
-                      {monthlyGoal && (
+                      {totalGoal && (
                         <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                          Meta: R$ {monthlyGoal.toLocaleString('pt-BR')}
+                          Meta Total: R$ {totalGoal.toLocaleString('pt-BR')}
                         </span>
                       )}
                     </div>
@@ -377,9 +391,9 @@ export const Insights = ({
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-slate-700">Progresso Anual</span>
-                    {monthlyGoal && (
+                    {totalGoal && (
                       <span className="text-[10px] text-slate-500 font-medium">
-                        Acumulado: R$ {((goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0) * monthlyGoal).toLocaleString('pt-BR')} de R$ {(monthlyGoal * 12).toLocaleString('pt-BR')}
+                        Acumulado: R$ {((goalTracking[new Date().getFullYear()]?.filter(Boolean).length || 0) * (totalGoal / 12)).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} de R$ {totalGoal.toLocaleString('pt-BR')}
                       </span>
                     )}
                   </div>

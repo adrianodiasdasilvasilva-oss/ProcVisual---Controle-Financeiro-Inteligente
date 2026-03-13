@@ -130,7 +130,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
   const [isWelcomeVisible, setIsWelcomeVisible] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [monthlyGoal, setMonthlyGoal] = React.useState<number | null>(null);
+  const [totalGoal, setTotalGoal] = React.useState<number | null>(null);
   const [goalTracking, setGoalTracking] = React.useState<Record<number, boolean[]>>({});
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
   const [customCategories, setCustomCategories] = React.useState<{income: string[], expense: string[]}>({ income: [], expense: [] });
@@ -178,7 +178,7 @@ export const Dashboard = ({ onLogout, userName, userEmail }: DashboardProps) => 
         setCustomCategories(data.customCategories || { income: [], expense: [] });
         setUserPhone(data.phone || '');
         setNotificationsEnabled(data.notificationsEnabled !== false);
-        setMonthlyGoal(data.monthlyGoal || null);
+        setTotalGoal(data.totalGoal !== undefined ? data.totalGoal : (data.monthlyGoal !== undefined ? data.monthlyGoal : null));
         setGoalTracking(data.goalTracking || {});
         if (data.welcomeDismissed) {
           setIsWelcomeVisible(false);
@@ -357,9 +357,9 @@ Seu controle financeiro inteligente`.trim();
   // Separate effect for notifications to avoid blocking UI updates
   React.useEffect(() => {
     if (userPhone && transactions.length > 0) {
-      checkAndSendNotifications(transactions, userPhone, notificationsEnabled, monthlyGoal);
+      checkAndSendNotifications(transactions, userPhone, notificationsEnabled, totalGoal ? totalGoal / 12 : null);
     }
-  }, [transactions, userPhone, notificationsEnabled, monthlyGoal, checkAndSendNotifications]);
+  }, [transactions, userPhone, notificationsEnabled, totalGoal, checkAndSendNotifications]);
 
   const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
   const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
@@ -539,14 +539,28 @@ Seu controle financeiro inteligente`.trim();
     }
   };
 
+  const handleUpdateGoal = async (value: number) => {
+    if (!auth.currentUser) return;
+    setTotalGoal(value);
+    try {
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(userDocRef, { totalGoal: value }, { merge: true });
+    } catch (error) {
+      console.error('Error updating goal:', error);
+    }
+  };
+
   const handleDeleteGoal = async () => {
     if (!auth.currentUser) return;
     if (!window.confirm('Deseja remover esta meta definitivamente?')) return;
 
     try {
       const userDocRef = doc(db, 'users', auth.currentUser.uid);
-      await updateDoc(userDocRef, { monthlyGoal: deleteField() });
-      setMonthlyGoal(null);
+      await updateDoc(userDocRef, { 
+        totalGoal: deleteField(),
+        monthlyGoal: deleteField() 
+      });
+      setTotalGoal(null);
     } catch (error) {
       console.error('Error deleting goal:', error);
       alert('Erro ao excluir meta.');
@@ -782,10 +796,10 @@ Seu controle financeiro inteligente`.trim();
 
   // Calculate Annual Goal Stats
   const annualGoalStats = React.useMemo(() => {
-    if (!monthlyGoal) return null;
+    if (!totalGoal) return null;
     
     const year = selectedYear === -1 ? new Date().getFullYear() : selectedYear;
-    const target = monthlyGoal * 12;
+    const target = totalGoal;
     let realized = 0;
     
     // We need to look at all transactions for the selected year
@@ -801,8 +815,8 @@ Seu controle financeiro inteligente`.trim();
         .reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
       
       const balance = income - expense;
-      // Cap contribution at monthlyGoal as per user request
-      realized += Math.min(Math.max(0, balance), monthlyGoal);
+      // Contribution is the positive balance
+      realized += Math.max(0, balance);
     }
     
     return {
@@ -810,7 +824,7 @@ Seu controle financeiro inteligente`.trim();
       target,
       percent: Math.min(100, Math.round((realized / target) * 100))
     };
-  }, [transactions, monthlyGoal, selectedYear]);
+  }, [transactions, totalGoal, selectedYear]);
 
   const alerts = React.useMemo(() => {
     const list: any[] = [];
@@ -1361,21 +1375,19 @@ Seu controle financeiro inteligente`.trim();
               alerts={alerts}
               goalTracking={goalTracking}
               onUpdateGoalTracking={handleUpdateGoalTracking}
-              monthlyGoal={monthlyGoal}
-              onNavigate={async (tab, value) => {
+              totalGoal={totalGoal}
+              onUpdateGoal={handleUpdateGoal}
+              onNavigate={(tab, value) => {
                 setActiveTab(tab);
-                if (tab === 'Dashboard' && value !== undefined) {
-                  setMonthlyGoal(value);
-                  if (auth.currentUser) {
-                    await setDoc(doc(db, 'users', auth.currentUser.uid), { monthlyGoal: value }, { merge: true });
-                  }
+                if (value !== undefined) {
+                  handleUpdateGoal(value);
                 }
               }}
             />
           ) : activeTab === 'Relatórios' ? (
             <Reports 
               transactions={transactions} 
-              monthlyGoal={monthlyGoal} 
+              totalGoal={totalGoal} 
             />
           ) : activeTab === 'Configurações' ? (
             <div className="max-w-2xl mx-auto space-y-8">

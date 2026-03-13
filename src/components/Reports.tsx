@@ -48,12 +48,12 @@ interface Transaction {
 
 interface ReportsProps {
   transactions: Transaction[];
-  monthlyGoal: number | null;
+  totalGoal: number | null;
 }
 
 const COLORS = ['#F85151', '#F79E44', '#4699A3', '#89B16B', '#8B5CF6', '#F59E0B', '#B158A3'];
 
-export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
+export const Reports = ({ transactions, totalGoal }: ReportsProps) => {
   const [reportType, setReportType] = React.useState<'detailed' | 'category' | 'monthly' | 'forecast'>('detailed');
   const [selectedMonths, setSelectedMonths] = React.useState<number[]>([new Date().getMonth()]);
   const [isMonthDropdownOpen, setIsMonthDropdownOpen] = React.useState(false);
@@ -149,10 +149,10 @@ export const Reports = ({ transactions, monthlyGoal }: ReportsProps) => {
 
     let status: 'safe' | 'warning' | 'danger' = 'safe';
     if (estimatedBalance < 0) status = 'danger';
-    else if (estimatedBalance < (monthlyGoal || 500)) status = 'warning';
+    else if (estimatedBalance < (totalGoal ? totalGoal / 12 : 500)) status = 'warning';
 
     return { currentBalance, futureIncome, futureExpense, estimatedBalance, status };
-  }, [transactions, monthlyGoal]);
+  }, [transactions, totalGoal]);
 
   const exportToExcel = () => {
     const data = filteredTransactions.map(t => ({

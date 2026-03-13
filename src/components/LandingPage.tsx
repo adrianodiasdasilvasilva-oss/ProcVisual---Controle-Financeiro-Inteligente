@@ -293,8 +293,8 @@ export const Pricing = ({ onSignup }: { onSignup: () => void }) => {
     <section id="precos" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Acesso Vitalício</h2>
-          <p className="text-slate-600">Sem mensalidades, sem taxas escondidas. Pague uma vez e use para sempre.</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Plano Mensal</h2>
+          <p className="text-slate-600">Controle total das suas finanças com o melhor custo-benefício.</p>
         </div>
         
         <div className="max-w-lg mx-auto bg-white rounded-[32px] border-2 border-emerald-500 shadow-2xl overflow-hidden relative">
@@ -303,11 +303,11 @@ export const Pricing = ({ onSignup }: { onSignup: () => void }) => {
           </div>
           
           <div className="p-8 md:p-12 text-center">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Plano Pro Vitalício</h3>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Plano Pro Mensal</h3>
             <div className="flex items-center justify-center gap-1 mb-6">
-              <span className="text-slate-400 text-lg line-through">R$ 297</span>
-              <span className="text-slate-900 text-5xl font-black">R$ 97</span>
-              <span className="text-slate-500 font-medium">/único</span>
+              <span className="text-slate-400 text-lg line-through">R$ 49,90</span>
+              <span className="text-slate-900 text-5xl font-black">R$ 19,90</span>
+              <span className="text-slate-500 font-medium">/mês</span>
             </div>
             
             <ul className="space-y-4 text-left mb-10">
@@ -318,7 +318,7 @@ export const Pricing = ({ onSignup }: { onSignup: () => void }) => {
                 "Simulador de Metas e Objetivos",
                 "Instalação como App no Celular",
                 "Suporte VIP Humanizado",
-                "Atualizações Vitalícias Inclusas"
+                "Atualizações Inclusas"
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-slate-600">
                   <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
