@@ -167,16 +167,12 @@ export const DemoModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
           <X className="w-6 h-6" />
         </button>
         
-        <video 
-          className="w-full h-full object-cover"
-          controls
-          autoPlay
-          loop
-          muted
-          src="https://assets.mixkit.co/videos/preview/mixkit-financial-charts-on-a-laptop-screen-4328-large.mp4"
-        >
-          Seu navegador não suporta a tag de vídeo.
-        </video>
+        <iframe 
+          src="https://drive.google.com/file/d/1S9M_VGp46kLeITAcyFip47B7j-xug25U/preview"
+          className="w-full h-full border-none"
+          allow="autoplay"
+          allowFullScreen
+        ></iframe>
       </motion.div>
     </div>
   );
