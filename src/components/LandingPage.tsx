@@ -158,19 +158,21 @@ export const DemoModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative w-full max-w-4xl aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+        className="relative w-full max-w-[320px] aspect-[9/16] bg-black rounded-[40px] overflow-hidden shadow-2xl border-[8px] border-slate-800"
       >
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all backdrop-blur-sm"
+          className="absolute top-6 right-6 z-10 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all backdrop-blur-sm"
         >
           <X className="w-6 h-6" />
         </button>
         
         <video 
-          className="w-full h-full"
+          className="w-full h-full object-cover"
           controls
           autoPlay
+          loop
+          muted
           src="https://assets.mixkit.co/videos/preview/mixkit-financial-charts-on-a-laptop-screen-4328-large.mp4"
         >
           Seu navegador não suporta a tag de vídeo.

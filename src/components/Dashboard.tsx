@@ -491,13 +491,13 @@ Seu controle financeiro inteligente`.trim();
     const file = e.target.files?.[0];
     if (!file || !auth.currentUser) return;
 
-    // Validate file type and size (max 6MB)
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor, selecione uma imagem válida.');
+    // Validate file type and size (max 210MB)
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      alert('Por favor, selecione um arquivo válido (imagem ou vídeo).');
       return;
     }
-    if (file.size > 6 * 1024 * 1024) {
-      alert('A imagem deve ter no máximo 6MB.');
+    if (file.size > 210 * 1024 * 1024) {
+      alert('O arquivo deve ter no máximo 210MB.');
       return;
     }
 

@@ -17,7 +17,8 @@ app.get("/ping", (req, res) => res.send("pong"));
 const PORT = Number(process.env.PORT) || 3000;
 const isDev = process.env.NODE_ENV === "development";
 
-app.use(express.json());
+app.use(express.json({ limit: "210mb" }));
+app.use(express.urlencoded({ limit: "210mb", extended: true }));
 
 // Request logging
 app.use((req, res, next) => {
