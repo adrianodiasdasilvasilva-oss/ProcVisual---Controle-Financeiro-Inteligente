@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Header, Hero, Features, Footer, WhatsAppSection, Pricing } from './components/LandingPage';
+import { Header, Hero, Features, Footer, WhatsAppSection, Pricing, DemoModal } from './components/LandingPage';
 import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 import { auth, db } from './firebase';
@@ -239,6 +239,7 @@ export default function App() {
   });
 
   const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
+  const [isDemoOpen, setIsDemoOpen] = React.useState(false);
   const [user, setUser] = React.useState<any>(null);
   const [userName, setUserName] = React.useState('');
   const [userEmail, setUserEmail] = React.useState('');
@@ -498,14 +499,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      <Header onLogin={handleLogin} onSignup={handleSignup} />
+      <Header onLogin={handleLogin} onSignup={handleSignup} onShowDemo={() => setIsDemoOpen(true)} />
       <main>
-        <Hero onSignup={handleSignup} />
+        <Hero onSignup={handleSignup} onShowDemo={() => setIsDemoOpen(true)} />
         <Features />
         <WhatsAppSection />
         <Pricing onSignup={handleSignup} />
       </main>
       <Footer />
+      
+      <DemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
     </div>
   );
 }

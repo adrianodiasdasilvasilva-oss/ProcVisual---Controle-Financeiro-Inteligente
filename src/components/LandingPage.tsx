@@ -21,9 +21,10 @@ import { motion } from 'motion/react';
 interface HeaderProps {
   onLogin: () => void;
   onSignup: () => void;
+  onShowDemo: () => void;
 }
 
-export const Header = ({ onLogin, onSignup }: HeaderProps) => {
+export const Header = ({ onLogin, onSignup, onShowDemo }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
@@ -83,10 +84,22 @@ export const Header = ({ onLogin, onSignup }: HeaderProps) => {
             Login
           </button>
           <button 
-            onClick={onSignup}
+            onClick={() => {
+              onSignup();
+              setIsMenuOpen(false);
+            }}
             className="w-full bg-emerald-600 text-white px-5 py-3 rounded-xl text-base font-medium"
           >
             Ativar meu acesso
+          </button>
+          <button 
+            onClick={() => {
+              onShowDemo();
+              setIsMenuOpen(false);
+            }}
+            className="w-full bg-white text-slate-700 px-5 py-3 rounded-xl text-base font-medium border border-slate-200"
+          >
+            Ver demonstração
           </button>
         </motion.div>
       )}
@@ -96,9 +109,10 @@ export const Header = ({ onLogin, onSignup }: HeaderProps) => {
 
 interface HeroProps {
   onSignup: () => void;
+  onShowDemo: () => void;
 }
 
-export const Hero = ({ onSignup }: HeroProps) => {
+export const Hero = ({ onSignup, onShowDemo }: HeroProps) => {
   return (
     <section className="pt-32 pb-12 px-4 bg-gradient-to-b from-blue-50/50 to-transparent">
       <div className="max-w-7xl mx-auto text-center">
@@ -122,7 +136,10 @@ export const Hero = ({ onSignup }: HeroProps) => {
               Ativar meu acesso
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="w-full sm:w-auto bg-white text-slate-700 px-8 py-4 rounded-full text-lg font-semibold border border-slate-200 hover:bg-slate-50 transition-all">
+            <button 
+              onClick={onShowDemo}
+              className="w-full sm:w-auto bg-white text-slate-700 px-8 py-4 rounded-full text-lg font-semibold border border-slate-200 hover:bg-slate-50 transition-all"
+            >
               Ver demonstração
             </button>
           </div>
@@ -130,6 +147,36 @@ export const Hero = ({ onSignup }: HeroProps) => {
 
       </div>
     </section>
+  );
+};
+
+export const DemoModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative w-full max-w-4xl aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all backdrop-blur-sm"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        
+        <video 
+          className="w-full h-full"
+          controls
+          autoPlay
+          src="https://assets.mixkit.co/videos/preview/mixkit-financial-charts-on-a-laptop-screen-4328-large.mp4"
+        >
+          Seu navegador não suporta a tag de vídeo.
+        </video>
+      </motion.div>
+    </div>
   );
 };
 
