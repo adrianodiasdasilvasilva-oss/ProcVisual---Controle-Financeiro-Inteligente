@@ -1,0 +1,568 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React from 'react';
+import { Header, Hero, Features, Footer, WhatsAppSection, Pricing, DemoModal } from './components/LandingPage';
+import { Auth } from './components/Auth';
+import { Dashboard } from './components/Dashboard';
+import { auth, db } from './firebase';
+import { onAuthStateChanged, signOut, sendPasswordResetEmail, confirmPasswordReset } from 'firebase/auth';
+import { doc, getDoc, updateDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { CheckCircle2, CreditCard, ArrowRight } from 'lucide-react';
+import { motion } from 'motion/react';
+
+interface ResetPasswordProps {
+  onSuccess: () => void;
+  onBack: () => void;
+}
+
+const ResetPassword = ({ onSuccess, onBack }: ResetPasswordProps) => {
+  const [resetEmail, setResetEmail] = React.useState('');
+  const [newPassword, setNewPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [resetMessage, setResetMessage] = React.useState<{ text: string, type: 'success' | 'error' } | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Check if we are in "confirm" mode (have oobCode in URL)
+  const urlParams = new URLSearchParams(window.location.search);
+  const oobCode = urlParams.get('oobCode');
+  const isConfirmMode = !!oobCode;
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setResetMessage(null);
+    
+    try {
+      if (isConfirmMode) {
+        // STEP 2: Confirm the new password
+        if (newPassword !== confirmPassword) {
+          setResetMessage({ text: "As senhas não coincidem.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+        if (newPassword.length < 6) {
+          setResetMessage({ text: "A senha deve ter pelo menos 6 caracteres.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+
+        await confirmPasswordReset(auth, oobCode, newPassword);
+        setResetMessage({ text: "Senha alterada com sucesso! Você já pode fazer login.", type: 'success' });
+        setTimeout(() => onSuccess(), 3000);
+      } else {
+        // STEP 1: Request the reset email
+        if (!resetEmail) {
+          setResetMessage({ text: "Por favor, informe seu email.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Check if email exists in Firestore
+        const q = query(collection(db, 'users'), where('email', '==', resetEmail));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          setResetMessage({ text: "Email não encontrado em nossa base de dados.", type: 'error' });
+          setIsSubmitting(false);
+          return;
+        }
+
+        const actionCodeSettings = {
+          url: 'https://proc-visual-controle-financeiro-int.vercel.app/',
+          handleCodeInApp: false,
+        };
+        await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
+        setResetMessage({ 
+          text: "Link enviado! Verifique seu email para concluir a alteração. (Não esqueça de checar a caixa de spam).", 
+          type: 'success' 
+        });
+      }
+    } catch (error: any) {
+      console.error('Reset Error:', error);
+      let errorMsg = "Ocorreu um erro ao processar sua solicitação.";
+      if (error.code === 'auth/invalid-action-code') errorMsg = "O link de redefinição expirou ou já foi usado. Solicite um novo link.";
+      if (error.code === 'auth/weak-password') errorMsg = "A nova senha deve ter pelo menos 6 caracteres.";
+      if (error.code === 'auth/user-not-found') errorMsg = "Usuário não encontrado.";
+      
+      setResetMessage({ text: errorMsg, type: 'error' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4 relative overflow-hidden">
+      {/* Background Elements - Organic Waves */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Top Right Wave */}
+        <svg 
+          className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] opacity-40 blur-[2px]" 
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M800 0C600 100 400 50 200 150C0 250 100 450 0 600V800H800V0Z" 
+            fill="url(#paint0_linear_app)"
+          />
+          <defs>
+            <linearGradient id="paint0_linear_app" x1="800" y1="0" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#10B981" stopOpacity="0.6" />
+              <stop offset="1" stopColor="#3B82F6" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Bottom Left Wave */}
+        <svg 
+          className="absolute bottom-[-10%] left-[-5%] w-[70%] h-[70%] opacity-30 blur-[1px]" 
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M0 800C200 700 400 750 600 650C800 550 700 350 800 200V0H0V800Z" 
+            fill="url(#paint1_linear_app)"
+          />
+          <defs>
+            <linearGradient id="paint1_linear_app" x1="0" y1="800" x2="800" y2="0" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#3B82F6" stopOpacity="0.5" />
+              <stop offset="1" stopColor="#10B981" stopOpacity="0.1" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Subtle Halftone Pattern on Waves */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `radial-gradient(#0F172A 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }}
+        />
+      </div>
+
+      <div className="bg-[#0F172A] p-8 rounded-3xl shadow-2xl border border-slate-800 max-w-md w-full text-center relative z-10">
+        <div className="w-16 h-16 bg-emerald-100/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2">
+          {isConfirmMode ? 'Definir Nova Senha' : 'Redefinir Senha'}
+        </h1>
+        <p className="text-slate-400 mb-8">
+          {isConfirmMode 
+            ? 'Agora você pode escolher sua nova senha de acesso.' 
+            : 'Digite seu email abaixo para receber o link de redefinição.'}
+        </p>
+        
+        {resetMessage && (
+          <div className={`p-4 rounded-xl text-sm font-medium mb-4 ${
+            resetMessage.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+          }`}>
+            {resetMessage.text}
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleResetSubmit}>
+          {!isConfirmMode ? (
+            <input 
+              type="email" 
+              placeholder="Seu email cadastrado" 
+              required 
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+            />
+          ) : (
+            <>
+              <input 
+                type="password" 
+                placeholder="Nova senha (mínimo 6 caracteres)" 
+                required 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+              />
+              <input 
+                type="password" 
+                placeholder="Confirmar nova senha" 
+                required 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all"
+              />
+            </>
+          )}
+          
+          <button 
+            disabled={isSubmitting}
+            className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg disabled:opacity-50"
+          >
+            {isSubmitting ? 'Processando...' : (isConfirmMode ? 'Salvar Nova Senha' : 'Enviar Link de Redefinição')}
+          </button>
+        </form>
+        
+        <button 
+          onClick={onBack}
+          className="mt-6 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+        >
+          Voltar para o login
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default function App() {
+  const [view, setView] = React.useState<'landing' | 'auth' | 'dashboard' | 'reset-password'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const hash = window.location.hash;
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      if (path === '/reset-password' || hash === '#reset-password' || hash.includes('reset-password') || urlParams.get('mode') === 'resetPassword') {
+        return 'reset-password';
+      }
+      
+      // If there are any query params (like payment=success or firebase params), 
+      // default to auth/dashboard flow instead of landing
+      if (urlParams.toString().length > 0) {
+        return 'auth';
+      }
+    }
+    return 'landing';
+  });
+
+  const [authMode, setAuthMode] = React.useState<'login' | 'signup'>('login');
+  const [isDemoOpen, setIsDemoOpen] = React.useState(false);
+  const [user, setUser] = React.useState<any>(null);
+  const [userName, setUserName] = React.useState('');
+  const [userEmail, setUserEmail] = React.useState('');
+  const [hasAccess, setHasAccess] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isCheckingAccess, setIsCheckingAccess] = React.useState(true);
+
+  // 1. Auth Listener
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      if (firebaseUser) {
+        setUserName(firebaseUser.displayName || '');
+        setUserEmail(firebaseUser.email || '');
+        setIsCheckingAccess(true); // Ensure checking starts as true when user is found
+        if (view === 'landing' || view === 'auth') {
+          setView('dashboard');
+        }
+      } else {
+        setUserName('');
+        setUserEmail('');
+        setHasAccess(false);
+        setIsCheckingAccess(false);
+        if (view === 'dashboard') setView('landing');
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 2. Access & Payment Check
+  const checkAccess = React.useCallback(async () => {
+    if (!user) return;
+    
+    setIsCheckingAccess(true);
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      const sessionId = urlParams.get('session_id');
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      let access = false;
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // 1. Lifetime access or legacy access (if not explicitly monthly)
+        if (userData.hasLifetimeAccess) {
+          access = true;
+        } else if (userData.subscriptionType === 'monthly') {
+          // 2. Monthly subscription monitoring
+          try {
+            const stripeResponse = await fetch(`/api/subscription-status/${user.email}`);
+            const stripeData = await stripeResponse.json();
+            
+            if (stripeData.active) {
+              access = true;
+              // Update Firestore with latest status
+              await updateDoc(userDocRef, {
+                hasAccess: true,
+                stripeCustomerId: stripeData.customerId,
+                lastChecked: new Date().toISOString()
+              });
+            } else {
+              // If Stripe says inactive, revoke access
+              if (userData.hasAccess) {
+                await updateDoc(userDocRef, { hasAccess: false });
+              }
+              access = false;
+            }
+          } catch (err) {
+            console.error('Stripe check failed, falling back to Firestore:', err);
+            access = userData.hasAccess;
+          }
+        } else {
+          // 3. Legacy users or users who haven't chosen a plan yet
+          access = userData.hasAccess || false;
+        }
+      }
+
+      // If payment just succeeded, update Firestore and re-check
+      if (paymentStatus === 'success' && !access) {
+        await setDoc(userDocRef, { 
+          hasAccess: true,
+          subscriptionType: 'monthly', // New users are monthly by default now
+          updatedAt: new Date().toISOString(),
+          paymentSessionId: sessionId
+        }, { merge: true });
+        access = true;
+        
+        // Clean up URL
+        const cleanSearch = window.location.search.replace(/[?&]payment=success(&session_id=[^&]*)?/, '');
+        const newUrl = window.location.pathname + (cleanSearch === '?' ? '' : cleanSearch);
+        window.history.replaceState(null, '', newUrl);
+      }
+      
+      setHasAccess(access);
+    } catch (error) {
+      console.error('Error checking access:', error);
+    } finally {
+      setIsCheckingAccess(false);
+    }
+  }, [user]);
+
+  React.useEffect(() => {
+    checkAccess();
+  }, [checkAccess]);
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#reset-password') {
+        setView('reset-password');
+      } else if ((hash === '' || hash === '#') && view === 'reset-password') {
+        setView('landing');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [view]);
+
+  const handleLogin = () => {
+    setAuthMode('login');
+    setView('auth');
+  };
+
+  const handleSignup = () => {
+    setAuthMode('signup');
+    setView('auth');
+  };
+
+  const handleBack = () => {
+    setView('landing');
+  };
+
+  const handleLoginSuccess = (name: string, email: string) => {
+    // This is now handled by onAuthStateChanged
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setView('landing');
+    } catch (error) {
+      console.error('Logout Error:', error);
+    }
+  };
+
+  const handleResetSuccess = () => {
+    // Completely clear the URL (hash and search params)
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    } else {
+      window.location.hash = '';
+    }
+    
+    setAuthMode('login');
+    setView('auth');
+    window.scrollTo(0, 0);
+  };
+
+  if (isLoading || (user && isCheckingAccess)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (view === 'dashboard') {
+    if (!hasAccess) {
+      return (
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 relative overflow-hidden">
+          {/* Background Elements - Organic Waves */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            {/* Top Right Wave */}
+            <svg 
+              className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] opacity-40 blur-[2px]" 
+              viewBox="0 0 800 800" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M800 0C600 100 400 50 200 150C0 250 100 450 0 600V800H800V0Z" 
+                fill="url(#paint0_linear_access)"
+              />
+              <defs>
+                <linearGradient id="paint0_linear_access" x1="800" y1="0" x2="0" y2="800" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#10B981" stopOpacity="0.6" />
+                  <stop offset="1" stopColor="#3B82F6" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Bottom Left Wave */}
+            <svg 
+              className="absolute bottom-[-10%] left-[-5%] w-[70%] h-[70%] opacity-30 blur-[1px]" 
+              viewBox="0 0 800 800" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                d="M0 800C200 700 400 750 600 650C800 550 700 350 800 200V0H0V800Z" 
+                fill="url(#paint1_linear_access)"
+              />
+              <defs>
+                <linearGradient id="paint1_linear_access" x1="0" y1="800" x2="800" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#3B82F6" stopOpacity="0.5" />
+                  <stop offset="1" stopColor="#10B981" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Subtle Halftone Pattern on Waves */}
+            <div 
+              className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: `radial-gradient(#0F172A 1px, transparent 1px)`,
+                backgroundSize: '24px 24px'
+              }}
+            />
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#0F172A] p-8 md:p-12 rounded-3xl shadow-2xl border border-slate-800 max-w-lg w-full text-center relative z-10"
+          >
+            <div className="w-20 h-20 bg-emerald-100/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8">
+              <CreditCard className="w-10 h-10" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-4">Ative seu acesso</h1>
+            <p className="text-slate-400 mb-8 text-lg">
+              Para liberar o acesso completo ao dashboard e todas as funcionalidades da ProcVisual, é necessário concluir a assinatura mensal.
+            </p>
+            
+            <div className="bg-slate-800/50 rounded-2xl p-6 mb-8 text-left border border-slate-700">
+              <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                O que você recebe:
+              </h3>
+              <ul className="space-y-3 text-slate-400">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Acesso completo a todas as ferramentas
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Dashboard completo de receitas e despesas
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Insights inteligentes com IA
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                  Suporte prioritário
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <button 
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/create-checkout-session', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ userEmail: user.email, userId: user.uid })
+                    });
+                    const data = await response.json();
+                    if (data.url) {
+                      window.location.href = data.url;
+                    } else {
+                      alert(data.message || 'Erro ao iniciar pagamento');
+                    }
+                  } catch (err) {
+                    console.error('Payment error:', err);
+                    alert('Erro ao conectar com o serviço de pagamento');
+                  }
+                }}
+                className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 flex items-center justify-center gap-2 text-lg"
+              >
+                Pagar agora
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="w-full text-slate-400 font-medium hover:text-white transition-colors"
+              >
+                Sair da conta
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
+    return <Dashboard onLogout={handleLogout} userName={userName} userEmail={userEmail} />;
+  }
+
+  if (view === 'auth') {
+    return <Auth onBack={handleBack} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />;
+  }
+
+  if (view === 'reset-password') {
+    return <ResetPassword onSuccess={handleResetSuccess} onBack={() => setView('auth')} />;
+  }
+
+  return (
+    <div className="min-h-screen">
+      <Header onLogin={handleLogin} onSignup={handleSignup} onShowDemo={() => setIsDemoOpen(true)} />
+      <main>
+        <Hero onSignup={handleSignup} onShowDemo={() => setIsDemoOpen(true)} />
+        <Features />
+        <WhatsAppSection />
+        <Pricing onSignup={handleSignup} />
+      </main>
+      <Footer />
+      
+      <DemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
+    </div>
+  );
+}

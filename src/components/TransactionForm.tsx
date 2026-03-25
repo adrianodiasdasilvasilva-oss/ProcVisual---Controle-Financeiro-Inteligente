@@ -1,0 +1,280 @@
+import React from 'react';
+import { X, DollarSign, Calendar, Tag, FileText, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+
+interface TransactionFormProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: any) => void;
+  customCategories?: { income: string[], expense: string[] };
+  initialData?: any;
+}
+
+export const TransactionForm = ({ isOpen, onClose, onSave, customCategories = { income: [], expense: [] }, initialData }: TransactionFormProps) => {
+  const [type, setType] = React.useState<'income' | 'expense'>('expense');
+  const [amount, setAmount] = React.useState('');
+  const [category, setCategory] = React.useState('');
+  const [customCategory, setCustomCategory] = React.useState('');
+  const [isCustom, setIsCustom] = React.useState(false);
+  const [date, setDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [description, setDescription] = React.useState('');
+  const [installments, setInstallments] = React.useState('1');
+  const [paid, setPaid] = React.useState(false);
+
+  // Reset form when opened or initialData changes
+  React.useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setType(initialData.type || 'expense');
+        setAmount(initialData.amount || '');
+        setCategory(initialData.category || '');
+        setCustomCategory('');
+        setIsCustom(false);
+        setDate(initialData.date || new Date().toISOString().split('T')[0]);
+        setInstallments(initialData.installments || '1');
+        setPaid(initialData.paid || false);
+        setDescription(initialData.description || '');
+      } else {
+        setAmount('');
+        setDescription('');
+        setCategory('');
+        setCustomCategory('');
+        setIsCustom(false);
+        setType('expense');
+        setDate(new Date().toISOString().split('T')[0]);
+        setInstallments('1');
+        setPaid(false);
+      }
+    }
+  }, [isOpen, initialData]);
+
+  const defaultCategories = type === 'income' 
+    ? ['Salário', 'Investimentos', 'Freelance', 'Presente', 'Outros']
+    : ['Alimentação', 'Moradia', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros'];
+
+  const userCategories = customCategories[type] || [];
+  const allCategories = [...defaultCategories, ...userCategories];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalCategory = isCustom ? customCategory : category;
+    if (!finalCategory) {
+      alert('Por favor, selecione ou digite uma categoria.');
+      return;
+    }
+    onSave({ type, amount, category: finalCategory, date, description, installments, paid });
+    onClose();
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-md bg-white rounded-[16px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-[#E5E7EB]"
+          >
+            <div className="p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-white shrink-0">
+              <h2 className="text-sm font-bold text-[#6B7280] uppercase tracking-wider">
+                {initialData ? 'Editar Lançamento' : 'Insira a Receita ou Despesa'}
+              </h2>
+              <button 
+                onClick={onClose}
+                className="p-2 text-[#6B7280] hover:text-[#111827] hover:bg-slate-50 rounded-full transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+              {/* Type Toggle */}
+              <div className="flex p-1 bg-slate-100/80 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => setType('income')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold transition-all ${
+                    type === 'income' 
+                      ? 'bg-white text-emerald-600 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  <ArrowUpCircle className={`w-4 h-4 ${type === 'income' ? 'text-emerald-600' : 'text-slate-400'}`} />
+                  Receita
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setType('expense')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold transition-all ${
+                    type === 'expense' 
+                      ? 'bg-white text-red-600 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  <ArrowDownCircle className={`w-4 h-4 ${type === 'expense' ? 'text-red-600' : 'text-slate-400'}`} />
+                  Despesa
+                </button>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Valor</label>
+                <div className="relative">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-[#6B7280] text-lg">R$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    placeholder="0,00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-3xl font-black text-[#111827] placeholder:text-slate-200"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {/* Category */}
+                <div>
+                  <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Categoria</label>
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <select
+                        required
+                        value={isCustom ? 'CUSTOM' : category}
+                        onChange={(e) => {
+                          if (e.target.value === 'CUSTOM') {
+                            setIsCustom(true);
+                            setCategory('');
+                          } else {
+                            setIsCustom(false);
+                            setCategory(e.target.value);
+                          }
+                        }}
+                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all appearance-none text-[#111827] font-bold text-sm"
+                      >
+                        <option value="">Selecionar...</option>
+                        {allCategories.map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                        <option value="CUSTOM" className="text-emerald-600 font-bold">+ Personalizar...</option>
+                      </select>
+                    </div>
+
+                    {isCustom && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="relative"
+                      >
+                        <input
+                          type="text"
+                          required
+                          placeholder="Digite o nome da categoria..."
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          className="w-full px-5 py-3 bg-emerald-50/50 border border-emerald-100 rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm placeholder:text-emerald-300"
+                          autoFocus
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Date & Installments */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Data</label>
+                    <div className="relative">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                      <input
+                        type="date"
+                        required
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="w-full pl-11 pr-5 py-3 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Qtd. Parcelas</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="1"
+                        required
+                        value={installments}
+                        onChange={(e) => setInstallments(e.target.value)}
+                        className="w-full px-5 py-3 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5 ml-1">Descrição</label>
+                <div className="relative">
+                  <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                  <input
+                    type="text"
+                    placeholder="Ex: Aluguel, Supermercado..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full pl-11 pr-5 py-3.5 bg-slate-50 border border-[#E5E7EB] rounded-[16px] focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-[#111827] font-bold text-sm placeholder:text-slate-300"
+                  />
+                </div>
+              </div>
+
+              {/* Paid Status Toggle */}
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-[16px] border border-[#E5E7EB]">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${paid ? 'bg-emerald-100 text-[#22C55E]' : 'bg-slate-200 text-[#6B7280]'}`}>
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#111827]">{type === 'income' ? 'Recebido?' : 'Pago?'}</p>
+                    <p className="text-[10px] text-[#6B7280] uppercase font-bold tracking-wider">Status do Lançamento</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPaid(!paid)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    paid ? 'bg-[#22C55E]' : 'bg-slate-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      paid ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-[16px] font-bold text-lg hover:bg-[#15803D] transition-all shadow-xl shadow-emerald-600/20 hover:shadow-emerald-600/40 mt-2"
+              >
+                SALVAR
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};

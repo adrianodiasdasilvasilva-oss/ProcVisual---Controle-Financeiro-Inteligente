@@ -1,0 +1,23 @@
+{
+  "name": "ProcVisual - Controle Financeiro",
+  "short_name": "ProcVisual",
+  "description": "Sua ferramenta inteligente para controle financeiro pessoal e empresarial.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/mPPZOMY.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/mPPZOMY.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
